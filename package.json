@@ -1,0 +1,15 @@
+{
+  "name": "bibliofile",
+  "version": "0.1.0",
+  "description": "Visualize an academic conversation to determine where your voice should go.",
+  "main": "server.js",
+  "scripts": {
+    "test": "mocha --exit",
+    "start": "node server.js"
+  },
+  "author": "Ryan Dabler",
+  "license": "LicenseRef-LICENSE",
+  "dependencies": {
+    "express": "^4.16.2"
+  }
+}
