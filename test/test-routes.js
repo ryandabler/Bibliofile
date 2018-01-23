@@ -112,133 +112,146 @@ describe("Creator API", function() {
     });
   });
 
-//   describe("POST endpoint", function() {
-//     it("Should create a blog post", function() {
-//       const newBlog = generateBlogData();
-//       newBlog.author = `${newBlog.author.firstName} ${newBlog.author.lastName}`;
+  describe("POST endpoint", function() {
+    it("Should create a blog post", function() {
+      const newCreator = generateCreatorData();
       
-//       return chai.request(app)
-//                 .post("/blog-posts")
-//                 .send(newBlog)
-//                 .then(function(res) {
-//                   expect(res).to.have.status(201);
-//                   expect(res).to.be.json;
-//                   expect(res.body).to.be.a("object");
-//                   expect(res.body).to.include.keys("id", "title", "content", "author", "created");
-//                   expect(res.body.id).to.not.equal(null);
-//                   expect(res.body).to.deep.equal(Object.assign(newBlog, {id: res.body.id}));
+      return chai.request(app)
+                 .post("/api/creators")
+                 .send(newCreator)
+                 .then(function(res) {
+                   expect(res).to.have.status(201);
+                   expect(res).to.be.json;
+                   expect(res.body).to.be.a("object");
+                   expect(res.body).to.include.keys("id", "name", "links", "awards");
+                   expect(res.body.id).to.not.equal(null);
                    
-//                   return BlogPost.findById(res.body.id);
-//                 })
-//                 .then(function(blogPost) {
-//                   const blogAuthor = `${blogPost.author.firstName} ${blogPost.author.lastName}`;
+                   // Process newCreator to make it match the response from the server
+                   newCreator.name = newCreator.fullName;
+                   delete newCreator.fullName;
+                   delete newCreator.created;
                    
-//                   expect(blogAuthor).to.equal(newBlog.author);
-//                   expect(blogPost.title).to.equal(newBlog.title);
-//                   expect(blogPost.content).to.equal(newBlog.content);
-//                   expect(blogPost.created).to.equal(newBlog.created);
-//                   expect(blogPost.id).to.equal(newBlog.id);
-//                 });
-//     });
+                   expect(res.body).to.deep.equal(Object.assign(newCreator, {id: res.body.id}));
+                    
+                   return Creator.findById(res.body.id);
+                 })
+                 .then(function(creator) {
+                   let serialCreator = creator.serialize();
+                   
+                   expect(serialCreator.name).to.equal(newCreator.name);
+                 });
+    });
   
-//     it("Throw error on blog post creation due to missing field on POST method", function() {
-//       const badBlog = { title: "Test post",
-//                         content: "Test content"
-//                       };
-//       return chai.request(app)
-//                 .post("/blog-posts")
-//                 .send(badBlog)
-//                 .catch(function(err) {
-//                   expect(err.response).to.have.status(400);
-//                   expect(err.response.text).to.be.a("string");
-//                   expect(err.response.text).to.match(/The request is missing the field\(s\) .+/);
-//                 });
-//     });
-//   });
+    it("Should throw an error because field is missing", function() {
+      const badCreator = { links: [
+                                    {
+                                      domain: "Wikipedia",
+                                      url:"https://en.wikipedia.org/wiki/Plato"
+                                    }
+                                  ]
+                          };
+      return chai.request(app)
+                .post("/api/creators")
+                .send(badCreator)
+                .catch(function(err) {
+                  expect(err.response).to.have.status(400);
+                  expect(err.response.text).to.be.a("string");
+                  expect(err.response.text).to.match(/The request is missing the field\(s\) .+/);
+                });
+    });
+  });
   
-//   describe("DELETE endpoint", function() {
-//     it("Should delete a restaurant by id", function() {
-//       let deleteId;
-//       return chai.request(app)
-//                 .get("/blog-posts")
-//                 .then(function(res) {
-//                   deleteId = res.body.blogPosts[0].id;
-//                   return chai.request(app)
-//                               .delete(`/blog-posts/${deleteId}`);
-//                 })
-//                 .then(function(res) {
-//                   expect(res).to.have.status(204);
-//                   return BlogPost.findById(deleteId);
-//                 })
-//                 .then(function(blogPost) {
-//                   expect(blogPost).to.be.null;
-//                 });
-//     });
+  describe("DELETE endpoint", function() {
+    it("Should delete a creator", function() {
+      let deleteId;
+      return chai.request(app)
+                .get("/api/creators")
+                .then(function(res) {
+                  deleteId = res.body.creators[0].id;
+                  return chai.request(app)
+                              .delete(`/api/creators/${deleteId}`);
+                })
+                .then(function(res) {
+                  expect(res).to.have.status(204);
+                  return Creator.findById(deleteId);
+                })
+                .then(function(creator) {
+                  expect(creator).to.be.null;
+                });
+    });
     
-//     it("Throw error due to incorrect id", function() {
-//       return chai.request(app)
-//                 .get("/blog-posts")
-//                 .then(function(res) {
-//                   const deleteId = res.body.blogPosts[0].id;
-//                   return chai.request(app)
-//                               .delete(`/blog-posts/${deleteId.slice(0, deleteId.length - 1)}`);
-//                 })
-//                 .catch(function(err) {
-//                   expect(err.response).to.have.status(500);
-//                   expect(err.response.text).to.be.a("string");
-//                   expect(err.response.text).to.match(/Internal server error/);
-//                 });
-//     });
-//   });
+    it("Should throw error due to incorrect id", function() {
+      return chai.request(app)
+                .get("/api/creators")
+                .then(function(res) {
+                  const deleteId = res.body.creators[0].id;
+                  return chai.request(app)
+                              .delete(`/api/creators/${deleteId.slice(0, deleteId.length - 1)}`);
+                })
+                .catch(function(err) {
+                  expect(err.response).to.have.status(500);
+                  expect(err.response.text).to.be.a("string");
+                  expect(err.response.text).to.match(/Internal server error/);
+                });
+    });
+  });
   
-//   describe("PUT endpoint", function() {
-//     it("Update blog post", function() {
-//       let updatedPost = { title:   "Test update",
-//                           author:  "Test author"
-//                         },
-//           originalPost;
+  describe("PUT endpoint", function() {
+    it("Update creator", function() {
+      let updatedCreator = {
+                              links: [
+                                {
+                                  domain: "Stanford Encyclopedia of Philosophy",
+                                  url: "https://plato.stanford.edu/"
+                                }
+                              ]
+                           },
+          originalCreator;
       
-//       return chai.request(app)
-//                 .get("/blog-posts")
-//                 .then(function(res) {
-//                   originalPost = res.body.blogPosts[0];
-//                   updatedPost.id = originalPost.id;
+      return chai.request(app)
+                .get("/api/creators")
+                .then(function(res) {
+                  originalCreator = res.body.creators[0];
+                  updatedCreator.id = originalCreator.id;
                    
-//                   return chai.request(app)
-//                               .put(`/blog-posts/${originalPost.id}`)
-//                               .send(updatedPost);
-//                 })
-//                 .then(function(res) {
-//                   expect(res).to.have.status(200);
+                  return chai.request(app)
+                             .put(`/api/creators/${originalCreator.id}`)
+                             .send(updatedCreator);
+                })
+                .then(function(res) {
+                  expect(res).to.have.status(200);
                    
-//                   return BlogPost.findById(updatedPost.id);
-//                 })
-//                 .then(function(blogPost) {
-//                   const blogAuthor = `${blogPost.author.firstName} ${blogPost.author.lastName}`.trim();
-//                   expect(blogAuthor).to.equal(updatedPost.author);
-//                   expect(blogPost.title).to.equal(updatedPost.title);
-//                   expect(blogPost.content).to.equal(originalPost.content);
-//                 });
-//     });
-//   });
+                  return Creator.findById(updatedCreator.id);
+                })
+                .then(function(creator) {
+                  const serialCreator = creator.serialize();
+                  expect(serialCreator.links[0].url).to.equal("https://plato.stanford.edu/");
+                  expect(serialCreator.links[0].domain).to.equal("Stanford Encyclopedia of Philosophy");
+                });
+    });
   
-//   it("Throw error on blog update due to bad id", function() {
-//     return chai.request(app)
-//               .get("/blog-posts")
-//               .then(function(res) {
-//                 const updateId = res.body.blogPosts[0].id;
-//                 const updatedPost = { id:       updateId.slice(0, updateId.length - 1),
-//                                       title:   "Test update",
-//                                       content: "Test update test update",
-//                                     };
-//                 return chai.request(app)
-//                             .put(`/blog-posts/${updateId}`)
-//                             .send(updatedPost);
-//               })
-//               .catch(function(err) {
-//                 expect(err.response).to.have.status(400);
-//                 expect(err.response.text).to.be.a("string");
-//                 expect(err.response.text).to.match(/Please ensure the correctness of the ids/);
-//               });
-//   });
+    it("Throw error on blog update due to bad id", function() {
+      return chai.request(app)
+                 .get("/api/creators")
+                 .then(function(res) {
+                   const updateId = res.body.creators[0].id;
+                   const updatedCreator = { id:       updateId.slice(0, updateId.length - 1),
+                                            links: [
+                                              {
+                                                domain: "Stanford Encyclopedia of Philosophy",
+                                                url: "https://plato.stanford.edu/"
+                                              }
+                                            ]
+                                          };
+                   return chai.request(app)
+                              .put(`/api/creators/${updateId}`)
+                              .send(updatedCreator);
+                 })
+                 .catch(function(err) {
+                   expect(err.response).to.have.status(400);
+                   expect(err.response.text).to.be.a("string");
+                   expect(err.response.text).to.match(/Please ensure the correctness of the ids/);
+                 });
+    });
+  });
 });

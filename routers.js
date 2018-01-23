@@ -47,66 +47,61 @@ routerCreator.get("/:id", (req, res) => {
          });
 });
 
-// routerCreator.post("/", jsonParser, (req, res) => {
-//   // Check that all required fields have been added
-//   const requiredFields = ["title", "content", "author"];
-//   if (!requestHasAllRequiredFields(req.body, requiredFields)) {
-//     const message = `The request is missing the field(s) "${getMissingFields(req.body, requiredFields).join(", ")}".`;
-//     console.error(message);
-//     return res.status(400).send(message);
-//   }
+routerCreator.post("/", jsonParser, (req, res) => {
+  // Check that all required fields have been added
+  const requiredFields = ["fullName"];
+  if (!requestHasAllRequiredFields(req.body, requiredFields)) {
+    const message = `The request is missing the field(s) "${getMissingFields(req.body, requiredFields).join(", ")}".`;
+    console.error(message);
+    return res.status(400).send(message);
+  }
   
-//   // Create new blog post, but author needs to be split into first and last name
-//   const {title, content, created} = req.body;
-//   let {author} = req.body;
-//   author = splitAuthorName(author);
-//   BlogPost.create({title, content, author, created})
-//           .then(blogPost => res.status(201).json(blogPost.serialize()))
-//           .catch(err => {
-//             console.error(err);
-//             res.status(500).json( { message: "Internal server error" } );
-//           });
-// });
+  // Create new creator
+  const {fullName, links, awards} = req.body;
+  
+  Creator.create({fullName, links, awards})
+         .then(creator => res.status(201).json(creator.serialize()))
+         .catch(err => {
+           console.error(err);
+           res.status(500).json( { message: "Internal server error" } );
+         });
+});
 
-// routerCreator.delete("/:id", (req, res) => {
-//   const {id} = req.params;
+routerCreator.delete("/:id", (req, res) => {
+  const {id} = req.params;
   
-//   // Check that ID exists in data
-//   BlogPost.findByIdAndRemove(id)
-//           .then(blogPost => res.status(204).end())
-//           .catch(err => {
-//             console.error(err);
-//             res.status(500).json( { message: "Internal server error" } );
-//           });
-// });
+  // Check that ID exists in data
+  Creator.findByIdAndRemove(id)
+         .then(creator => res.status(204).end())
+         .catch(err => {
+           console.error(err);
+           res.status(500).json( { message: "Internal server error" } );
+         });
+});
 
-// routerCreator.put("/:id", jsonParser, (req, res) => {
-//   const {id} = req.params;
+routerCreator.put("/:id", jsonParser, (req, res) => {
+  const {id} = req.params;
   
-//   // Check that ID is correct
-//   if (req.params.id && req.body.id && id === req.body.id) {
-//     // Update blog post
-//     const updatedBlog = {};
-//     const updateableFields = ["title", "content", "author"];
-//     updateableFields.forEach(field => {
-//       if (field in req.body) {
-//         if (field === "author") {
-//           req.body.author = splitAuthorName(req.body.author);
-//         }
-        
-//         updatedBlog[field] = req.body[field];
-//       }
-//     });
+  // Check that ID is correct
+  if (req.params.id && req.body.id && id === req.body.id) {
+    // Update blog post
+    const updatedCreator = {};
+    const updateableFields = ["fullName", "awards", "links"];
+    updateableFields.forEach(field => {
+      if (field in req.body) {
+        updatedCreator[field] = req.body[field];
+      }
+    });
     
-//     BlogPost.findByIdAndUpdate(id, updatedBlog)
-//             .then(updatedBlog => res.status(200).end())
-//             .catch(err => {
-//               console.error(err);
-//               res.status(500).json( { message: "Internal server error" } );
-//             });
-//   } else {
-//     res.status(400).json( { message: "Please ensure the correctness of the ids" } );
-//   }
-// });
+    Creator.findByIdAndUpdate(id, updatedCreator)
+           .then(updatedCreator => res.status(200).end())
+           .catch(err => {
+             console.error(err);
+             res.status(500).json( { message: "Internal server error" } );
+           });
+  } else {
+    res.status(400).json( { message: "Please ensure the correctness of the ids" } );
+  }
+});
 
 module.exports = { routerCreator, routerWork };
