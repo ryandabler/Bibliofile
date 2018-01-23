@@ -34,7 +34,49 @@ const TEST_DATA = {
                     }
                   ]
                 }
-              ]
+              ],
+  "works": [
+             {
+               title: {
+                 lang: "en",
+                 name: "Laws and Explanation in History"
+               },
+               contributors: [
+                 {
+                   role: "author",
+                   name: "William Herbert Dray"
+                 }
+               ],
+               type: "book",
+               publication_info: {
+                 year: 1957
+               },
+               identifiers: [],
+               links: [],
+               references: [],
+               contents:[]
+             },
+             {
+               title: {
+                 lang: "en",
+                 name: "Philosophy of History"
+               },
+               contributors: [
+                 {
+                   role: "author",
+                   name: "William Herbert Dray"
+                 }
+               ],
+               type: "book",
+               publication_info: {
+                 year: 1964
+               },
+               identifiers: [],
+               links: [],
+               references: [],
+               contents:[]
+             }
+    ]
 };
 
 function getListOfAuthors(callback) {
@@ -54,6 +96,24 @@ function getAndDisplayListOfAuthors() {
   getListOfAuthors(displayListOfAuthors);
 }
 
+function getListOfWorks(callback) {
+  setTimeout(function() { callback(TEST_DATA) }, 2000);
+}
+
+function displayListOfWorks(data) {
+  data.works.forEach(work => {
+    const $a = $("<li>");
+    $a.text(`${work.title.name} ${work.publication_info.year}`);
+    $a.attr("href", "#");
+    $("#list-of-works").append($a);
+  });
+}
+
+function getAndDisplayListOfWorks() {
+  getListOfWorks(displayListOfWorks);
+}
+
 $(function() {
   getAndDisplayListOfAuthors();
+  getAndDisplayListOfWorks();
 });
