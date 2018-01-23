@@ -10,11 +10,14 @@
   "author": "Ryan Dabler",
   "license": "LicenseRef-LICENSE",
   "dependencies": {
-    "express": "^4.16.2"
+    "express": "^4.16.2",
+    "mongoose": "^5.0.1",
+    "morgan": "^1.9.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",
     "chai-http": "^3.0.0",
+    "faker": "^4.1.0",
     "mocha": "^5.0.0"
   }
 }
