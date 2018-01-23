@@ -3,6 +3,19 @@
 const mongoose = require("mongoose");
 
 ////////////////////////////
+// Set up sub-schemas
+////////////////////////////
+const linksSchema = mongoose.Schema({
+  domain: { type: String, required: true },
+  url:    { type: String, required: true }
+}, { _id: false });
+
+const awardsSchema = mongoose.Schema({
+  award_name: { type: String, required: true },
+  award_year: { type: String, required: true }
+}, { _id: false });
+
+////////////////////////////
 // Set up creator data model
 ////////////////////////////
 const creatorSchema = mongoose.Schema({
@@ -11,18 +24,8 @@ const creatorSchema = mongoose.Schema({
             middle: String,
             last:  { type: String, required: true}
           },
-  links:  [
-            {
-              domain: { type: String, required: true },
-              url:    { type: String, required: true }
-            }
-          ],
-  awards: [
-            {
-              award_name: { type: String, required: true },
-              award_year: { type: String, required: true }
-            }
-          ],
+  links:  [ linksSchema ],
+  awards: [ awardsSchema ],
   created: { type: String, default: Date.now }
 });
 
@@ -56,10 +59,10 @@ creatorSchema.virtual("fullName")
   
 creatorSchema.methods.serialize = function() {
   return {
-    id:      this._id,
-    name:    this.fullName,
-    links:   this.links,
-    awards:  this.awards,
+    id:     this._id,
+    name:   this.fullName,
+    links:  this.links,
+    awards: this.awards,
   };
 };
 
