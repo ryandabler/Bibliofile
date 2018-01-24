@@ -15,19 +15,57 @@ const awardsSchema = mongoose.Schema({
   award_year: { type: String, required: true }
 }, { _id: false });
 
+const titleSchema = mongoose.Schema({
+  lang: { type: String, required: true },
+  name: { type: String, required: true }
+}, { _id: false });
+
+const contributorSchema = mongoose.Schema({
+  role: { type: String, required: true },
+  who:  { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Creator" }
+}, { _id: false });
+
+const publicationSchema = mongoose.Schema({
+  year: String,
+  volume: Number,
+  issue: Number,
+  published_in: { type: mongoose.Schema.Types.ObjectId, ref: "Work" },
+  published_by: String
+}, { _id: false });
+
+const referenceSchema = mongoose.Schema({
+  kind: { type: String, required: true },
+  work: { type: mongoose.Schema.Types.ObjectId, required: true, ref: "Work" }
+}, { _id: false });
+
+const contentSchema = mongoose.Schema({
+  kind: String,
+  number: String,
+  name: String,
+  author: String,
+  work: { type: mongoose.Schema.Types.ObjectId, ref: "Work" }
+});
+
+contentSchema.add( { contents: { type: [ contentSchema ], default: void 0 } } );
+
+const identifierSchema = mongoose.Schema({
+  kind: { type: String, required: true },
+  identifier: { type: String, required: true }
+});
+
 ////////////////////////////
 // Set up creator data model
 ////////////////////////////
 const creatorSchema = mongoose.Schema({
-  name:   {
-            first:  String,
-            middle: String,
-            last:  { type: String, required: true}
-          },
-  links:  [ linksSchema ],
+  name: {
+           first:  String,
+           middle: String,
+           last:  { type: String, required: true}
+        },
+  links: [ linksSchema ],
   awards: [ awardsSchema ],
   created: { type: String, default: Date.now }
-});
+}, {toJSON: { virtuals: true}, toObject: {virtuals: true}, _id: false});
 
 creatorSchema.virtual("fullName")
   .get(function() {
@@ -71,9 +109,66 @@ const Creator = mongoose.model("Creator", creatorSchema);
 ////////////////////////////
 // Set up work data model
 ////////////////////////////
+const workSchema = mongoose.Schema({
+  title:            { type: [ titleSchema ], required: true },
+  contributors:     { type: [ contributorSchema ], required: true },
+  kind:             { type: String, required: true},
+  publication_info: publicationSchema,
+  identifiers:      [ identifierSchema ],
+  links:            [ linksSchema ],
+  references:       [ referenceSchema ],
+  contents:         [ contentSchema ]
+});
 
+workSchema.methods.serialize = function() {
+  return {
+    id:               this._id,
+    title:            this.title,
+    contributors:     this.contributors,
+    kind:             this.kind,
+    publication_info: this.publication_info,
+    identifiers:      this.identifiers,
+    links:            this.links,
+    references:       this.references,
+    contents:         this.contents
+  };
+};
+
+workSchema.methods.populatedSerialize = function() {
+  const work = this.toObject();
+  
+  // Revised populated contributors to only show full name
+  work.contributors.forEach(contributor => {
+    contributor.who = contributor.who.fullName;
+  });
+  
+  // Revise published_in (if it exists) in publication info with English title
+  if (work.publication_info.published_in) {
+    let title = work.publication_info.published_in.title.find(elem => elem.lang === "en");
+    
+    work.publication_info.published_in = title.name;
+  }
+  
+  // Revise contents (if it exists) if any were populated with info from a linked document
+  work.contents.forEach(content => {
+    if (content.work) {
+      let title = content.work.title.find(elem => elem.lang === "en");
+      content.name = title.name;
+      
+      let author = content.work.contributors.find(elem => elem.role === "author");
+      content.author = author.who.fullName;
+      
+      delete content.work;
+    }
+  });
+  
+  // Return
+  return work;
+};
+
+const Work = mongoose.model("Work", workSchema);
 
 ////////////////////////////
 // Export models
 ////////////////////////////
-module.exports = { Creator };
+module.exports = { Creator, Work };
