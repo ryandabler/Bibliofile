@@ -1,15 +1,21 @@
+////////////////////////////
+// Initialize
+////////////////////////////
 const chai     = require("chai");
 const chaiHTTP = require("chai-http");
 const mongoose = require("mongoose");
 const faker    = require("faker");
-
+mongoose.Promise = global.Promise;
 const { app, runServer, closeServer } = require("../server");
-const { Creator } = require("../models");
+const { Creator, Work } = require("../models");
 const { TEST_DATABASE_URL } = require("../config");
 
 const expect = chai.expect;
 chai.use(chaiHTTP);
 
+////////////////////////////
+// Utility functions
+////////////////////////////
 function generateCreatorData() {
   return {
     fullName: `${faker.name.firstName()} ${faker.name.lastName()}`,
@@ -44,11 +50,50 @@ function seedCreatorData() {
   return Creator.insertMany(seedData);
 }
 
+async function generateWorkData() {
+  const creator = await Creator.create(generateCreatorData());
+  const work = {
+    title: { lang: "en",
+             name: faker.lorem.words()
+           },
+    contributors: { role: "author",
+                    who:  creator.id
+                  },
+    kind: "book",
+    publication_info: { year: faker.date.past(25).getFullYear().toString() },
+    identifiers: [],
+    links: [ { domain: faker.lorem.word(), url: faker.internet.url() } ],
+    references: [],
+    contents: {
+                kind: "chapter",
+                name: faker.lorem.words()
+    }
+  };
+  
+  return work;
+}
+
+async function seedWorkData(done) {
+  console.info("seeding work data");
+  const seedData = [];
+  
+  for (let n = 0; n < 10; n++) {
+    seedData.push(generateWorkData());
+  }
+  
+  return Promise.all(seedData);
+}
+
 function tearDownDb() {
   console.warn('Deleting database');
   return mongoose.connection.dropDatabase();
 }
 
+////////////////////////////
+// Test suite
+////////////////////////////
+
+// Creator
 describe("Creator API", function() {
   before(function() {
     return runServer(TEST_DATABASE_URL);
@@ -251,6 +296,78 @@ describe("Creator API", function() {
                    expect(err.response).to.have.status(400);
                    expect(err.response.text).to.be.a("string");
                    expect(err.response.text).to.match(/Please ensure the correctness of the ids/);
+                 });
+    });
+  });
+});
+
+// Work
+describe("Work API", function() {
+  before(function() {
+    return runServer(TEST_DATABASE_URL);
+  });
+  
+  beforeEach(function() {
+    this.timeout(10000);
+    return seedWorkData().then(data => Work.insertMany(data))
+                         .then(data => console.log(data));
+  });
+  
+  after(function() {
+    return closeServer();
+  });
+  
+  afterEach(function() {
+    return tearDownDb();
+  });
+  
+  describe("GET endpoint", function() {
+    it("Should return all existing works", function() {
+      let res;
+      return chai.request(app)
+                .get("/api/works")
+                .then(function(_res) {
+                  res = _res;
+                  expect(_res).to.have.status(200);
+                  expect(_res).to.be.json;
+                  expect(_res.body).to.be.a("object");
+                  expect(_res.body.works).to.be.a("array");
+                    
+                  // Make sure seeding worked
+                  expect(_res.body.works.length).to.be.at.least(1);
+                    
+                  const expectedKeys = ["id", "title", "contributors", "kind", "publication_info", "identifiers", "links", "references", "contents"];
+                  res.body.works.forEach(function(work) {
+                    expect(work).to.be.a("object");
+                    expect(work).to.include.keys(expectedKeys);
+                  });
+                    
+                  return Work.count();
+                })
+                .then(function(count) {
+                  expect(res.body.works.length, count).to.be.equal;
+                });
+    });
+    
+    it("Should return one work", function() {
+      let work;
+      return chai.request(app)
+                 .get("/api/works")
+                 .then(function(res) {
+                   work = res.body.works[0];
+                     
+                   return chai.request(app)
+                              .get(`/api/works/${work.id}`);
+                 })
+                 .then(function(res) {
+                   expect(res).to.have.status(200);
+                   expect(res).to.be.json;
+                   expect(res.body.works).to.be.a("object");
+                   
+                   const expectedKeys = ["id", "title", "contributors", "kind", "publication_info", "identifiers", "links", "references", "contents"];
+                   expect(res.body.works).to.include.keys(expectedKeys);
+                   
+                   expect(res.body.works).to.deep.include(work);
                  });
     });
   });
