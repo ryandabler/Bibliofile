@@ -196,13 +196,13 @@ describe("Creator API", function() {
                                   ]
                           };
       return chai.request(app)
-                .post("/api/creators")
-                .send(badCreator)
-                .catch(function(err) {
-                  expect(err.response).to.have.status(400);
-                  expect(err.response.text).to.be.a("string");
-                  expect(err.response.text).to.match(/The request is missing the field\(s\) .+/);
-                });
+                 .post("/api/creators")
+                 .send(badCreator)
+                 .catch(function(err) {
+                   expect(err.response).to.have.status(400);
+                   expect(err.response.text).to.be.a("string");
+                   expect(err.response.text).to.match(/The request is missing the field\(s\) .+/);
+                 });
     });
   });
   
@@ -210,34 +210,34 @@ describe("Creator API", function() {
     it("Should delete a creator", function() {
       let deleteId;
       return chai.request(app)
-                .get("/api/creators")
-                .then(function(res) {
-                  deleteId = res.body.creators[0].id;
-                  return chai.request(app)
+                 .get("/api/creators")
+                 .then(function(res) {
+                   deleteId = res.body.creators[0].id;
+                   return chai.request(app)
                               .delete(`/api/creators/${deleteId}`);
-                })
-                .then(function(res) {
-                  expect(res).to.have.status(204);
-                  return Creator.findById(deleteId);
-                })
-                .then(function(creator) {
-                  expect(creator).to.be.null;
-                });
+                 })
+                 .then(function(res) {
+                   expect(res).to.have.status(204);
+                   return Creator.findById(deleteId);
+                 })
+                 .then(function(creator) {
+                   expect(creator).to.be.null;
+                 });
     });
     
     it("Should throw error due to incorrect id", function() {
       return chai.request(app)
-                .get("/api/creators")
-                .then(function(res) {
-                  const deleteId = res.body.creators[0].id;
-                  return chai.request(app)
+                 .get("/api/creators")
+                 .then(function(res) {
+                   const deleteId = res.body.creators[0].id;
+                   return chai.request(app)
                               .delete(`/api/creators/${deleteId.slice(0, deleteId.length - 1)}`);
-                })
-                .catch(function(err) {
-                  expect(err.response).to.have.status(500);
-                  expect(err.response.text).to.be.a("string");
-                  expect(err.response.text).to.match(/Internal server error/);
-                });
+                 })
+                 .catch(function(err) {
+                   expect(err.response).to.have.status(500);
+                   expect(err.response.text).to.be.a("string");
+                   expect(err.response.text).to.match(/Internal server error/);
+                 });
     });
   });
   
@@ -254,25 +254,25 @@ describe("Creator API", function() {
           originalCreator;
       
       return chai.request(app)
-                .get("/api/creators")
-                .then(function(res) {
-                  originalCreator = res.body.creators[0];
-                  updatedCreator.id = originalCreator.id;
-                   
-                  return chai.request(app)
-                             .put(`/api/creators/${originalCreator.id}`)
-                             .send(updatedCreator);
-                })
-                .then(function(res) {
-                  expect(res).to.have.status(200);
-                   
-                  return Creator.findById(updatedCreator.id);
-                })
-                .then(function(creator) {
-                  const serialCreator = creator.serialize();
-                  expect(serialCreator.links[0].url).to.equal("https://plato.stanford.edu/");
-                  expect(serialCreator.links[0].domain).to.equal("Stanford Encyclopedia of Philosophy");
-                });
+                 .get("/api/creators")
+                 .then(function(res) {
+                   originalCreator = res.body.creators[0];
+                   updatedCreator.id = originalCreator.id;
+                    
+                   return chai.request(app)
+                              .put(`/api/creators/${originalCreator.id}`)
+                              .send(updatedCreator);
+                 })
+                 .then(function(res) {
+                   expect(res).to.have.status(200);
+                    
+                   return Creator.findById(updatedCreator.id);
+                 })
+                 .then(function(creator) {
+                   const serialCreator = creator.serialize();
+                   expect(serialCreator.links[0].url).to.equal("https://plato.stanford.edu/");
+                   expect(serialCreator.links[0].domain).to.equal("Stanford Encyclopedia of Philosophy");
+                 });
     });
   
     it("Throw error on blog update due to bad id", function() {
@@ -309,8 +309,7 @@ describe("Work API", function() {
   
   beforeEach(function() {
     this.timeout(10000);
-    return seedWorkData().then(data => Work.insertMany(data))
-                         .then(data => console.log(data));
+    return seedWorkData().then(data => Work.insertMany(data));
   });
   
   after(function() {
@@ -325,28 +324,28 @@ describe("Work API", function() {
     it("Should return all existing works", function() {
       let res;
       return chai.request(app)
-                .get("/api/works")
-                .then(function(_res) {
-                  res = _res;
-                  expect(_res).to.have.status(200);
-                  expect(_res).to.be.json;
-                  expect(_res.body).to.be.a("object");
-                  expect(_res.body.works).to.be.a("array");
+                 .get("/api/works")
+                 .then(function(_res) {
+                   res = _res;
+                   expect(_res).to.have.status(200);
+                   expect(_res).to.be.json;
+                   expect(_res.body).to.be.a("object");
+                   expect(_res.body.works).to.be.a("array");
+                     
+                   // Make sure seeding worked
+                   expect(_res.body.works.length).to.be.at.least(1);
+                     
+                   const expectedKeys = ["id", "title", "contributors", "kind", "publication_info", "identifiers", "links", "references", "contents"];
+                   res.body.works.forEach(function(work) {
+                     expect(work).to.be.a("object");
+                     expect(work).to.include.keys(expectedKeys);
+                   });
                     
-                  // Make sure seeding worked
-                  expect(_res.body.works.length).to.be.at.least(1);
-                    
-                  const expectedKeys = ["id", "title", "contributors", "kind", "publication_info", "identifiers", "links", "references", "contents"];
-                  res.body.works.forEach(function(work) {
-                    expect(work).to.be.a("object");
-                    expect(work).to.include.keys(expectedKeys);
-                  });
-                    
-                  return Work.count();
-                })
-                .then(function(count) {
-                  expect(res.body.works.length, count).to.be.equal;
-                });
+                   return Work.count();
+                 })
+                 .then(function(count) {
+                   expect(res.body.works.length, count).to.be.equal;
+                 });
     });
     
     it("Should return one work", function() {
@@ -368,6 +367,120 @@ describe("Work API", function() {
                    expect(res.body.works).to.include.keys(expectedKeys);
                    
                    expect(res.body.works).to.deep.include(work);
+                 });
+    });
+  });
+  
+  describe("POST endpoint", function() {
+    it("Should create a new work", function() {
+      return chai.request(app)
+                 .get("/api/creators")
+                 .then(function(res) {
+                  //console.log(creators);
+                   work = {
+                             title: [{
+                               lang: "en",
+                               name: "This is a test work"
+                             }],
+                             contributors: [{
+                               role: "author",
+                               who: res.body.creators[0].id
+                             }],
+                             kind: "book",
+                             publication_info: {
+                               year: "2017"
+                             },
+                             identifiers: [],
+                             links: [],
+                             references: [],
+                             contents: []
+                   };
+                   
+                   return chai.request(app)
+                              .post("/api/works")
+                              .send(work);
+                 })
+                 .then(function(res) {
+                   expect(res).to.have.status(201);
+                   expect(res).to.be.json;
+                   expect(res.body).to.be.a("object");
+                    
+                   const expectedKeys = ["id", "title", "contributors", "kind", "publication_info", "identifiers", "links", "references", "contents"];
+                   expect(res.body).to.include.keys(expectedKeys);
+                   
+                   expect(res.body).to.deep.equal(Object.assign(work, {id: res.body.id}));
+                   });
+    });
+    
+    it("Should create a new work with default values for non-essential properties", function() {
+      return chai.request(app)
+                 .get("/api/creators")
+                 .then(function(res) {
+                  //console.log(creators);
+                   work = {
+                             title: [{
+                               lang: "en",
+                               name: "This is a test work"
+                             }],
+                             contributors: [{
+                               role: "author",
+                               who: res.body.creators[0].id
+                             }],
+                             kind: "book",
+                             publication_info: {
+                               year: "2017"
+                             }
+                   };
+                   
+                   return chai.request(app)
+                              .post("/api/works")
+                              .send(work);
+                 })
+                 .then(function(res) {
+                   expect(res).to.have.status(201);
+                   expect(res).to.be.json;
+                   expect(res.body).to.be.a("object");
+                    
+                   const expectedKeys = ["id", "title", "contributors", "kind", "publication_info", "identifiers", "links", "references", "contents"];
+                   expect(res.body).to.include.keys(expectedKeys);
+                   
+                   const assignableFields = { id: res.body.id,
+                                              identifiers: [],
+                                              links: [],
+                                              references: [],
+                                              contents: []
+                                            };
+                   expect(res.body).to.deep.equal(Object.assign(work, assignableFields));
+                   });
+    });
+    
+    it.only("Should throw error due to missing required field", function() {
+      return chai.request(app)
+                 .get("/api/creators")
+                 .then(function(res) {
+                  //console.log(creators);
+                   work = {
+                             title: [{
+                               lang: "en",
+                               name: "This is a test work"
+                             }],
+                             contributors: [{
+                               role: "author",
+                               who: res.body.creators[0].id
+                             }],
+                             publication_info: {
+                               year: "2017"
+                             }
+                   };
+                   
+                   return chai.request(app)
+                              .post("/api/works")
+                              .send(work);
+                 })
+                 .catch(function(err) {
+                   expect(err.response).to.have.status(400);
+                   expect(err.response.text).to.be.a("string");
+                   expect(err.response.text).to.match(/The request is missing the field\(s\) .+/);
                  });
     });
   });
