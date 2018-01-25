@@ -44,14 +44,14 @@ const contentSchema = mongoose.Schema({
   name: String,
   author: String,
   work: { type: mongoose.Schema.Types.ObjectId, ref: "Work" }
-});
+}, { _id: false });
 
 contentSchema.add( { contents: { type: [ contentSchema ], default: void 0 } } );
 
 const identifierSchema = mongoose.Schema({
   kind: { type: String, required: true },
   identifier: { type: String, required: true }
-});
+}, { _id: false });
 
 ////////////////////////////
 // Set up creator data model
@@ -65,7 +65,7 @@ const creatorSchema = mongoose.Schema({
   links: [ linksSchema ],
   awards: [ awardsSchema ],
   created: { type: String, default: Date.now }
-}, {toJSON: { virtuals: true}, toObject: {virtuals: true}, _id: false});
+}, { toJSON: { virtuals: true}, toObject: { virtuals: true } });
 
 creatorSchema.virtual("fullName")
   .get(function() {
@@ -163,7 +163,17 @@ workSchema.methods.populatedSerialize = function() {
   });
   
   // Return
-  return work;
+  return {
+    id:               work._id,
+    title:            work.title,
+    contributors:     work.contributors,
+    kind:             work.kind,
+    publication_info: work.publication_info,
+    identifiers:      work.identifiers,
+    links:            work.links,
+    references:       work.references,
+    contents:         work.contents
+  };
 };
 
 const Work = mongoose.model("Work", workSchema);
