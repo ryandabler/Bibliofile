@@ -165,6 +165,16 @@ routerWork.post("/", jsonParser, (req, res) => {
       });
 });
 
+routerWork.delete("/:id", (req, res) => {
+  let {id} = req.params;
+  Work.findByIdAndRemove(id)
+      .then(work => res.status(204).end())
+      .catch(err => {
+        console.error(err);
+        res.status(500).json( { message: "Internal server error" } );
+      });
+});
+
 ////////////////////////////
 // Export routers
 ////////////////////////////

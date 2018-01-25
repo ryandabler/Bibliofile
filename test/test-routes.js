@@ -454,7 +454,7 @@ describe("Work API", function() {
                    });
     });
     
-    it.only("Should throw error due to missing required field", function() {
+    it("Should throw error due to missing required field", function() {
       return chai.request(app)
                  .get("/api/creators")
                  .then(function(res) {
@@ -481,6 +481,43 @@ describe("Work API", function() {
                    expect(err.response).to.have.status(400);
                    expect(err.response.text).to.be.a("string");
                    expect(err.response.text).to.match(/The request is missing the field\(s\) .+/);
+                 });
+    });
+  });
+  
+  describe("DELETE endpoint", function() {
+    it("Should delete a work", function() {
+      let id;
+      return chai.request(app)
+                 .get("/api/works")
+                 .then(function(res) {
+                   id = res.body.works[0].id;
+                   
+                   return chai.request(app)
+                              .delete(`/api/works/${id}`);
+                 })
+                 .then(function(res) {
+                   expect(res).to.have.status(204);
+                   return Work.findById(id);
+                 })
+                 .then(function(work) {
+                   expect(work).to.be.null;
+                 });
+    });
+    
+    it.only("Should throw an error due to incorrect id", function() {
+      let id;
+      return chai.request(app)
+                 .get("/api/works")
+                 .then(function(res) {
+                   id = res.body.works[0].id;
+                   
+                   return chai.request(app)
+                              .delete(`/api/works/${id.slice(0, id.length - 1)}`);
+                 })
+                 .catch(function(err) {
+                   expect(err).to.have.status(500);
+                   expect(err.response.text).to.match(/Internal server error/);
                  });
     });
   });
