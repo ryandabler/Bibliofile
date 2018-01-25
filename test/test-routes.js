@@ -505,7 +505,49 @@ describe("Work API", function() {
                  });
     });
     
-    it.only("Should throw an error due to incorrect id", function() {
+    it("Should throw an error due to incorrect id", function() {
+      let id;
+      return chai.request(app)
+                 .get("/api/works")
+                 .then(function(res) {
+                   id = res.body.works[0].id;
+                   
+                   return chai.request(app)
+                              .delete(`/api/works/${id.slice(0, id.length - 1)}`);
+                 })
+                 .catch(function(err) {
+                   expect(err).to.have.status(500);
+                   expect(err.response.text).to.match(/Internal server error/);
+                 });
+    });
+  });
+  
+  describe("PUT endpoint", function() {
+    it("Should update a work", function() {
+      let updatedWork = {};
+      
+      return Work.findOne()
+                 .then(function(work) {
+                   updatedWork = work;
+                   updatedWork.contributors[0].role = "translator";
+                   updatedWork.links[0].url = "www.google.com";
+                   
+                   return chai.request(app)
+                              .put(`/api/works/${updatedWork._id}`)
+                              .send(updatedWork);
+                 })
+                 .then(function(res) {
+                   expect(res).to.have.status(200);
+                   
+                   return Work.findById(updatedWork.id);
+                 })
+                 .then(function(res) {
+                   expect(res.contributors[0].role).to.equal("translator");
+                   expect(res.links[0].url).to.equal("www.google.com");
+                 });
+    });
+    
+    it("Should throw an error due to incorrect id", function() {
       let id;
       return chai.request(app)
                  .get("/api/works")

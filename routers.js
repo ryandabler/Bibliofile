@@ -175,6 +175,31 @@ routerWork.delete("/:id", (req, res) => {
       });
 });
 
+routerWork.put("/:id", jsonParser, (req, res) => {
+  const {id} = req.params;
+  
+  // Check that ID is correct
+  if (req.params.id && req.body._id && id === req.body._id) {
+    // Update blog post
+    const updatedWork = {id};
+    const updateableFields = ["title", "contributors", "kind", "publication_info", "identifiers", "links", "references", "contents"];
+    updateableFields.forEach(field => {
+      if (field in req.body) {
+        updatedWork[field] = req.body[field];
+      }
+    });
+    
+    Work.findByIdAndUpdate(id, updatedWork)
+        .then(updatedWork => res.status(200).end())
+        .catch(err => {
+          console.error(err);
+          res.status(500).json( { message: "Internal server error" } );
+        });
+  } else {
+    res.status(400).json( { message: "Please ensure the correctness of the ids" } );
+  }
+});
+
 ////////////////////////////
 // Export routers
 ////////////////////////////
