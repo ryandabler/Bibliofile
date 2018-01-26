@@ -1,0 +1,177 @@
+@charset "UTF-8";
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-size: 25px;
+  color: #555555;
+}
+
+header, .header {
+  background: #F5F5F5;
+}
+
+header * {
+  margin: 0;
+}
+
+h1 {
+  font-size: 8vw;
+}
+
+h1::first-letter {
+  font-size: 12vw;
+}
+
+h2 {
+  font-size: 7vw;
+  margin-top: 10px;
+  margin-left: 10px;
+}
+
+a {
+  text-decoration: none;
+}
+
+.splash {
+  height: 100vh;
+}
+
+.splash-content {
+  margin: auto;
+  /* Add width element when rewriting this for mobile-first */
+}
+
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.flex-even {
+  justify-content: space-evenly;
+}
+
+.flex-1 {
+  /*flex: 1;*/
+  font-size: 1.5vw;
+  /*max-width: 31vw;*/
+  /*min-width: 200px;*/
+  width: 300px;
+}
+
+.fa-style.fa {
+  display: block;
+  font-size: 5vw;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.lead-me {
+  position: relative;
+}
+
+.buttonize {
+  display: inline-block;
+  border: 1px solid #5F5F5F;
+  background-color: #5F5F5F;
+  border-radius: 5px;
+  padding: 10px;
+}
+
+.lead-me:after {
+  content: "→";
+}
+
+.explore {
+  display: block;
+  text-align: center;
+  margin: 100px auto 0 auto;
+  width: 50vw;
+  background-color: #5F5F5F;
+  color: #F5F5F5;
+}
+
+.explore:hover .lead-me:after {
+  content: " →";
+}
+
+.header {
+  position: fixed;
+  width: 100%;
+  top: 0;
+  left: 0;
+}
+
+.header * {
+  color: #555555;
+}
+
+.header > * {
+  vertical-align: middle;
+  display: inline-block;
+}
+
+.header .logo {
+  padding: 5px;
+  margin: 0 55px 0 15px;
+  font-size: 3vw;
+}
+
+.header ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.header ul li {
+  float: left;
+}
+
+.header .clickable {
+  display: inline-block;
+  padding: 10px;
+  cursor: pointer;
+}
+
+.header .clickable:hover {
+  background-color: #e7e7e7;
+}
+
+.header .fa-style {
+  font-size: 3vw;
+  margin-bottom: 0;
+}
+
+.hidden {
+  display: none;
+}
+
+.explore-main {
+  max-width: 1000px;
+  width: 1000px;
+  margin: 0 auto;
+}
+
+.banner {
+  margin-top: 70px;
+  margin-left: 0;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.search-box {
+  width: 50%;
+  margin: 0 auto;
+  display: block;
+  padding: 5px 8px;
+  font-size: 1.5vw;
+  color: #555555;
+  border: 1px solid #555555;
+}
+
+.results-list {
+  margin-top: 100px;
+}
