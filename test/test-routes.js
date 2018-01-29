@@ -5,13 +5,15 @@ const chai     = require("chai");
 const chaiHTTP = require("chai-http");
 const mongoose = require("mongoose");
 const faker    = require("faker");
-mongoose.Promise = global.Promise;
+
 const { app, runServer, closeServer } = require("../server");
 const { Creator, Work } = require("../models");
 const { TEST_DATABASE_URL } = require("../config");
 
 const expect = chai.expect;
 chai.use(chaiHTTP);
+
+mongoose.Promise = global.Promise;
 
 ////////////////////////////
 // Utility functions
@@ -199,9 +201,10 @@ describe("Creator API", function() {
                  .post("/api/creators")
                  .send(badCreator)
                  .catch(function(err) {
+                   console.log(err.response.text.message);
                    expect(err.response).to.have.status(400);
                    expect(err.response.text).to.be.a("string");
-                   expect(err.response.text).to.match(/The request is missing the field\(s\) .+/);
+                   expect(err.response.text).to.match(/{"message":"The request is missing the following field\(s\): .+"}/);
                  });
     });
   });
@@ -480,7 +483,7 @@ describe("Work API", function() {
                  .catch(function(err) {
                    expect(err.response).to.have.status(400);
                    expect(err.response.text).to.be.a("string");
-                   expect(err.response.text).to.match(/The request is missing the field\(s\) .+/);
+                   expect(err.response.text).to.match(/{"message":"The request is missing the following field\(s\): .+"}/);
                  });
     });
   });

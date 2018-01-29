@@ -30,6 +30,20 @@ function getMissingFields(requestBody, requiredFieldsArr) {
 }
 
 ////////////////////////////
+// Middleware
+////////////////////////////
+function checkRequiredFields(fieldsArr) {
+  return (req, res, next) => {
+    const missingFields = fieldsArr.filter(field => !(field in req.body));
+    if (missingFields.length > 0) {
+      next( { status: 400, message: `The request is missing the following field(s): '${missingFields.join("', '")}'` } );
+    } else {
+      next();
+    }
+  };
+}
+
+////////////////////////////
 // Set up routes
 ////////////////////////////
 
@@ -55,25 +69,21 @@ routerCreator.get("/:id", (req, res) => {
          });
 });
 
-routerCreator.post("/", jsonParser, (req, res) => {
-  // Check that all required fields have been added
-  const requiredFields = ["fullName"];
-  if (!requestHasAllRequiredFields(req.body, requiredFields)) {
-    const message = `The request is missing the field(s) "${getMissingFields(req.body, requiredFields).join(", ")}".`;
-    console.error(message);
-    return res.status(400).send(message);
+routerCreator.post(
+  "/",
+  jsonParser,
+  checkRequiredFields(["fullName"]),
+  (req, res) => {
+    const {fullName, links, awards} = req.body;
+    
+    Creator.create({fullName, links, awards})
+           .then(creator => res.status(201).json(creator.serialize()))
+           .catch(err => {
+             console.error(err);
+             res.status(500).json( { message: "Internal server error" } );
+           });
   }
-  
-  // Create new creator
-  const {fullName, links, awards} = req.body;
-  
-  Creator.create({fullName, links, awards})
-         .then(creator => res.status(201).json(creator.serialize()))
-         .catch(err => {
-           console.error(err);
-           res.status(500).json( { message: "Internal server error" } );
-         });
-});
+);
 
 routerCreator.delete("/:id", (req, res) => {
   const {id} = req.params;
@@ -146,24 +156,20 @@ routerWork.get("/:id", (req, res) => {
       });
 });
 
-routerWork.post("/", jsonParser, (req, res) => {
-  // Check that all required fields have been added
-  const requiredFields = ["title", "contributors", "kind"];
-  if (!requestHasAllRequiredFields(req.body, requiredFields)) {
-    const message = `The request is missing the field(s) "${getMissingFields(req.body, requiredFields).join(", ")}".`;
-    console.error(message);
-    return res.status(400).send(message);
+routerWork.post(
+  "/",
+  jsonParser,
+  checkRequiredFields(["title", "contributors", "kind"]),
+  (req, res) => {
+    const {title, contributors, kind, publication_info, identifiers, links, references, contents} = req.body;
+    Work.create({title, contributors, kind, publication_info, identifiers, links, references, contents})
+        .then(work => res.status(201).json(work.serialize()))
+        .catch(err => {
+          console.error(err);
+          res.status(500).json( { message: "Internal server error" } );
+        });
   }
-  
-  // Create new work
-  const {title, contributors, kind, publication_info, identifiers, links, references, contents} = req.body;
-  Work.create({title, contributors, kind, publication_info, identifiers, links, references, contents})
-      .then(work => res.status(201).json(work.serialize()))
-      .catch(err => {
-        console.error(err);
-        res.status(500).json( { message: "Internal server error" } );
-      });
-});
+);
 
 routerWork.delete("/:id", (req, res) => {
   let {id} = req.params;

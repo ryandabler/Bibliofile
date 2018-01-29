@@ -20,8 +20,15 @@ app.use(morgan("common"));
 app.use("/api/creators", routerCreator);
 app.use("/api/works", routerWork);
 
+////////////////////////////
+// Error handling
+////////////////////////////
+app.use((err, req, res, next) => {
+  res.status(err.status).json({ message: err.message });
+});
+
 // Set up server
-mongoose.Promie = global.Promise;
+mongoose.Promise = global.Promise;
 
 let server;
 
@@ -61,4 +68,4 @@ if (require.main === module) {
   runServer().catch(err => console.error(err));
 };
 
-module.exports = {app, runServer, closeServer};
+module.exports = { app, runServer, closeServer };
