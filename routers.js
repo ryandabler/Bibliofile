@@ -1,15 +1,15 @@
 ////////////////////////////
 // Initialize
 ////////////////////////////
-const express       = require('express');
+const express       = require("express");
 const routerCreator = express.Router();
 const routerWork    = express.Router();
 
-const bodyParser    = require('body-parser');
+const bodyParser    = require("body-parser");
 const jsonParser    = bodyParser.json();
 const mongoose      = require("mongoose");
 
-const { Creator, Work }   = require('./models');
+const { Creator, Work }   = require("./models");
 
 ////////////////////////////
 // Utility functions
