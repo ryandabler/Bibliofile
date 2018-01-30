@@ -176,6 +176,19 @@ workSchema.methods.populatedSerialize = function() {
   };
 };
 
+workSchema.statics.getFindMethod = function(id = null) {
+  return id ? Work.findById(id) : Work.find();
+};
+
+workSchema.statics.findAndPopulate = function(id = null) {
+  return this.getFindMethod(id)
+             .populate( { path: "contributors.who", select: "name" } )
+             .populate( { path: "publication_info.published_in", select: "title" } )
+             .populate( { path: "contents.work", select: "title contributors",
+                          populate: { path: "contributors.who", select: "name" }
+                        } );
+};
+
 const Work = mongoose.model("Work", workSchema);
 
 ////////////////////////////

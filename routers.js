@@ -124,12 +124,7 @@ routerCreator.put("/:id", jsonParser, (req, res) => {
 
 // Work route
 routerWork.get("/", (req, res) => {
-  Work.find()
-      .populate( { path: "contributors.who", select: "name" } )
-      .populate( { path: "publication_info.published_in", select: "title" } )
-      .populate( { path: "contents.work", select: "title contributors",
-                   populate: { path: "contributors.who", select: "name" }
-                 } )
+  Work.findAndPopulate()
       .then(works => {
         res.json( { works: works.map(work => work.populatedSerialize()) } );
       })
@@ -141,12 +136,7 @@ routerWork.get("/", (req, res) => {
 
 routerWork.get("/:id", (req, res) => {
   const {id} = req.params;
-  Work.findById(id)
-      .populate( { path: "contributors.who", select: "name" } )
-      .populate( { path: "publication_info.published_in", select: "title" } )
-      .populate( { path: "contents.work", select: "title contributors",
-                   populate: { path: "contributors.who", select: "name" }
-                 } )
+  Work.findAndPopulate(id)
       .then(work => {
         res.json( { works: work.populatedSerialize() } );
       })
