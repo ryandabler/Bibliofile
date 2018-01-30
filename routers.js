@@ -43,6 +43,12 @@ function checkRequiredFields(fieldsArr) {
   };
 }
 
+function validateIds(req, res, next) {
+  (req.params.id && req.body.id && req.params.id === req.body.id)
+    ? next()
+    : next( { status: 400, message: "Please ensure the correctness of the ids" } );
+}
+
 ////////////////////////////
 // Set up routes
 ////////////////////////////
@@ -97,11 +103,13 @@ routerCreator.delete("/:id", (req, res) => {
          });
 });
 
-routerCreator.put("/:id", jsonParser, (req, res) => {
-  const {id} = req.params;
-  
-  // Check that ID is correct
-  if (req.params.id && req.body.id && id === req.body.id) {
+routerCreator.put(
+  "/:id",
+  jsonParser,
+  validateIds,
+  (req, res) => {
+    const {id} = req.params;
+    
     // Update blog post
     const updatedCreator = {};
     const updateableFields = ["fullName", "awards", "links"];
@@ -117,9 +125,6 @@ routerCreator.put("/:id", jsonParser, (req, res) => {
              console.error(err);
              res.status(500).json( { message: "Internal server error" } );
            });
-  } else {
-    res.status(400).json( { message: "Please ensure the correctness of the ids" } );
-  }
 });
 
 // Work route
@@ -171,11 +176,13 @@ routerWork.delete("/:id", (req, res) => {
       });
 });
 
-routerWork.put("/:id", jsonParser, (req, res) => {
-  const {id} = req.params;
-  
-  // Check that ID is correct
-  if (req.params.id && req.body._id && id === req.body._id) {
+routerWork.put(
+  "/:id",
+  jsonParser,
+  validateIds,
+  (req, res) => {
+    const {id} = req.params;
+    
     // Update blog post
     const updatedWork = {id};
     const updateableFields = ["title", "contributors", "kind", "publication_info", "identifiers", "links", "references", "contents"];
@@ -191,9 +198,6 @@ routerWork.put("/:id", jsonParser, (req, res) => {
           console.error(err);
           res.status(500).json( { message: "Internal server error" } );
         });
-  } else {
-    res.status(400).json( { message: "Please ensure the correctness of the ids" } );
-  }
 });
 
 ////////////////////////////
