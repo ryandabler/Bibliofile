@@ -49,6 +49,20 @@ function validateIds(req, res, next) {
     : next( { status: 400, message: "Please ensure the correctness of the ids" } );
 }
 
+function generateUpdateDocument(updateableFields) {
+  return (req, res, next) => {
+    const updatedDoc = {};
+    updateableFields.forEach(field => {
+      if (field in req.body) {
+        updatedDoc[field] = req.body[field];
+      }
+    });
+    
+    res.locals.updatedDoc = updatedDoc;
+    next();
+  };
+}
+
 ////////////////////////////
 // Set up routes
 ////////////////////////////
@@ -107,19 +121,11 @@ routerCreator.put(
   "/:id",
   jsonParser,
   validateIds,
+  generateUpdateDocument(["fullName", "awards", "links"]),
   (req, res) => {
     const {id} = req.params;
     
-    // Update blog post
-    const updatedCreator = {};
-    const updateableFields = ["fullName", "awards", "links"];
-    updateableFields.forEach(field => {
-      if (field in req.body) {
-        updatedCreator[field] = req.body[field];
-      }
-    });
-    
-    Creator.findByIdAndUpdate(id, updatedCreator)
+    Creator.findByIdAndUpdate(id, res.locals.updatedDoc)
            .then(updatedCreator => res.status(200).end())
            .catch(err => {
              console.error(err);
@@ -180,19 +186,11 @@ routerWork.put(
   "/:id",
   jsonParser,
   validateIds,
+  generateUpdateDocument(["title", "contributors", "kind", "publication_info", "identifiers", "links", "references", "contents"]),
   (req, res) => {
     const {id} = req.params;
     
-    // Update blog post
-    const updatedWork = {id};
-    const updateableFields = ["title", "contributors", "kind", "publication_info", "identifiers", "links", "references", "contents"];
-    updateableFields.forEach(field => {
-      if (field in req.body) {
-        updatedWork[field] = req.body[field];
-      }
-    });
-    
-    Work.findByIdAndUpdate(id, updatedWork)
+    Work.findByIdAndUpdate(id, res.locals.updatedDoc)
         .then(updatedWork => res.status(200).end())
         .catch(err => {
           console.error(err);
