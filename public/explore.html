@@ -12,10 +12,10 @@
     <nav class="header" role="navigation">
       <span class="logo">βibliofile</span>
       <ul>
-        <li><span class="clickable"><i class="fa fa-users fa-style"></i></span></li>
-        <li><span class="clickable"><i class="fa fa-book fa-style"></i></span></li>
-        <li><span class="clickable"><i class="fa fa-comments fa-style"></i></span></li>
-        <li><span class="clickable"><i class="fa fa-bookmark fa-style"></i></span></li>
+        <li tabindex="0"><span class="clickable" title="Creators"><i class="fa fa-users fa-style"></i></span></li>
+        <li tabindex="0"><span class="clickable" title="Works"><i class="fa fa-book fa-style"></i></span></li>
+        <li tabindex="0"><span class="clickable" title="Conversation"><i class="fa fa-comments fa-style"></i></span></li>
+        <li tabindex="0"><span class="clickable" title="Shelf"><i class="fa fa-bookmark fa-style"></i></span></li>
       </ul>
     </nav>
     
@@ -23,24 +23,24 @@
       <section id="creators">
         <h2 class="banner">Creators</h2>
         <input type="text" class="search-box" placeholder="Search all creators">
+        
         <ul class="results-list" id="list-of-creators">
-          
         </ul>
       </section>
       
       <section id="work" class="hidden">
         <h2 class="banner">Works</h2>
-        <input type="text" class="search-box" placeholder="Search all creators">
+        <input type="text" class="search-box" placeholder="Search all works">
       </section>
       
       <section id="conversation" class="hidden">
         <h2 class="banner">Conversation</h2>
-        <input type="text" class="search-box" placeholder="Search all creators">
+        <input type="text" class="search-box" placeholder="Enter a work to generate a conversation">
       </section>
       
       <section id="shelf" class="hidden">
         <h2 class="banner">Shelf</h2>
-        <input type="text" class="search-box" placeholder="Search all creators">
+        <input type="text" class="search-box" placeholder="Search all items on shelf">
       </section>
     </main>
     

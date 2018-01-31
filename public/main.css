@@ -122,8 +122,9 @@ a {
 
 .header ul {
   list-style: none;
-  padding: 0;
+  padding: 0 25px 0 0;
   margin: 0;
+  float: right;
 }
 
 .header ul li {

@@ -1,119 +1,53 @@
-const TEST_DATA = {
-  "creators": [
-                {
-                  name: "William Herbert Dray",
-                  links: [
-                    {
-                      domain: "Wikipedia",
-                      url: "https://en.wikipedia.org/wiki/William_Herbert_Dray"
-                    },
-                    {
-                      domain: "The Canadian Encyclopedia",
-                      url: "http://www.thecanadianencyclopedia.com/en/article/william-herbert-dray/"
-                    }
-                  ]
-                },
-                
-                {
-                  name: "Benedetto Croce",
-                  links: [
-                    {
-                      domain: "Wikipedia",
-                      url: "https://en.wikipedia.org/wiki/Benedetto_Croce"
-                    }
-                  ]
-                },
-                
-                {
-                  name: "Grant Duff Douglas Ainslie",
-                  
-                  links: [
-                    {
-                      domain: "Wikipedia",
-                      url: "https://en.wikipedia.org/wiki/Douglas_Ainslie"
-                    }
-                  ]
-                }
-              ],
-  "works": [
-             {
-               title: {
-                 lang: "en",
-                 name: "Laws and Explanation in History"
-               },
-               contributors: [
-                 {
-                   role: "author",
-                   name: "William Herbert Dray"
-                 }
-               ],
-               type: "book",
-               publication_info: {
-                 year: 1957
-               },
-               identifiers: [],
-               links: [],
-               references: [],
-               contents:[]
-             },
-             {
-               title: {
-                 lang: "en",
-                 name: "Philosophy of History"
-               },
-               contributors: [
-                 {
-                   role: "author",
-                   name: "William Herbert Dray"
-                 }
-               ],
-               type: "book",
-               publication_info: {
-                 year: 1964
-               },
-               identifiers: [],
-               links: [],
-               references: [],
-               contents:[]
-             }
-    ]
-};
+"use strict";
 
-function getListOfAuthors(callback) {
-  setTimeout(function() { callback(TEST_DATA) }, 2000);
+//////////////////////
+// ONLY FOR TESTING PURPOSES
+//////////////////////
+const API_WORK_ENDPOINT    = "localhost:8080/api/works",
+      API_CREATOR_ENDPOINT = "localhost:8080/api/creators";
+//////////////////////
+//
+//////////////////////
+
+function renderListToDOM(data, htmlIdToAppendTo) {
+  const $htmlElement = $(`#${htmlIdToAppendTo}`);
+  console.log(data);
 }
 
-function displayListOfAuthors(data) {
-  data.creators.forEach(creator => {
-    const $a = $("<li>");
-    $a.text(creator.name);
-    $a.attr("href", "#");
-    $("#list-of-creators").append($a);
-  });
+function queryAPI(endpointURL, dataType, method, queryObj = {}) {
+  const ajaxRequestObject = {
+                               url:       endpointURL,
+                               dataType:  dataType,
+                               method:    method//,
+                               //data:      queryObj
+                            };
+                            
+  return $.ajax(ajaxRequestObject)
+          .then(function(data) {
+            renderListToDOM(data, "list-of-creators");
+          })
+          .catch(err => console.log(err));
 }
 
-function getAndDisplayListOfAuthors() {
-  getListOfAuthors(displayListOfAuthors);
+function getListOfCreators() {
+  return queryAPI("http://localhost:8080/api/creators", "json", "GET");
 }
 
-function getListOfWorks(callback) {
-  setTimeout(function() { callback(TEST_DATA) }, 2000);
+function addEventListeners() {
+  // $("#result-type")       .change  (displayUserMessage);
+  // $(".user-msg")          .click   (inputEventHandler);
+  // $("#favorite-book-txt") .keypress(displayUserMessage);
+  // $("#favorite-band-txt") .keypress(displayUserMessage);
+  // $("#favorite-movie-txt").keypress(displayUserMessage);
+  // $("#results-menu")      .on      ("click", "li", switchDisplayDiv);
+  // $("#results-menu")      .on      ("keypress", "li", switchDisplayDiv);
+  // $("#reset-btn")         .click   (resetApp);
 }
 
-function displayListOfWorks(data) {
-  data.works.forEach(work => {
-    const $a = $("<li>");
-    $a.text(`${work.title.name} ${work.publication_info.year}`);
-    $a.attr("href", "#");
-    $("#list-of-works").append($a);
-  });
+function initApp() {
+  addEventListeners();
+  const a = getListOfCreators();
+  a
 }
 
-function getAndDisplayListOfWorks() {
-  getListOfWorks(displayListOfWorks);
-}
-
-$(function() {
-  getAndDisplayListOfAuthors();
-  getAndDisplayListOfWorks();
-});
+$(initApp);
