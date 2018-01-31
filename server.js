@@ -1,6 +1,8 @@
 "use strict";
 
+////////////////////////////
 // Initialize
+////////////////////////////
 const express  = require("express");
 const morgan   = require("morgan");
 const mongoose = require("mongoose");
@@ -13,6 +15,10 @@ const { PORT, DATABASE_URL } = require("./config");
 
 app.use(express.static("public"));
 
+////////////////////////////
+// Set up application
+////////////////////////////
+
 // Log HTTP layer
 app.use(morgan("common"));
 
@@ -20,8 +26,15 @@ app.use(morgan("common"));
 app.use("/api/creators", routerCreator);
 app.use("/api/works", routerWork);
 
+// Error handling
+app.use((err, req, res, next) => {
+  res.status(err.status).json({ message: err.message });
+});
+
+////////////////////////////
 // Set up server
-mongoose.Promie = global.Promise;
+////////////////////////////
+mongoose.Promise = global.Promise;
 
 let server;
 
@@ -61,4 +74,4 @@ if (require.main === module) {
   runServer().catch(err => console.error(err));
 };
 
-module.exports = {app, runServer, closeServer};
+module.exports = { app, runServer, closeServer };
