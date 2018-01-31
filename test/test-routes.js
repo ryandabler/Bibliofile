@@ -5,13 +5,15 @@ const chai     = require("chai");
 const chaiHTTP = require("chai-http");
 const mongoose = require("mongoose");
 const faker    = require("faker");
-mongoose.Promise = global.Promise;
+
 const { app, runServer, closeServer } = require("../server");
 const { Creator, Work } = require("../models");
 const { TEST_DATABASE_URL } = require("../config");
 
 const expect = chai.expect;
 chai.use(chaiHTTP);
+
+mongoose.Promise = global.Promise;
 
 ////////////////////////////
 // Utility functions
@@ -201,7 +203,7 @@ describe("Creator API", function() {
                  .catch(function(err) {
                    expect(err.response).to.have.status(400);
                    expect(err.response.text).to.be.a("string");
-                   expect(err.response.text).to.match(/The request is missing the field\(s\) .+/);
+                   expect(err.response.text).to.match(/{"message":"The request is missing the following field\(s\): .+"}/);
                  });
     });
   });
@@ -480,7 +482,7 @@ describe("Work API", function() {
                  .catch(function(err) {
                    expect(err.response).to.have.status(400);
                    expect(err.response.text).to.be.a("string");
-                   expect(err.response.text).to.match(/The request is missing the field\(s\) .+/);
+                   expect(err.response.text).to.match(/{"message":"The request is missing the following field\(s\): .+"}/);
                  });
     });
   });
@@ -528,7 +530,10 @@ describe("Work API", function() {
       
       return Work.findOne()
                  .then(function(work) {
-                   updatedWork = work;
+                   updatedWork = work.toObject();
+                   // Hack - REPLACE THIS WITH A BETTER API
+                   updatedWork.id = work._id;
+                   //
                    updatedWork.contributors[0].role = "translator";
                    updatedWork.links[0].url = "www.google.com";
                    
@@ -548,18 +553,23 @@ describe("Work API", function() {
     });
     
     it("Should throw an error due to incorrect id", function() {
-      let id;
-      return chai.request(app)
-                 .get("/api/works")
-                 .then(function(res) {
-                   id = res.body.works[0].id;
+      return Work.findOne()
+                 .then(function(work) {
+                   updatedWork = work.toObject();
+                   // Hack - REPLACE THIS WITH A BETTER API
+                   updatedWork.id = work._id.toString();
+                   //
+                   
+                   updatedWork.contributors[0].role = "translator";
+                   updatedWork.links[0].url = "www.google.com";
                    
                    return chai.request(app)
-                              .delete(`/api/works/${id.slice(0, id.length - 1)}`);
+                              .put(`/api/works/${updatedWork.id.slice(0, updatedWork.id.length - 1)}`)
+                              .send(updatedWork);
                  })
                  .catch(function(err) {
-                   expect(err).to.have.status(500);
-                   expect(err.response.text).to.match(/Internal server error/);
+                   expect(err).to.have.status(400);
+                   expect(err.response.text).to.match(/Please ensure the correctness of the ids/);
                  });
     });
   });
