@@ -94,14 +94,49 @@ creatorSchema.virtual("fullName")
       }
     }
   });
-  
+
+creatorSchema.virtual("works", {
+  ref: "Work",
+  localField: "_id",
+  foreignField: "contributors.who"
+});
+
 creatorSchema.methods.serialize = function() {
   return {
     id:     this._id,
     name:   this.fullName,
     links:  this.links,
     awards: this.awards,
+    works:  this.works
   };
+};
+
+creatorSchema.methods.populatedSerialize = function() {
+  const creator = this.toObject();
+  
+  // Revise list of works to only be title and publication year
+  const revisedWorks = creator.works.map(work => {
+    let title = work.title.find(title => title.lang === "en").name,
+        year  = work.publication_info.year;
+    return { title, year };
+  });
+  
+  return {
+    id:     this._id,
+    name:   this.fullName,
+    links:  this.links,
+    awards: this.awards,
+    works:  revisedWorks
+  };
+};
+
+creatorSchema.statics.getFindMethod = function(id = null) {
+  return id ? Creator.findById(id) : Creator.find();
+};
+
+creatorSchema.statics.findAndPopulate = function(id = null) {
+  return this.getFindMethod(id)
+             .populate( { path: "works", select: "title publication_info" } );
 };
 
 const Creator = mongoose.model("Creator", creatorSchema);

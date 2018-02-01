@@ -69,9 +69,9 @@ function generateUpdateDocument(updateableFields) {
 
 // Creator route
 routerCreator.get("/", (req, res) => {
-  Creator.find()
+  Creator.findAndPopulate()
          .then(creators => {
-            res.json( { creators: creators.map(creator => creator.serialize()) } );
+            res.json( { creators: creators.map(creator => creator.populatedSerialize()) } );
           })
           .catch(err => {
             console.error(err);
@@ -81,8 +81,8 @@ routerCreator.get("/", (req, res) => {
 
 routerCreator.get("/:id", (req, res) => {
   const {id} = req.params;
-  Creator.findById(id)
-         .then(creator => res.json(creator.serialize()))
+  Creator.findAndPopulate(id)
+         .then(creator => res.json(creator.populatedSerialize()))
          .catch(err => {
            console.error(err);
            res.status(500).json( { message: "Internal server error" } );
