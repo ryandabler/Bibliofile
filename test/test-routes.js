@@ -177,7 +177,9 @@ describe("Creator API", function() {
                    newCreator.name = newCreator.fullName;
                    delete newCreator.fullName;
                    delete newCreator.created;
+                   delete res.body.works;
                    
+                  // const authorMinusVirtual = {res.body.
                    expect(res.body).to.deep.equal(Object.assign(newCreator, {id: res.body.id}));
                     
                    return Creator.findById(res.body.id);
