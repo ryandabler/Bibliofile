@@ -191,7 +191,7 @@ function renderCreator(data) {
   renderSection("works-creator", data.works, createWork);
   
   // Switch to item display
-  switchDisplay("item-creator");
+  switchDisplay("item-creators");
 }
 
 function renderWork(data) {
@@ -208,12 +208,18 @@ function renderWork(data) {
   renderSection("links-work", data.links, createLink);
   
   // Switch to item display
-  switchDisplay("item-work");
+  switchDisplay("item-works");
+}
+
+function clearOldItemData(itemType) {
+  $(`#item-${itemType} ul`).empty();
 }
 
 function renderItemToDOM(itemType) {
   return function(data) {
-    APP_STATE.currentItem = data[itemType];
+    loadItem(data[itemType]);
+    clearOldItemData(itemType);
+    
     if (itemType === "creators") {
       renderCreator(data.creators);
     } else if (itemType === "works") {
@@ -359,7 +365,7 @@ function deleteWork(event) {
            "json",
            "DELETE"
           )
-          .then(console.log)
+          .then(res => switchDisplay("items"))
           .catch(console.log);
 }
 
@@ -484,13 +490,17 @@ function toggleNewInfoPiece(event) {
 function addEventListeners() {
   $("#list-of-items").on("click", "li", getItemDetails("creators"));
   $("#item-works-creator-list").on("click", "li", getItemDetails("works"));
-  $(".add-new").click(toggleNewInfoPiece);
+  $(".js-add-new").click(toggleNewInfoPiece);
   $("#edit-work").click(makeEditable);
   $("#delete-work").click(deleteWork);
 }
 
 function loadData(data) {
   APP_STATE.data.push(...data[APP_STATE.currentlyLoaded]);
+}
+
+function loadItem(data) {
+  APP_STATE.currentItem = data;
 }
 
 function processGETListData(data) {
@@ -503,7 +513,7 @@ function initApp() {
   
   addEventListeners();
   getListOfItems("creators").then(processGETListData)
-                     .catch(err => console.log(err));
+                            .catch(err => console.log(err));
 }
 
 $(initApp);
