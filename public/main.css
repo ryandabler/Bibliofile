@@ -34,6 +34,7 @@ h2 {
 
 a {
   text-decoration: none;
+  color: #555555;
 }
 
 .splash {
@@ -55,10 +56,7 @@ a {
 }
 
 .flex-1 {
-  /*flex: 1;*/
   font-size: 1.5vw;
-  /*max-width: 31vw;*/
-  /*min-width: 200px;*/
   width: 300px;
 }
 
@@ -108,6 +106,7 @@ a {
   width: 100%;
   top: 0;
   left: 0;
+  z-index: 1;
 }
 
 .header * {
@@ -156,7 +155,7 @@ a {
 
 .explore-main {
   max-width: 1000px;
-  width: 1000px;
+  width: 800px;
   margin: 0 auto;
 }
 
@@ -170,12 +169,11 @@ a {
 .banner-item {
   font-size: 5vw;
   text-align: left;
-  /*padding-left: 50px;*/
 }
 
 .search-box {
   width: 50%;
-  margin: 0 auto;
+  margin: 0 auto 100px auto;
   display: block;
   padding: 5px 8px;
   font-size: 1.5vw;
@@ -184,32 +182,121 @@ a {
 }
 
 .results-list {
-  margin: 100px auto 0 auto;
   padding: 0;
   list-style: none;
-  width: 75%;
+  margin-top: 0;
 }
 
 .result {
   padding: 15px 20px;
-  box-shadow: 1px;
 }
 
 .result:hover {
   box-shadow: 1px 1px 6px 1px;
 }
 
+.result a:hover {
+  text-decoration: underline;
+}
+
 .item-heading {
   font-size: 3vw;
   margin-bottom: 0;
   border-bottom: 1px solid #E7E7E7;
+  position: relative;
 }
 
-.item-info-list {
-  list-style: none;
-  padding: 0;
+.additional-info {
+  font-size: 18px;
+  font-style: italic;
+  display: inline-block;
+  margin-left: 10px;
 }
 
-.item-info-list > li:not(:last-child) {
-  margin-bottom: 15px;
+.activated {
+  background-color: #E7E7E7;
+}
+
+.add-new {
+  display: inline-block;
+  position: absolute;
+  right: 20px;
+  border: 1px solid #555555;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  line-height: 1;
+}
+
+.add-new:hover {
+  background-color: #555555;
+  color: #FFFFFF;
+}
+
+.table {
+  display: table;
+  padding: 10px;
+  border: 1px solid #555555;
+  width: 100%;
+}
+
+.table-row {
+  display: table-row;
+}
+
+.table-cell {
+  display: table-cell;
+  margin-bottom: 5px;
+}
+
+form.table {
+  position: relative;
+}
+
+form.table * {
+  font-size: 20px;
+}
+
+form.table input[type=text] {
+  padding: 5px;
+}
+
+form.table label {
+  width: 10%;
+  padding-right: 25px;
+}
+
+form .toolbox {
+  margin: 0;
+  position: absolute;
+  right: 10px;
+  left: auto;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+form .toolbox * {
+  display: block;
+  cursor: pointer;
+  font-size: 30px;
+}
+
+form .toolbox *:not(:last-child) {
+  margin-bottom: 10px;
+}
+
+.toolbox {
+  position: fixed;
+  top: 100px;
+  left: 30px;
+}
+
+.toolbox .fa {
+  display: block;
+  font-size: 2vw;
+}
+
+.toolbox .fa:not(:last-child) {
+  margin-bottom: 10px;
 }
