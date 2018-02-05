@@ -67,7 +67,7 @@ const creatorSchema = mongoose.Schema({
   created: { type: String, default: Date.now }
 }, { toJSON: { virtuals: true}, toObject: { virtuals: true } });
 
-creatorSchema.virtual("fullName")
+creatorSchema.virtual("fullname")
   .get(function() {
     const nameFields = ["first", "middle", "last"];
     let fullName = "";
@@ -125,7 +125,7 @@ creatorSchema.methods.populatedSerialize = function() {
   
   return {
     id:     this._id,
-    name:   this.fullName,
+    name:   this.fullname,
     links:  this.links,
     awards: this.awards,
     works:  revisedWorks
@@ -177,7 +177,8 @@ workSchema.methods.populatedSerialize = function() {
   // Revised populated contributors to only show full name
   work.contributors.forEach(contributor => {
     contributor.id  = contributor.who.id;
-    contributor.who = contributor.who.fullName;
+    contributor.fullname = contributor.who.fullname;
+    delete contributor.who;
   });
   
   // Revise published_in (if it exists) in publication info with English title
@@ -194,8 +195,7 @@ workSchema.methods.populatedSerialize = function() {
       content.name = title.name;
       
       let author = content.work.contributors.find(elem => elem.role === "author");
-      content.author = author.who.fullName;
-      
+      content.author = author.who.fullname;
       content.kind = content.work.kind;
       
       delete content.work;
