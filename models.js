@@ -104,7 +104,7 @@ creatorSchema.virtual("works", {
 creatorSchema.methods.serialize = function() {
   return {
     id:     this._id,
-    name:   this.fullName,
+    name:   this.fullname,
     links:  this.links,
     awards: this.awards,
     works:  this.works

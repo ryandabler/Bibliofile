@@ -20,7 +20,7 @@ mongoose.Promise = global.Promise;
 ////////////////////////////
 function generateCreatorData() {
   return {
-    fullName: `${faker.name.firstName()} ${faker.name.lastName()}`,
+    fullname: `${faker.name.firstName()} ${faker.name.lastName()}`,
     links: [
       {
         domain: "Wikipedia",
@@ -153,16 +153,15 @@ describe("Creator API", function() {
                  .then(function(res) {
                    expect(res).to.have.status(200);
                    expect(res).to.be.json;
-                   expect(res.body).to.be.a("object");
-                   expect(res.body).to.deep.equal(creator);
+                   expect(res.body.creators).to.be.a("object");
+                   expect(res.body.creators).to.deep.equal(creator);
                  });
     });
   });
 
   describe("POST endpoint", function() {
-    it("Should create a blog post", function() {
+    it("Should create a creator", function() {
       const newCreator = generateCreatorData();
-      
       return chai.request(app)
                  .post("/api/creators")
                  .send(newCreator)
@@ -174,8 +173,8 @@ describe("Creator API", function() {
                    expect(res.body.id).to.not.equal(null);
                    
                    // Process newCreator to make it match the response from the server
-                   newCreator.name = newCreator.fullName;
-                   delete newCreator.fullName;
+                   newCreator.name = newCreator.fullname;
+                   delete newCreator.fullname;
                    delete newCreator.created;
                    delete res.body.works;
                    
@@ -380,7 +379,6 @@ describe("Work API", function() {
       return chai.request(app)
                  .get("/api/creators")
                  .then(function(res) {
-                  //console.log(creators);
                    work = {
                              title: [{
                                lang: "en",
@@ -420,7 +418,6 @@ describe("Work API", function() {
       return chai.request(app)
                  .get("/api/creators")
                  .then(function(res) {
-                  //console.log(creators);
                    work = {
                              title: [{
                                lang: "en",
@@ -462,7 +459,6 @@ describe("Work API", function() {
       return chai.request(app)
                  .get("/api/creators")
                  .then(function(res) {
-                  //console.log(creators);
                    work = {
                              title: [{
                                lang: "en",
@@ -544,7 +540,7 @@ describe("Work API", function() {
                               .send(updatedWork);
                  })
                  .then(function(res) {
-                   expect(res).to.have.status(200);
+                   expect(res).to.have.status(204);
                    
                    return Work.findById(updatedWork.id);
                  })
