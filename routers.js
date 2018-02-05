@@ -4,6 +4,7 @@
 const express       = require("express");
 const routerCreator = express.Router();
 const routerWork    = express.Router();
+const routerSearch  = express.Router();
 
 const bodyParser    = require("body-parser");
 const jsonParser    = bodyParser.json();
@@ -94,11 +95,11 @@ routerCreator.get("/:id", (req, res) => {
 routerCreator.post(
   "/",
   jsonParser,
-  checkRequiredFields(["fullName"]),
+  checkRequiredFields(["fullname"]),
   (req, res) => {
-    const {fullName, links, awards} = req.body;
+    const {fullname, links, awards} = req.body;
     
-    Creator.create({fullName, links, awards})
+    Creator.create({fullname, links, awards})
            .then(creator => res.status(201).json(creator.serialize()))
            .catch(err => {
              console.error(err);
@@ -200,7 +201,16 @@ routerWork.put(
         });
 });
 
+// Search route
+routerSearch.get("/:string", (req, res) => {
+  const { string } = req.params;
+  Work.find({$text: {$search: string}})
+      .then(works => {
+        res.json( { works: works.map(work => work.serialize()) } );
+      });
+});
+
 ////////////////////////////
 // Export routers
 ////////////////////////////
-module.exports = { routerCreator, routerWork };
+module.exports = { routerCreator, routerWork, routerSearch };

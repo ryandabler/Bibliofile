@@ -17,7 +17,7 @@ const awardsSchema = mongoose.Schema({
 
 const titleSchema = mongoose.Schema({
   lang: { type: String, required: true },
-  name: { type: String, required: true }
+  name: { type: String, required: true, index: true, text: true }
 }, { _id: false });
 
 const contributorSchema = mongoose.Schema({
@@ -104,7 +104,7 @@ creatorSchema.virtual("works", {
 creatorSchema.methods.serialize = function() {
   return {
     id:     this._id,
-    name:   this.fullName,
+    name:   this.fullname,
     links:  this.links,
     awards: this.awards,
     works:  this.works
