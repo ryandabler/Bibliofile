@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="description" content="See the academic coversation on topics throughout history. See who cited whom, and fill in the citation gaps that you see!">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="main.css">
+    <script src="https://use.fontawesome.com/4d5590af89.js"></script>
+    <title>Bibliofile - Explore the Dialogue</title>
+  </head>
+    
+  <body class="flex">
+    <nav class="header" role="navigation">
+      <span class="logo">βibliofile</span>
+      <ul>
+        <li tabindex="0"><span class="clickable activated" title="Creators"><i class="fa fa-users fa-style"></i></span></li>
+        <li tabindex="0"><span class="clickable" title="Works"><i class="fa fa-book fa-style"></i></span></li>
+        <li tabindex="0"><span class="clickable" title="Conversation"><i class="fa fa-comments fa-style"></i></span></li>
+        <li tabindex="0"><span class="clickable" title="Shelf"><i class="fa fa-bookmark fa-style"></i></span></li>
+      </ul>
+    </nav>
+    
+    <main class="explore-main" role="main">
+      <section id="items">
+        <h2 id="banner-items" class="banner">Creators</h2>
+        <input type="text" class="search-box" placeholder="Search all items">
+        
+        <ul class="results-list" id="list-of-items">
+        </ul>
+      </section>
+      
+      <section id="item-creators" class="hidden">
+        <h2 id="banner-item-creator" class="banner banner-item"></h2>
+        
+        <h3 id="item-links-creator" class="item-heading">Links</h3>
+        <ul id="item-links-creator-list" class="results-list">
+        </ul>
+        
+        <h3 id="item-awards-creator" class="item-heading">Awards</h3>
+        <ul id="item-awards-creator-list" class="results-list">
+        </ul>
+        
+        <h3 id="item-works-creator" class="item-heading">Works</h3>
+        <ul id="item-works-creator-list" class="results-list">
+        </ul>
+      </section>
+      
+      <section id="item-works" class="hidden">
+        <div class="toolbox">
+          <i id="edit-work" class="fa fa-pencil-square-o clickable"> Edit</i>
+          <i id="delete-work" class="fa fa-trash-o clickable hidden"> Delete</i>
+          <i id="cancel-work" class="fa fa-times clickable hidden"> Cancel</i>
+          <i id="save-work" class="fa fa-floppy-o clickable hidden"> Save</i>
+        </div>
+        
+        <h2 id="banner-item-work" class="banner banner-item"></h2>
+        
+        <h3 id="item-title-work" data-val="title" class="item-heading">
+          Titles
+          <i id="new-title-work" class="js-add-new fa fa-plus-circle clickable hidden"></i>
+        </h3>
+        <ul id="item-title-work-list" class="results-list">
+        </ul>
+        
+        <h3 id="item-contributors-work" class="item-heading">
+          Contributors
+          <i id="new-contributors-work" class="js-add-new fa fa-plus-circle clickable hidden"></i>
+        </h3>
+        <ul id="item-contributors-work-list" class="results-list">
+        </ul>
+        
+        <h3 id="item-info-work" class="item-heading">
+          General information
+          <i id="new-info-work" class="js-add-new fa fa-plus-circle clickable hidden"></i>
+        </h3>
+        <ul id="item-info-work-list" class="results-list">
+        </ul>
+        
+        <h3 id="item-contents-work" class="item-heading">
+          Contents
+          <i id="new-contents-work" class="js-add-new fa fa-plus-circle clickable hidden"></i>
+        </h3>
+        <ul id="item-contents-work-list" class="results-list">
+        </ul>
+        
+        <h3 id="item-references-work" class="item-heading">
+          References
+          <i id="new-references-work" class="js-add-new fa fa-plus-circle clickable hidden"></i>
+        </h3>
+        <ul id="item-references-work-list" class="results-list">
+        </ul>
+        
+        <h3 id="item-identifiers-work" class="item-heading">
+          Identifiers
+          <i id="new-identifiers-work" class="js-add-new fa fa-plus-circle clickable hidden"></i>
+        </h3>
+        <ul id="item-identifiers-work-list" class="results-list">
+        </ul>
+        
+        <h3 id="item-links-work" class="item-heading">
+          Links
+          <i id="new-links-work" class="js-add-new fa fa-plus-circle clickable hidden"></i>
+        </h3>
+        <ul id="item-links-work-list" class="results-list">
+        </ul>
+      </section>
+    </main>
+    
+    <script src="https://code.jquery.com/jquery-3.2.1.min.js" type="text/javascript"></script>
+    <script src="app.js" type="text/javascript"></script>
+  </body>
+</html>

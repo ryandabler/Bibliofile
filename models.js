@@ -49,7 +49,7 @@ const contentSchema = mongoose.Schema({
 contentSchema.add( { contents: { type: [ contentSchema ], default: void 0 } } );
 
 const identifierSchema = mongoose.Schema({
-  kind: { type: String, required: true },
+  type: { type: String, required: true },
   identifier: { type: String, required: true }
 }, { _id: false });
 
@@ -67,7 +67,7 @@ const creatorSchema = mongoose.Schema({
   created: { type: String, default: Date.now }
 }, { toJSON: { virtuals: true}, toObject: { virtuals: true } });
 
-creatorSchema.virtual("fullName")
+creatorSchema.virtual("fullname")
   .get(function() {
     const nameFields = ["first", "middle", "last"];
     let fullName = "";
@@ -94,14 +94,51 @@ creatorSchema.virtual("fullName")
       }
     }
   });
-  
+
+creatorSchema.virtual("works", {
+  ref: "Work",
+  localField: "_id",
+  foreignField: "contributors.who"
+});
+
 creatorSchema.methods.serialize = function() {
   return {
     id:     this._id,
     name:   this.fullName,
     links:  this.links,
     awards: this.awards,
+    works:  this.works
   };
+};
+
+creatorSchema.methods.populatedSerialize = function() {
+  const creator = this.toObject();
+  
+  // Revise list of works to only be title and publication year
+  const revisedWorks = creator.works.map(work => {
+    let title = work.title.find(title => title.lang === "en").name,
+        year  = work.publication_info.year,
+        id    = work._id;
+    
+    return { id, title, year };
+  });
+  
+  return {
+    id:     this._id,
+    name:   this.fullname,
+    links:  this.links,
+    awards: this.awards,
+    works:  revisedWorks
+  };
+};
+
+creatorSchema.statics.getFindMethod = function(id = null) {
+  return id ? Creator.findById(id) : Creator.find();
+};
+
+creatorSchema.statics.findAndPopulate = function(id = null) {
+  return this.getFindMethod(id)
+             .populate( { path: "works", select: "id title publication_info" } );
 };
 
 const Creator = mongoose.model("Creator", creatorSchema);
@@ -139,7 +176,9 @@ workSchema.methods.populatedSerialize = function() {
   
   // Revised populated contributors to only show full name
   work.contributors.forEach(contributor => {
-    contributor.who = contributor.who.fullName;
+    contributor.id  = contributor.who.id;
+    contributor.fullname = contributor.who.fullname;
+    delete contributor.who;
   });
   
   // Revise published_in (if it exists) in publication info with English title
@@ -156,7 +195,8 @@ workSchema.methods.populatedSerialize = function() {
       content.name = title.name;
       
       let author = content.work.contributors.find(elem => elem.role === "author");
-      content.author = author.who.fullName;
+      content.author = author.who.fullname;
+      content.kind = content.work.kind;
       
       delete content.work;
     }
@@ -184,7 +224,7 @@ workSchema.statics.findAndPopulate = function(id = null) {
   return this.getFindMethod(id)
              .populate( { path: "contributors.who", select: "name" } )
              .populate( { path: "publication_info.published_in", select: "title" } )
-             .populate( { path: "contents.work", select: "title contributors",
+             .populate( { path: "contents.work", select: "title contributors kind",
                           populate: { path: "contributors.who", select: "name" }
                         } );
 };
