@@ -13,7 +13,8 @@ const API_WORK_ENDPOINT    = "http://localhost:8080/api/works",
 const APP_STATE = {
   currentlyLoaded: null,
   data: [],
-  currentItem: null
+  currentItem: null,
+  editedItem: null
 };
 
 //////////////////////
@@ -79,7 +80,7 @@ function createContributor(contributor) {
   
   $li.addClass("result clickable");
   $li.attr("id", contributor.id);
-  $li.text(contributor.who);
+  $li.text(contributor.fullname);
   
   $span.addClass("additional-info");
   $span.text(`(${contributor.role})`);
@@ -139,12 +140,26 @@ function createIdentifier(identifier) {
 }
 
 /////////// THESE TWO FUNCTIONS CAN LIKELY BE COMBINED
-function renderSection(sectionName, dataSegment, generatorFn) {
+// generatorObj = { fn: dataSegment.map, param: generatorFn
+function testrenderSection(sectionName, dataSegment, generatorObj) {
+  //generatorObj.fn.apply(dataSegment);
+  console.log(dataSegment, generatorObj, generatorObj.param);
   if(dataSegment.length === 0) {
-    $(`#item-${sectionName}`).addClass("hidden");
+    $(`#item-${sectionName}`).addClass("hidden js-empty");
     $(`#item-${sectionName}-list`).empty();
   } else {
-    $(`#item-${sectionName}`).removeClass("hidden");
+    $(`#item-${sectionName}`).removeClass("hidden js-empty");
+    const items = eval(generatorObj.fn(generatorObj.param));
+    $(`#item-${sectionName}-list`).append(items);
+  }
+}
+
+function renderSection(sectionName, dataSegment, generatorFn) {
+  if(dataSegment.length === 0) {
+    $(`#item-${sectionName}`).addClass("hidden js-empty");
+    $(`#item-${sectionName}-list`).empty();
+  } else {
+    $(`#item-${sectionName}`).removeClass("hidden js-empty");
     const items = dataSegment.map(generatorFn);
     $(`#item-${sectionName}-list`).append(items);
   }
@@ -152,10 +167,10 @@ function renderSection(sectionName, dataSegment, generatorFn) {
 
 function renderContents(sectionName, dataSegment) {
   if(dataSegment.length === 0) {
-    $(`#item-${sectionName}`).addClass("hidden");
+    $(`#item-${sectionName}`).addClass("hidden js-empty");
     $(`#item-${sectionName}-list`).empty();
   } else {
-    $(`#item-${sectionName}`).removeClass("hidden");
+    $(`#item-${sectionName}`).removeClass("hidden js-empty");
     const items = createContents(dataSegment);
     $(`#item-${sectionName}-list`).append(items);
   }
@@ -199,6 +214,7 @@ function renderWork(data) {
   $("#banner-item-work").text(data.title.find(elem => elem.lang === "en").name);
   
   // Handle sections
+  // testrenderSection("title-work", data.title, {fn:data.title.map, param: createTitle});
   renderSection("title-work", data.title, createTitle);
   renderSection("contributors-work", data.contributors, createContributor);
   renderInformation("info-work", [data.kind, data.publication_info]);
@@ -289,9 +305,12 @@ function removeNewInfoDiv(idToRemove) {
 }
 
 function insertEntryIntoDOM($listToInsertInto, objectToInsert) {
+  // Remove js-empty class from header to prevent header being hidden after save
+  $listToInsertInto.prev().prev().removeClass("js-empty");
+  
   const type = getTypeFromId($listToInsertInto.attr("id"));
   let newItem;
-  console.log("type", type);
+  
   switch(type) {
     case "title":
       newItem = createTitle(objectToInsert);
@@ -325,22 +344,59 @@ function insertEntryIntoDOM($listToInsertInto, objectToInsert) {
 }
 
 function makeEditable(event) {
-  console.log(event);
+  const $nearestSection = $(this).closest("section");
+  
+  // Add delete buttons to each list item
+  const $i = $("<i>").addClass("fa fa-times js-delete-list-item");
+  $nearestSection.find("li").append($i);
+  
+  // Unhide all section headings and edit buttons
+  $nearestSection.find(".item-heading").removeClass("hidden");
+  $nearestSection.find(".item-heading .js-add-new").removeClass("hidden");
+  
+  // Show toolbox items
+  $nearestSection.find(".toolbox .hidden").removeClass("hidden");
+  $("#edit-work").addClass("hidden");
+  
+  // Make an edited copy of the object
+  APP_STATE.editedItem = JSON.parse(JSON.stringify(APP_STATE.currentItem));
 }
 
+function makeUneditable($section) {
+  // Hide all section headings and edit buttons
+  $section.find(".js-empty").addClass("hidden");
+  $section.find(".item-heading .js-add-new").addClass("hidden");
+  
+  // Remove all unopened forms
+  $section.find("form").remove();
+  
+  // Show toolbox items
+  $section.find(".toolbox :not(.hidden)").addClass("hidden");
+  $section.find(".toolbox .fa-pencil-square-o").removeClass("hidden");
+  
+  // Reset APP_STATE.editedItem
+  APP_STATE.editedItem = null;
+}
 
+function cancelEditing(event) {
+  const $section = $(event.currentTarget).closest("section");
+  makeUneditable($section);
+  renderItemToDOM("works")( { works: APP_STATE.currentItem } );
+}
 
 //////////////////////
 // API functions
 //////////////////////
-function queryAPI(endpointURL, dataType, method, queryObj = {}) {
+function queryAPI(endpointURL, dataType, method, optionsObj = null) {
   const ajaxRequestObject = {
                                url:       endpointURL,
                                dataType:  dataType,
-                               method:    method//,
-                               //data:      queryObj
+                               method:    method
                             };
-                            
+  if(optionsObj) {
+    Object.assign(ajaxRequestObject, optionsObj);
+  }
+  
   return $.ajax(ajaxRequestObject);
 }
 
@@ -369,9 +425,37 @@ function deleteWork(event) {
           .catch(console.log);
 }
 
+function deleteListItem(event) {
+  $(event.currentTarget).parent().remove();
+}
+
+function saveWork(event) {
+  // Sanitize APP_STATE so that it will fit model
+  sanitizeAPP_STATE();
+  
+  // Perform query
+  const queryObj = { data: JSON.stringify(APP_STATE.editedItem),
+                     contentType: "application/json; charset=utf-8",
+                     processData: false
+                   };
+  queryAPI(`${API_GENERIC_ENDPOINT}/works/${APP_STATE.editedItem.id}`,
+           "json",
+           "PUT",
+            queryObj
+          ).then(res => makeUneditable($(this).closest("section")))
+           .catch(err => console.log("error", err));
+}
+
 //////////////////////
 // Other functions
 //////////////////////
+function sanitizeAPP_STATE() {
+  // Input "who" field for authors
+  APP_STATE.editedItem.contributors.forEach(contributor => {
+    contributor.who = contributor.id;
+  });
+}
+
 function getTypeFromId(id) {
   return id.split("-")[1];
 }
@@ -380,15 +464,18 @@ function insertIntoAPP_STATE(field, object) {
   // Need custom rule for when the items general info is updated
   if(field === "info") {
     if(object.type === "kind") {
-      APP_STATE.currentItem.kind = object.value;
+      APP_STATE.editedItem.kind = object.value;
     } else {
-      APP_STATE.currentItem.publication_info[object.type] = object.value;
+      APP_STATE.editedItem.publication_info[object.type] = object.value;
     }
   }
   
-  // General fule for all other fields (because they are arrays)
-  if(APP_STATE.currentItem[field] instanceof Array) {
-    APP_STATE.currentItem[field].push(object);
+  // General rule for all other fields (because they are arrays)
+  // First check if the field exists in editedItem
+  if(APP_STATE.editedItem[field] && APP_STATE.editedItem[field] instanceof Array) {
+    APP_STATE.editedItem[field].push(object);
+  } else {
+    APP_STATE.editedItem[field] = [ object ];
   }
 }
 
@@ -492,7 +579,10 @@ function addEventListeners() {
   $("#item-works-creator-list").on("click", "li", getItemDetails("works"));
   $(".js-add-new").click(toggleNewInfoPiece);
   $("#edit-work").click(makeEditable);
+  $("#cancel-work").click(cancelEditing);
   $("#delete-work").click(deleteWork);
+  $("#save-work").click(saveWork);
+  $("ul").on("click", ".js-delete-list-item", deleteListItem);
 }
 
 function loadData(data) {

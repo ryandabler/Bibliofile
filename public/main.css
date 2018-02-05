@@ -158,6 +158,10 @@ a {
   display: none;
 }
 
+.fa.hidden {
+  display: none;
+}
+
 .explore-main {
   max-width: 1000px;
   width: 800px;
@@ -194,6 +198,7 @@ a {
 
 .result {
   padding: 15px 20px;
+  position: relative;
 }
 
 .result:hover {
@@ -287,4 +292,13 @@ form .toolbox *:not(:last-child) {
 
 .toolbox .fa:not(:last-child) {
   margin-bottom: 10px;
+}
+
+.toolbox .fa.hidden {
+  display: none;
+}
+
+.js-delete-list-item {
+  position: absolute;
+  right: 10px;
 }
