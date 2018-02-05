@@ -193,7 +193,7 @@ routerWork.put(
     const {id} = req.params;
     
     Work.findByIdAndUpdate(id, res.locals.updatedDoc)
-        .then(updatedWork => res.status(200).end())
+        .then(updatedWork => res.status(204).end())
         .catch(err => {
           console.error(err);
           res.status(500).json( { message: "Internal server error" } );
