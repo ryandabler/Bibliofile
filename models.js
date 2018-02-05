@@ -17,7 +17,7 @@ const awardsSchema = mongoose.Schema({
 
 const titleSchema = mongoose.Schema({
   lang: { type: String, required: true },
-  name: { type: String, required: true }
+  name: { type: String, required: true, index: true, text: true }
 }, { _id: false });
 
 const contributorSchema = mongoose.Schema({
