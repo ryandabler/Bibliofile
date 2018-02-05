@@ -82,7 +82,9 @@ routerCreator.get("/", (req, res) => {
 routerCreator.get("/:id", (req, res) => {
   const {id} = req.params;
   Creator.findAndPopulate(id)
-         .then(creator => res.json(creator.populatedSerialize()))
+         .then(creator => {
+           res.json( { creators: creator.populatedSerialize() } );
+         })
          .catch(err => {
            console.error(err);
            res.status(500).json( { message: "Internal server error" } );
@@ -191,7 +193,7 @@ routerWork.put(
     const {id} = req.params;
     
     Work.findByIdAndUpdate(id, res.locals.updatedDoc)
-        .then(updatedWork => res.status(200).end())
+        .then(updatedWork => res.status(204).end())
         .catch(err => {
           console.error(err);
           res.status(500).json( { message: "Internal server error" } );

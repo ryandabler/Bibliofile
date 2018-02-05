@@ -1,4 +1,4 @@
-"use strict";
+localhost:8080/"use strict";
 
 ////////////////////////////
 // Initialize
@@ -14,6 +14,12 @@ const { routerCreator, routerWork } = require("./routers");
 const { PORT, DATABASE_URL } = require("./config");
 
 app.use(express.static("public"));
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  res.header("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE");
+  next();
+});
 
 ////////////////////////////
 // Set up application
