@@ -1,4 +1,4 @@
-localhost:8080/"use strict";
+"use strict";
 
 ////////////////////////////
 // Initialize
@@ -9,7 +9,7 @@ const mongoose = require("mongoose");
 
 const app = express();
 
-const { routerCreator, routerWork, routerSearch } = require("./routers");
+const { routerCreator, routerWork, routerSearchWorks, routerSearchAuthors } = require("./routers");
 
 const { PORT, DATABASE_URL } = require("./config");
 
@@ -31,7 +31,8 @@ app.use(morgan("common"));
 // Set up router
 app.use("/api/creators", routerCreator);
 app.use("/api/works", routerWork);
-app.use("/search/works", routerSearch);
+app.use("/api/search/works", routerSearchWorks);
+app.use("/api/search/creators", routerSearchAuthors);
 
 // Error handling
 app.use((err, req, res, next) => {
