@@ -39,6 +39,7 @@ function createLink(link) {
         $a  = $("<a>");
   
   $li.addClass("result clickable");
+  $li.attr("id", link._id_);
   $a.attr("href", link.url);
   $a.text(link.domain);
   
@@ -47,7 +48,7 @@ function createLink(link) {
 }
 
 function createAward(award) {
-  
+  return createListItem(award.name, award.year, award._id_);
 }
 
 function createWork(work) {
@@ -300,32 +301,38 @@ function insertEntryIntoDOM($listToInsertInto, objectToInsert) {
     case "identifiers":
       newItem = createIdentifier(objectToInsert);
       break;
+      
+    case "awards":
+      newItem = createAward(objectToInsert);
+      break;
   }
   
   $listToInsertInto.append(newItem);
 }
 
-function makeEditable(event) {
-  const $nearestSection = $(this).closest("section");
+function makeEditable(dataType) {
+  return function(event) {
+    const $nearestSection = $(this).closest("section");
   
-  // Add delete buttons to each list item
-  const $span    = $("<span>").addClass("js-opt-list-item");
-  const $iEdit   = $("<i>").addClass("fa fa-pencil-square-o js-edit-list-item");
-  const $iDelete = $("<i>").addClass("fa fa-times js-delete-list-item");
-  
-  $span.append( [ $iEdit, $iDelete ] );
-  $nearestSection.find("li").append($span);
-  
-  // Unhide all section headings and edit buttons
-  $nearestSection.find(".item-heading").removeClass("hidden");
-  $nearestSection.find(".item-heading .js-add-new").removeClass("hidden");
-  
-  // Show toolbox items
-  $nearestSection.find(".toolbox .hidden").removeClass("hidden");
-  $("#edit-work").addClass("hidden");
-  
-  // Make an edited copy of the object
-  APP_STATE.editedItem = JSON.parse(JSON.stringify(APP_STATE.currentItem));
+    // Add delete buttons to each list item
+    const $span    = $("<span>").addClass("js-opt-list-item");
+    const $iEdit   = $("<i>").addClass("fa fa-pencil-square-o js-edit-list-item");
+    const $iDelete = $("<i>").addClass("fa fa-times js-delete-list-item");
+    
+    $span.append( [ $iEdit, $iDelete ] );
+    $nearestSection.find("li").append($span);
+    
+    // Unhide all section headings and edit buttons
+    $nearestSection.find(".item-heading").removeClass("hidden");
+    $nearestSection.find(".item-heading .js-add-new").removeClass("hidden");
+    
+    // Show toolbox items
+    $nearestSection.find(".toolbox .hidden").removeClass("hidden");
+    $(`#edit-${dataType}`).addClass("hidden");
+    
+    // Make an edited copy of the object
+    APP_STATE.editedItem = JSON.parse(JSON.stringify(APP_STATE.currentItem));
+  };
 }
 
 function makeUneditable($section) {
@@ -393,6 +400,25 @@ function showSearchChoices(dataType, $emittingElement) {
   };
 }
 
+function deleteListItem(event) {
+  const $li  = $(event.currentTarget).closest("li"),
+        _id_ = $li.attr("id"),
+        $ul  = $(event.currentTarget).closest("ul"),
+        $h3  = $ul.prev(),
+        type = getTypeFromId($ul.attr("id"));
+  
+  removeFromAPP_STATE(_id_, type);
+  $(event.currentTarget).closest("li").remove();
+  
+  if ($ul.children().length === 0) {
+    $h3.addClass("js-empty");
+  }
+}
+
+function editListItem(event) {
+  toggleEditInfoPiece(event);
+}
+
 //////////////////////
 // API functions
 //////////////////////
@@ -436,12 +462,10 @@ function deleteItem(dataType) {
   };
 }
 
-function deleteListItem(event) {
-  $(event.currentTarget).closest("li").remove();
-}
-
 function saveItem(dataType) {
   return function(event) {
+    const $section = $(event.currentTarget).closest("section");
+    
     // Sanitize APP_STATE so that it will fit model
     sanitizeAPP_STATE();
     
@@ -454,8 +478,22 @@ function saveItem(dataType) {
              "json",
              "PUT",
               queryObj
-             ).then(res => makeUneditable($(this).closest("section")))
-              .catch(err => console.log("error", err));
+             )
+             .then(res => {
+               APP_STATE.currentItem = APP_STATE.editedItem;
+               makeUneditable($section);
+             })
+              .catch(err => {
+                if(err.status === 200) {
+                  APP_STATE.currentItem = APP_STATE.editedItem;
+                  makeUneditable($section);
+                } else {
+                  console.log(err);
+                }
+             });
+  
+  // Make uneditable
+  
   };
 }
 
@@ -477,14 +515,23 @@ function searchDatabase(dataType) {
 // Other functions
 //////////////////////
 function sanitizeAPP_STATE() {
-  // Input "who" field for authors
-  APP_STATE.editedItem.contributors.forEach(contributor => {
-    contributor.who = contributor.id;
-  });
+  const item = APP_STATE.editedItem;
+  
+  if (item.contributors) {
+    // Input "who" field for authors
+    item.contributors.forEach(contributor => {
+      contributor.who = contributor.id;
+    });
+  }
 }
 
 function getTypeFromId(id) {
   return id.split("-")[1];
+}
+
+function removeFromAPP_STATE(_id_, type) {
+  const entry = APP_STATE.editedItem[type].find(item => item._id_ === _id_);
+  APP_STATE.editedItem[type] = APP_STATE.editedItem[type].filter(item => item !== entry);
 }
 
 function insertIntoAPP_STATE(field, object) {
@@ -495,14 +542,16 @@ function insertIntoAPP_STATE(field, object) {
     } else {
       APP_STATE.editedItem.publication_info[object.type] = object.value;
     }
-  }
-  
-  // General rule for all other fields (because they are arrays)
-  // First check if the field exists in editedItem
-  if(APP_STATE.editedItem[field] && APP_STATE.editedItem[field] instanceof Array) {
-    APP_STATE.editedItem[field].push(object);
   } else {
-    APP_STATE.editedItem[field] = [ object ];
+    object._id_ = guid();
+    
+    // General rule for all other fields (because they are arrays)
+    // First check if the field exists in editedItem
+    if(APP_STATE.editedItem[field] && APP_STATE.editedItem[field] instanceof Array) {
+      APP_STATE.editedItem[field].push(object);
+    } else {
+      APP_STATE.editedItem[field] = [ object ];
+    }
   }
 }
 
@@ -546,6 +595,7 @@ function addNewInfoPiece($parent, callingId) {
       ];
       break;
       
+    case "new-links-creator":
     case "new-links-work":
       fields = [
         {label: "domain", input: "text"},
@@ -584,9 +634,20 @@ function addNewInfoPiece($parent, callingId) {
         {label: "value", input: "text"}
       ];
       break;
+    
+    case "new-awards-creator":
+    case "new-awards-work":
+      fields = [
+        {label: "name", input: "text"},
+        {label: "year", input: "text"}
+      ];
   }
   
   showNewInfoDiv($parent, fields, id);
+}
+
+function toggleEditInfoPiece(event) {
+  
 }
 
 function toggleNewInfoPiece(event) {
@@ -607,15 +668,15 @@ function addEventListeners() {
   $("#list-of-items").on("click", "li", getItemDetails("creators"));
   $("#item-works-creator-list").on("click", "li", getItemDetails("works"));
   $(".js-add-new").click(toggleNewInfoPiece);
-  $("#edit-work").click(makeEditable);
-  $("#edit-creator").click(makeEditable);
-  $("#cancel-work").click(cancelEditing);
-  $("#cancel-creator").click(cancelEditing);
+  $("#edit-work").click(makeEditable("work"));
+  $("#edit-creator").click(makeEditable("creator"));
+  $("#cancel-work, #cancel-creator").click(cancelEditing);
   $("#delete-work").click(deleteItem("works"));
   $("#delete-creator").click(deleteItem("creators"));
   $("#save-work").click(saveItem("works"));
-  $("#save-Creator").click(saveItem("creators"));
+  $("#save-creator").click(saveItem("creators"));
   $("ul").on("click", ".js-delete-list-item", deleteListItem);
+  $("ul").on("click", ".js-edit-list-item", editListItem);
 }
 
 function loadData(data) {
@@ -623,12 +684,34 @@ function loadData(data) {
 }
 
 function loadItem(data) {
+  const dataWithIds = data,
+        fieldsNeedingIds = ["awards", "links"];
+  
+  fieldsNeedingIds.forEach(fieldNeedingId => {
+    if(dataWithIds[fieldNeedingId]) {
+      dataWithIds[fieldNeedingId].forEach(field => {
+        field._id_ = guid();
+      });
+    }
+  });
+  
+  
   APP_STATE.currentItem = data;
 }
 
 function processGETListData(data) {
   loadData(data);
   renderListOfItemsToDOM(data, "list-of-items");
+}
+
+function guid() {
+  function s4() {
+    return Math.floor((1 + Math.random()) * 0x10000)
+      .toString(16)
+      .substring(1);
+  }
+  return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+    s4() + '-' + s4() + s4() + s4();
 }
 
 function initApp() {
