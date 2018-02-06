@@ -20,14 +20,23 @@ const APP_STATE = {
 //////////////////////
 // DOM functions
 //////////////////////
+function createListItem(item) {
+  // This function can be called on works or creators
+  // Both have an id field, however, the other field is either "name" or "title"
+  // Currently we are defaulting to the English title
+  const $li = $("<li>");
+  $li.addClass("result clickable");
+  $li.attr("id", item.id);
+  $li.text(item.name || item.title.find(elem => elem.lang === "en").name);
+  
+  return $li;
+}
+
 function renderListOfItemsToDOM(data, htmlIdToAppendTo) {
   const $htmlElement = $(`#${htmlIdToAppendTo}`);
   
   data[APP_STATE.currentlyLoaded].forEach(item => {
-    const $li = $("<li>");
-    $li.addClass("result clickable");
-    $li.attr("id", item.id);
-    $li.text(item.name);
+    const $li = createListItem(item);
     $htmlElement.append($li);
   });
 }
