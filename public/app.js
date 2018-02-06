@@ -57,6 +57,7 @@ function createAward(award) {
   
 }
 
+
 function createWork(work) {
   const $li   = $("<li>"),
         $span = $("<span>");
@@ -100,10 +101,15 @@ function createContributor(contributor) {
 
 function createContent(content) {
   const $li = $("<li>");
-        
   $li.addClass("result clickable");
   $li.text(content.name);
   
+  if(content.author) {
+    const $span = $("<span>");
+    $span.text(`(${content.author})`);
+    $span.addClass("additional-info");
+    $li.append($span);
+  }
   return $li;
 }
 
@@ -124,12 +130,15 @@ function createContents(contents) {
 }
 
 function createReference(reference) {
+  // Check for id and title either nested under reference.work or directly under reference
+  // From the database, reference.work.<FIELD> will be retrieved, but when manually entering data
+  // they will be only under reference
   const $li   = $("<li>"),
         $span = $("<span>");
   
   $li.addClass("result clickable");
-  $li.attr("id", reference.work.id);
-  $li.text(reference.work.title);
+  $li.attr("id", reference.work ? reference.work.id : reference.id);
+  $li.text(reference.work ? reference.work.title : reference.title);
   
   $span.addClass("additional-info");
   $span.text(`(${reference.kind})`);
@@ -148,39 +157,15 @@ function createIdentifier(identifier) {
   return $li;
 }
 
-/////////// THESE TWO FUNCTIONS CAN LIKELY BE COMBINED
-// generatorObj = { fn: dataSegment.map, param: generatorFn
-function testrenderSection(sectionName, dataSegment, generatorObj) {
-  //generatorObj.fn.apply(dataSegment);
-  console.log(dataSegment, generatorObj, generatorObj.param);
+function renderSection(sectionName, dataSegment, generatorObj) {
+  // generatorObj takes a function to call in "fn" and the parameter to pass to the function
+  // in "param"
   if(dataSegment.length === 0) {
     $(`#item-${sectionName}`).addClass("hidden js-empty");
     $(`#item-${sectionName}-list`).empty();
   } else {
     $(`#item-${sectionName}`).removeClass("hidden js-empty");
-    const items = eval(generatorObj.fn(generatorObj.param));
-    $(`#item-${sectionName}-list`).append(items);
-  }
-}
-
-function renderSection(sectionName, dataSegment, generatorFn) {
-  if(dataSegment.length === 0) {
-    $(`#item-${sectionName}`).addClass("hidden js-empty");
-    $(`#item-${sectionName}-list`).empty();
-  } else {
-    $(`#item-${sectionName}`).removeClass("hidden js-empty");
-    const items = dataSegment.map(generatorFn);
-    $(`#item-${sectionName}-list`).append(items);
-  }
-}
-
-function renderContents(sectionName, dataSegment) {
-  if(dataSegment.length === 0) {
-    $(`#item-${sectionName}`).addClass("hidden js-empty");
-    $(`#item-${sectionName}-list`).empty();
-  } else {
-    $(`#item-${sectionName}`).removeClass("hidden js-empty");
-    const items = createContents(dataSegment);
+    const items = generatorObj.fn(generatorObj.param);
     $(`#item-${sectionName}-list`).append(items);
   }
 }
@@ -210,9 +195,9 @@ function renderCreator(data) {
   $("#banner-item-creator").text(data.name);
   
   // Handle sections
-  renderSection("links-creator", data.links, createLink);
-  renderSection("awards-creator", data.awards, createAward);
-  renderSection("works-creator", data.works, createWork);
+  renderSection("links-creator", data.links, { fn: data.links.map.bind(data.links), param: createLink } );
+  renderSection("awards-creator", data.awards, { fn: data.awards.map.bind(data.awards), param: createAward } );
+  renderSection("works-creator", data.works, { fn: data.works.map.bind(data.works), param: createWork } );
   
   // Switch to item display
   switchDisplay("item-creators");
@@ -223,14 +208,13 @@ function renderWork(data) {
   $("#banner-item-work").text(data.title.find(elem => elem.lang === "en").name);
   
   // Handle sections
-  // testrenderSection("title-work", data.title, {fn:data.title.map, param: createTitle});
-  renderSection("title-work", data.title, createTitle);
-  renderSection("contributors-work", data.contributors, createContributor);
+  renderSection("title-work", data.title, { fn: data.title.map.bind(data.title), param: createTitle } );
+  renderSection("contributors-work", data.contributors, { fn: data.contributors.map.bind(data.contributors), param: createContributor } );
   renderInformation("info-work", [data.kind, data.publication_info]);
-  renderContents("contents-work", data.contents);
-  renderSection("references-work", data.references, createReference);
-  renderSection("identifiers-work", data.identifiers, createIdentifier);
-  renderSection("links-work", data.links, createLink);
+  renderSection("contents-work", data.contents, { fn: createContents, param: data.contents } );
+  renderSection("references-work", data.references, { fn: data.references.map.bind(data.references), param: createReference } );
+  renderSection("identifiers-work", data.identifiers, { fn: data.identifiers.map.bind(data.identifiers), param: createIdentifier } );
+  renderSection("links-work", data.links, { fn: data.links.map.bind(data.links), param: createLink } );
   
   // Switch to item display
   switchDisplay("item-works");
@@ -261,20 +245,32 @@ function switchDisplay(activeDisplayId) {
 function generateFormInputs(infoPieces, formType) {
   // infoPieces is an array of elements that a textbox needs to be created for
   return infoPieces.map(infoPiece => {
-    const $div   = $("<div>"),
-          $label = $("<label>"),
-          $input = $("<input>");
+    const $div    = $("<div>"),
+          $label  = $("<label>"),
+          $input  = $("<input>"),
+          inputId = infoPiece.id ? infoPiece.id : `${formType}-${infoPiece.label}`,
+          divRow  = [];
     
-    $label.addClass("table-cell");
-    $label.attr("for", `${formType}-${infoPiece.label}`);
-    $label.text(infoPiece.label);
+    if (infoPiece.label) {
+      $label.addClass("table-cell");
+      $label.attr("for", `${formType}-${infoPiece.label}`);
+      $label.text(infoPiece.label);
+      divRow.push($label);
+    }
     
     $input.addClass("table-cell");
     $input.attr("type", infoPiece.input);
-    $input.attr("id", `${formType}-${infoPiece.label}`);
+    $input.attr("id", inputId);
+    divRow.push($input);
+    
+    if(infoPiece.events) {
+      infoPiece.events.forEach(event => {
+        $input.on(event.type, event.callback);
+      });
+    }
     
     $div.addClass("table-row");
-    $div.append([$label, $input]);
+    $div.append(divRow);
     
     return $div;
   });
@@ -356,8 +352,12 @@ function makeEditable(event) {
   const $nearestSection = $(this).closest("section");
   
   // Add delete buttons to each list item
-  const $i = $("<i>").addClass("fa fa-times js-delete-list-item");
-  $nearestSection.find("li").append($i);
+  const $span    = $("<span>").addClass("js-opt-list-item");
+  const $iEdit   = $("<i>").addClass("fa fa-pencil-square-o js-edit-list-item");
+  const $iDelete = $("<i>").addClass("fa fa-times js-delete-list-item");
+  
+  $span.append( [ $iEdit, $iDelete ] );
+  $nearestSection.find("li").append($span);
   
   // Unhide all section headings and edit buttons
   $nearestSection.find(".item-heading").removeClass("hidden");
@@ -391,6 +391,41 @@ function cancelEditing(event) {
   const $section = $(event.currentTarget).closest("section");
   makeUneditable($section);
   renderItemToDOM("works")( { works: APP_STATE.currentItem } );
+}
+
+function chooseItemFromDropdown(idToAddTextTo) {
+  return function chooseAuthor(event) {
+    const $current    = $(event.currentTarget),
+          $form       = $current.closest("form"),
+          $divOverlay = $current.closest("div");
+          
+    $form.find("input[type=hidden]").val($current.attr("id"));
+    $form.find(`#${idToAddTextTo}`).val($current.text());
+    $divOverlay.remove();
+  };
+}
+
+function showSearchChoices(dataType, $emittingElement) {
+  return function(data) {
+    const $div           = $("#srch-over-contrib").length ? $("#srch-over-contrib") : $("<div>"),
+          $ul            = $("<ul>"),
+          { top, left }  = $emittingElement.offset(),
+          height         = $emittingElement.height(),
+          width          = $emittingElement.outerWidth(),
+          list           = data[dataType].map(createListItem);
+    
+    $ul.addClass("results-list");
+    $ul.append(list);
+    $ul.on("click", "li", chooseItemFromDropdown($emittingElement[0].id));
+    
+    $div.empty();
+    $div.append($ul);
+    $div.attr("id", "srch-over-contrib");
+    $div.addClass("search-overlay");
+    $div.width(width);
+    
+    $emittingElement.after($div);
+  };
 }
 
 //////////////////////
@@ -453,6 +488,20 @@ function saveWork(event) {
             queryObj
           ).then(res => makeUneditable($(this).closest("section")))
            .catch(err => console.log("error", err));
+}
+
+function searchDatabase(dataType) {
+  return function(event) {
+    const $currentTarget = $(event.currentTarget);
+    if ($currentTarget.val().length > 3) {
+      queryAPI(`${API_GENERIC_ENDPOINT}/search/${dataType}/${$currentTarget.val()}`,
+                "json",
+                "GET"
+              ).then(showSearchChoices(dataType, $currentTarget));
+    } else {
+      $("#srch-over-contrib").remove();
+    }
+  };
 }
 
 //////////////////////
@@ -523,7 +572,8 @@ function addNewInfoPiece($parent, callingId) {
     case "new-contributors-work":
       fields = [
         {label: "role", input: "text"},
-        {label: "who",  input: "text"}
+        {label: "who",  input: "text", id: "contributors-fullname", events: [ { type: "input", callback: searchDatabase("creators") } ] },
+        {input: "hidden", id: "contributors-id"}
       ];
       break;
       
@@ -547,14 +597,15 @@ function addNewInfoPiece($parent, callingId) {
     case "new-identifiers-work":
       fields = [
         {label: "type",       input: "text"},
-        {label: "identifier", input: "text"}
+        {label: "identifier", input: "text"},
       ];
       break;
       
     case "new-references-work":
       fields = [
         {label: "kind", input: "text"},
-        {label: "work", input: "text"}
+        {label: "work", input: "text", id: "references-title", events: [ { type: "input", callback: searchDatabase("works") } ] },
+        {input: "hidden", id: "references-id"}
       ];
       break;
       
@@ -572,7 +623,7 @@ function addNewInfoPiece($parent, callingId) {
 function toggleNewInfoPiece(event) {
   const $currentTarget = $(event.currentTarget),
         currentId      = event.currentTarget.id,
-        $parent        = $(event.currentTarget.parentElement);
+        $parent        = $currentTarget.parent();
   
   if($currentTarget.attr("data-expanded") === "true") {
     $currentTarget.attr("data-expanded", "false");
