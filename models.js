@@ -11,8 +11,8 @@ const linksSchema = mongoose.Schema({
 }, { _id: false });
 
 const awardsSchema = mongoose.Schema({
-  award_name: { type: String, required: true },
-  award_year: { type: String, required: true }
+  name: { type: String, required: true },
+  year: { type: String, required: true }
 }, { _id: false });
 
 const titleSchema = mongoose.Schema({
