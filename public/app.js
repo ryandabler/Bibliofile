@@ -1,15 +1,9 @@
 "use strict";
 
 //////////////////////
-// ONLY FOR TESTING PURPOSES
+// Globals
 //////////////////////
-const API_WORK_ENDPOINT    = "http://localhost:8080/api/works",
-      API_CREATOR_ENDPOINT = "http://localhost:8080/api/creators",
-      API_GENERIC_ENDPOINT = "http://localhost:8080/api";
-//////////////////////
-//
-//////////////////////
-
+const API_GENERIC_ENDPOINT = "http://localhost:8080/api";
 const APP_STATE = {
   currentlyLoaded: null,
   data: [],
@@ -20,24 +14,23 @@ const APP_STATE = {
 //////////////////////
 // DOM functions
 //////////////////////
-function createListItem(item) {
-  // This function can be called on works or creators
-  // Both have an id field, however, the other field is either "name" or "title"
-  // Currently we are defaulting to the English title
+function createListItem(main, addl=null, id=null) {
   const $li = $("<li>");
   $li.addClass("result clickable");
-  $li.attr("id", item.id);
-  $li.text(item.name || item.title.find(elem => elem.lang === "en").name);
-  
+  $li.text(main);
+    
+  id   ? $li.attr("id", id)                                                    : null;
+  addl ? $li.append($("<span>").text(`(${addl})`).addClass("additional-info")) : null;
   return $li;
 }
 
 function renderListOfItemsToDOM(data, htmlIdToAppendTo) {
-  const $htmlElement = $(`#${htmlIdToAppendTo}`);
+  const $ulElement = $(`#${htmlIdToAppendTo}`);
   
   data[APP_STATE.currentlyLoaded].forEach(item => {
-    const $li = createListItem(item);
-    $htmlElement.append($li);
+    const name = item.name || item.title.find(elem => elem.lang === "en").name;
+    const $li = createListItem(name, null, item.id);
+    $ulElement.append($li);
   });
 }
 
@@ -57,46 +50,16 @@ function createAward(award) {
   
 }
 
-
 function createWork(work) {
-  const $li   = $("<li>"),
-        $span = $("<span>");
-  
-  $li.addClass("result clickable");
-  $li.attr("id", work.id);
-  $li.text(work.title);
-  
-  if (work.year) {
-    $span.addClass("additional-info");
-    $span.text(`(${work.year})`);
-    $li.append($span);
-  }
-  
-  return $li;
+  return createListItem(work.title, work.year, work.id);
 }
 
 function createTitle(title) {
-  const $li = $("<li>");
-        
-  $li.addClass("result clickable");
-  $li.text(title.name);
-  
-  return $li;
+  return createListItem(title.name);
 }
 
 function createContributor(contributor) {
-  const $li   = $("<li>"),
-        $span = $("<span>");
-  
-  $li.addClass("result clickable");
-  $li.attr("id", contributor.id);
-  $li.text(contributor.fullname);
-  
-  $span.addClass("additional-info");
-  $span.text(`(${contributor.role})`);
-  $li.append($span);
-  
-  return $li;
+  return createListItem(contributor.fullname, contributor.role, contributor.id);
 }
 
 function createContent(content) {
@@ -148,13 +111,7 @@ function createReference(reference) {
 }
 
 function createIdentifier(identifier) {
-  const $li   = $("<li>");
-  
-  $li.addClass("result clickable");
-  $li.attr("id", identifier.identifier);
-  $li.html(`<b>${identifier.type}</b>: ${identifier.identifier}`);
-  
-  return $li;
+  return createListItem(identifier.identifier, identifier.type);
 }
 
 function renderSection(sectionName, dataSegment, generatorObj) {
@@ -375,6 +332,7 @@ function makeUneditable($section) {
   // Hide all section headings and edit buttons
   $section.find(".js-empty").addClass("hidden");
   $section.find(".item-heading .js-add-new").addClass("hidden");
+  $section.find(".js-opt-list-item").addClass("hidden");
   
   // Remove all unopened forms
   $section.find("form").remove();
@@ -388,9 +346,13 @@ function makeUneditable($section) {
 }
 
 function cancelEditing(event) {
-  const $section = $(event.currentTarget).closest("section");
+  const $section = $(event.currentTarget).closest("section"),
+        type     = getTypeFromId($section.attr("id")),
+        dataObj  = {};
+  dataObj[type] = APP_STATE.currentItem;
+  
   makeUneditable($section);
-  renderItemToDOM("works")( { works: APP_STATE.currentItem } );
+  renderItemToDOM(type)(dataObj);
 }
 
 function chooseItemFromDropdown(idToAddTextTo) {
@@ -412,7 +374,10 @@ function showSearchChoices(dataType, $emittingElement) {
           { top, left }  = $emittingElement.offset(),
           height         = $emittingElement.height(),
           width          = $emittingElement.outerWidth(),
-          list           = data[dataType].map(createListItem);
+          list           = data[dataType].map(item => {
+                             const name = item.name || item.title.find(elem => elem.lang === "en").name;
+                             return createListItem(name, null, item.id);
+                           });
     
     $ul.addClass("results-list");
     $ul.append(list);
@@ -460,34 +425,38 @@ function getItemDetails(itemType) {
   };
 }
 
-function deleteWork(event) {
-  queryAPI(`${API_WORK_ENDPOINT}/${APP_STATE.currentItem.id}`,
-           "json",
-           "DELETE"
-          )
-          .then(res => switchDisplay("items"))
-          .catch(console.log);
+function deleteItem(dataType) {
+  return function() {
+    queryAPI(`${API_GENERIC_ENDPOINT}/${dataType}/${APP_STATE.currentItem.id}`,
+             "json",
+             "DELETE"
+            )
+            .then(res => switchDisplay("items"))
+            .catch(console.log);
+  };
 }
 
 function deleteListItem(event) {
-  $(event.currentTarget).parent().remove();
+  $(event.currentTarget).closest("li").remove();
 }
 
-function saveWork(event) {
-  // Sanitize APP_STATE so that it will fit model
-  sanitizeAPP_STATE();
-  
-  // Perform query
-  const queryObj = { data: JSON.stringify(APP_STATE.editedItem),
-                     contentType: "application/json; charset=utf-8",
-                     processData: false
-                   };
-  queryAPI(`${API_GENERIC_ENDPOINT}/works/${APP_STATE.editedItem.id}`,
-           "json",
-           "PUT",
-            queryObj
-          ).then(res => makeUneditable($(this).closest("section")))
-           .catch(err => console.log("error", err));
+function saveItem(dataType) {
+  return function(event) {
+    // Sanitize APP_STATE so that it will fit model
+    sanitizeAPP_STATE();
+    
+    // Perform query
+    const queryObj = { data: JSON.stringify(APP_STATE.editedItem),
+                       contentType: "application/json; charset=utf-8",
+                       processData: false
+                     };
+    queryAPI(`${API_GENERIC_ENDPOINT}/${dataType}/${APP_STATE.editedItem.id}`,
+             "json",
+             "PUT",
+              queryObj
+             ).then(res => makeUneditable($(this).closest("section")))
+              .catch(err => console.log("error", err));
+  };
 }
 
 function searchDatabase(dataType) {
@@ -639,9 +608,13 @@ function addEventListeners() {
   $("#item-works-creator-list").on("click", "li", getItemDetails("works"));
   $(".js-add-new").click(toggleNewInfoPiece);
   $("#edit-work").click(makeEditable);
+  $("#edit-creator").click(makeEditable);
   $("#cancel-work").click(cancelEditing);
-  $("#delete-work").click(deleteWork);
-  $("#save-work").click(saveWork);
+  $("#cancel-creator").click(cancelEditing);
+  $("#delete-work").click(deleteItem("works"));
+  $("#delete-creator").click(deleteItem("creators"));
+  $("#save-work").click(saveItem("works"));
+  $("#save-Creator").click(saveItem("creators"));
   $("ul").on("click", ".js-delete-list-item", deleteListItem);
 }
 
