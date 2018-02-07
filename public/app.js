@@ -264,7 +264,92 @@ function generateToolbox() {
   return [$save, $clear];
 }
 
-function showNewInfoDiv($parentElem, infoPieces, id) {
+function generateFormFields(callingId) {
+  const type = getTypeFromId(callingId);
+  let fields;
+  
+  switch(type) {
+    case "title":
+      fields = [
+        {label: "lang",  input: "text"},
+        {label: "name", input: "text"}
+      ];
+      break;
+      
+    case "contributors":
+      fields = [
+        {label: "role", input: "text"},
+        {label: "who",  input: "text", id: "contributors-fullname", events: [ { type: "input", callback: searchDatabase("creators") } ] },
+        {input: "hidden", id: "contributors-id"}
+      ];
+      break;
+      
+    case "links":
+      fields = [
+        {label: "domain", input: "text"},
+        {label: "url",    input: "text"}
+      ];
+      break;
+      
+    case "contents":
+      fields = [
+        {label: "kind",   input: "text"},
+        {label: "number", input: "text"},
+        {label: "name",   input: "text"},
+        {label: "author", input: "text"},
+        {label: "work",   input: "text"}
+      ];
+      break;
+      
+    case "identifiers":
+      fields = [
+        {label: "type",       input: "text"},
+        {label: "identifier", input: "text"},
+      ];
+      break;
+      
+    case "references":
+      fields = [
+        {label: "kind", input: "text"},
+        {label: "work", input: "text", id: "references-title", events: [ { type: "input", callback: searchDatabase("works") } ] },
+        {input: "hidden", id: "references-id"}
+      ];
+      break;
+    
+    case "info":
+      fields = [
+        {label: "type",  input: "text"},
+        {label: "value", input: "text"}
+      ];
+      break;
+    
+    case "awards":
+      fields = [
+        {label: "name", input: "text"},
+        {label: "year", input: "text"}
+      ];
+  }
+  
+  return fields;
+}
+
+function showEditInfoForm($parentElem, infoPieces, id, textboxes) {
+  const $form     = $("<form>"),
+        // textboxes = generateFormInputs(infoPieces, getTypeFromId(id)),
+        $toolbox  = $("<div>");
+        
+  $toolbox.addClass("toolbox");
+  $toolbox.append(generateToolbox());
+  
+  $form.addClass("table");
+  $form.attr("id", id);
+  $form.append(textboxes);
+  $form.append($toolbox);
+  
+  $parentElem.after($form);
+}
+
+function showNewInfoForm($parentElem, infoPieces, id) {
   const $form     = $("<form>"),
         textboxes = generateFormInputs(infoPieces, getTypeFromId(id)),
         $toolbox  = $("<div>");
@@ -280,7 +365,7 @@ function showNewInfoDiv($parentElem, infoPieces, id) {
   $parentElem.after($form);
 }
 
-function removeNewInfoDiv(idToRemove) {
+function removeNewInfoForm(idToRemove) {
   $(`#${idToRemove}`).remove();
 }
 
@@ -433,7 +518,7 @@ function deleteListItem(event) {
 }
 
 function editListItem(event) {
-  toggleEditInfoPiece(event);
+  toggleInfoForm(event);
 }
 
 //////////////////////
@@ -461,10 +546,11 @@ function getListOfItems(type) {
   })();
 }
 
-function getItemDetails(itemType) {
+function getItemDetails(dataType = null) {
   return function(event) {
-    const API_URL = `${API_GENERIC_ENDPOINT}/${itemType}/${this.id}`;
-    queryAPI(API_URL, "json", "GET").then(renderItemToDOM(itemType));
+    const type = dataType ? dataType : $("#nav-header").find("span.activated").closest("li").attr("data-segment");
+    const API_URL = `${API_GENERIC_ENDPOINT}/${type}/${this.id}`;
+    queryAPI(API_URL, "json", "GET").then(renderItemToDOM(type));
   };
 }
 
@@ -592,99 +678,74 @@ function clearForm(event) {
   $form.find("input[type=text]").val("");
 }
 
-function addNewInfoPiece($parent, callingId) {
-  let fields,
-      id = `${callingId}-div`;
+function setValuesForTextboxes(textboxes, _id_, type) {
+  const element = APP_STATE.editedItem[type].find(item => item._id_ === _id_);
   
-  switch(callingId) {
-    case "new-title-work":
-      fields = [
-        {label: "lang",  input: "text"},
-        {label: "name", input: "text"}
-      ];
-      break;
-      
-    case "new-contributors-work":
-      fields = [
-        {label: "role", input: "text"},
-        {label: "who",  input: "text", id: "contributors-fullname", events: [ { type: "input", callback: searchDatabase("creators") } ] },
-        {input: "hidden", id: "contributors-id"}
-      ];
-      break;
-      
-    case "new-links-creator":
-    case "new-links-work":
-      fields = [
-        {label: "domain", input: "text"},
-        {label: "url",    input: "text"}
-      ];
-      break;
-      
-    case "new-contents-work":
-      fields = [
-        {label: "kind",   input: "text"},
-        {label: "number", input: "text"},
-        {label: "name",   input: "text"},
-        {label: "author", input: "text"},
-        {label: "work",   input: "text"}
-      ];
-      break;
-      
-    case "new-identifiers-work":
-      fields = [
-        {label: "type",       input: "text"},
-        {label: "identifier", input: "text"},
-      ];
-      break;
-      
-    case "new-references-work":
-      fields = [
-        {label: "kind", input: "text"},
-        {label: "work", input: "text", id: "references-title", events: [ { type: "input", callback: searchDatabase("works") } ] },
-        {input: "hidden", id: "references-id"}
-      ];
-      break;
-      
-    case "new-info-work":
-      fields = [
-        {label: "type",  input: "text"},
-        {label: "value", input: "text"}
-      ];
-      break;
-    
-    case "new-awards-creator":
-    case "new-awards-work":
-      fields = [
-        {label: "name", input: "text"},
-        {label: "year", input: "text"}
-      ];
+  return textboxes.map(textbox => {
+    const input    = textbox.find("input"),
+          property = getTypeFromId(input.attr("id"));
+    console.log(input, property);
+    input.val(element[property]);
+    return textbox;
+  });
+}
+
+function toggleEditInfoForm($currentTarget) {
+  const currentId       = $currentTarget.closest("ul").attr("id"),
+        $whereToPutForm = $currentTarget.closest("li"),
+        formId          = `${currentId}-div`,
+        idType          = getTypeFromId(formId);
+  let fields, textboxes;
+  
+  $currentTarget.attr("data-expanded", "true");
+  fields    = generateFormFields(currentId);
+  textboxes = generateFormInputs(fields, idType);
+  textboxes = setValuesForTextboxes(textboxes, $whereToPutForm.attr("id"), idType);
+  showEditInfoForm($whereToPutForm, fields, formId, textboxes);
+}
+
+function toggleNewInfoForm($currentTarget) {
+  const currentId       = $currentTarget.attr("id"),
+        $whereToPutForm = $currentTarget.parent(),
+        formId          = `${currentId}-div`;
+  let fields;
+  
+  $currentTarget.attr("data-expanded", "true");
+  fields = generateFormFields(currentId);
+  showNewInfoForm($whereToPutForm, fields, formId);
+}
+
+function toggleInfoForm(event) {
+  const $currentTarget = $(event.currentTarget),
+        $form = $currentTarget.closest("section").find("form");
+  let currentId, $whereToPutForm, fields;
+  
+  // Remove form if one already exists
+  if ($form.length > 0) {
+    $form.remove();
   }
   
-  showNewInfoDiv($parent, fields, id);
+  if ($currentTarget.hasClass("js-add-new")) {
+    toggleNewInfoForm($currentTarget);
+  } else if ($currentTarget.hasClass("js-edit-list-item")) {
+    toggleEditInfoForm($currentTarget);
+  }
 }
 
-function toggleEditInfoPiece(event) {
+function loadSegment(event) {
+  const $current = $(event.currentTarget),
+        dataSeg  = $current.attr("data-segment");
   
-}
-
-function toggleNewInfoPiece(event) {
-  const $currentTarget = $(event.currentTarget),
-        currentId      = event.currentTarget.id,
-        $parent        = $currentTarget.parent();
-  
-  if($currentTarget.attr("data-expanded") === "true") {
-    $currentTarget.attr("data-expanded", "false");
-    removeNewInfoDiv(`${currentId}-div`);
-  } else {
-    $currentTarget.attr("data-expanded", "true");
-    addNewInfoPiece($parent, currentId);
+  if (dataSeg === "creators" || dataSeg === "works") {
+    getListOfItems(dataSeg).then(processGETListData(dataSeg))
+                           .catch(err => console.log("error"));
   }
 }
 
 function addEventListeners() {
-  $("#list-of-items").on("click", "li", getItemDetails("creators"));
+  $("#list-of-items").on("click", "li", getItemDetails());
   $("#item-works-creator-list").on("click", "li", getItemDetails("works"));
-  $(".js-add-new").click(toggleNewInfoPiece);
+  $(".js-add-new").click(toggleInfoForm);
   $("#edit-work").click(makeEditable("work"));
   $("#edit-creator").click(makeEditable("creator"));
   $("#cancel-work, #cancel-creator").click(cancelEditing);
@@ -694,15 +755,17 @@ function addEventListeners() {
   $("#save-creator").click(saveItem("creators"));
   $("ul").on("click", ".js-delete-list-item", deleteListItem);
   $("ul").on("click", ".js-edit-list-item", editListItem);
+  $("#nav-header").on("click", "li", loadSegment);
 }
 
-function loadData(data) {
-  APP_STATE.data.push(...data[APP_STATE.currentlyLoaded]);
+function loadData(data, dataType) {
+  APP_STATE.data = [];
+  APP_STATE.data.push(...data[dataType]);
 }
 
 function loadItem(data) {
   const dataWithIds = data,
-        fieldsNeedingIds = ["awards", "links"];
+        fieldsNeedingIds = ["awards", "links", "title", "contributors", "contents", "references", "identifier"];
   
   fieldsNeedingIds.forEach(fieldNeedingId => {
     if(dataWithIds[fieldNeedingId]) {
@@ -716,9 +779,11 @@ function loadItem(data) {
   APP_STATE.currentItem = data;
 }
 
-function processGETListData(data) {
-  loadData(data);
-  renderListOfItemsToDOM(data, "list-of-items");
+function processGETListData(dataType) {
+  return function(data) {
+    loadData(data, dataType);
+    updateItemsSection(data, "list-of-items", dataType);
+  };
 }
 
 function guid() {
@@ -735,7 +800,7 @@ function initApp() {
   Object.seal(APP_STATE);
   
   addEventListeners();
-  getListOfItems("creators").then(processGETListData)
+  getListOfItems("creators").then(processGETListData("creators"))
                             .catch(err => console.log(err));
 }
 
