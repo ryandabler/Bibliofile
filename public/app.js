@@ -83,8 +83,14 @@ function createContributor(contributor) {
 
 function createContent(content) {
   const $li = $("<li>");
+  let html = "<b>";
+  
+  html += content.kind ? content.kind : "";
+  html += content.number? ` ${content.number}</b>:` : "</b>";
+  html += ` ${content.name}`;
+  
   $li.addClass("result clickable");
-  $li.text(content.name);
+  $li.html(html);
   $li.attr("data-id", content._id_);
   
   if(content.author) {
