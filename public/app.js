@@ -70,7 +70,7 @@ function createAward(award) {
 }
 
 function createWork(work) {
-  return createListItem(work.title, work.year, work._id_, work.id);
+  return createListItem(work.title, null, work._id_, work.id);
 }
 
 function createTitle(title) {
