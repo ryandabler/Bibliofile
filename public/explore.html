@@ -12,11 +12,19 @@
   <body class="flex">
     <nav class="header" role="navigation">
       <span class="logo">βibliofile</span>
-      <ul>
-        <li tabindex="0"><span class="clickable activated" title="Creators"><i class="fa fa-users fa-style"></i></span></li>
-        <li tabindex="0"><span class="clickable" title="Works"><i class="fa fa-book fa-style"></i></span></li>
-        <li tabindex="0"><span class="clickable" title="Conversation"><i class="fa fa-comments fa-style"></i></span></li>
-        <li tabindex="0"><span class="clickable" title="Shelf"><i class="fa fa-bookmark fa-style"></i></span></li>
+      <ul id="nav-header">
+        <li data-segment="creators" tabindex="0">
+          <span class="clickable activated" title="Creators"><i class="fa fa-users fa-style"></i></span>
+        </li>
+        <li data-segment="works" tabindex="0">
+          <span class="clickable" title="Works"><i class="fa fa-book fa-style"></i></span>
+        </li>
+        <li data-segment="conversation" tabindex="0">
+          <span class="clickable" title="Conversation"><i class="fa fa-comments fa-style"></i></span>
+        </li>
+        <li data-segment="shelf" tabindex="0">
+          <span class="clickable" title="Shelf"><i class="fa fa-bookmark fa-style"></i></span>
+        </li>
       </ul>
     </nav>
     
