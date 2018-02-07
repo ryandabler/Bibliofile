@@ -73,11 +73,11 @@ function createWork(work) {
 }
 
 function createTitle(title) {
-  return createListItem(title.name);
+  return createListItem(title.name, null, title._id_);
 }
 
 function createContributor(contributor) {
-  return createListItem(contributor.fullname, contributor.role, contributor.id);
+  return createListItem(contributor.fullname, contributor.role, contributor._id_);
 }
 
 function createContent(content) {
