@@ -503,6 +503,7 @@ function showSearchChoices(dataType, $emittingElement) {
 }
 
 function deleteListItem(event) {
+  event.stopPropagation();
   const $li  = $(event.currentTarget).closest("li"),
         _id_ = $li.attr("id"),
         $ul  = $(event.currentTarget).closest("ul"),
@@ -518,6 +519,9 @@ function deleteListItem(event) {
 }
 
 function editListItem(event) {
+  // stop propagation to prevent other events from triggering that might make the
+  // app try to navigate to the content in the list item
+  event.stopPropagation();
   toggleInfoForm(event);
 }
 
@@ -594,9 +598,6 @@ function saveItem(dataType) {
                   console.log(err);
                 }
              });
-  
-  // Make uneditable
-  
   };
 }
 
@@ -684,7 +685,6 @@ function setValuesForTextboxes(textboxes, _id_, type) {
   return textboxes.map(textbox => {
     const input    = textbox.find("input"),
           property = getTypeFromId(input.attr("id"));
-    console.log(input, property);
     input.val(element[property]);
     return textbox;
   });
@@ -725,10 +725,15 @@ function toggleInfoForm(event) {
     $form.remove();
   }
   
-  if ($currentTarget.hasClass("js-add-new")) {
-    toggleNewInfoForm($currentTarget);
-  } else if ($currentTarget.hasClass("js-edit-list-item")) {
-    toggleEditInfoForm($currentTarget);
+  // Don't show form if "data-expanded" === "true"
+  if ($currentTarget.attr("data-expanded") === "true") {
+    $currentTarget.attr("data-expanded", "false");
+  } else {
+    if ($currentTarget.hasClass("js-add-new")) {
+      toggleNewInfoForm($currentTarget);
+    } else if ($currentTarget.hasClass("js-edit-list-item")) {
+      toggleEditInfoForm($currentTarget);
+    }
   }
 }
 
@@ -745,6 +750,7 @@ function loadSegment(event) {
 function addEventListeners() {
   $("#list-of-items").on("click", "li", getItemDetails());
   $("#item-works-creator-list").on("click", "li", getItemDetails("works"));
+  $("#item-contributors-work-list").on("click", "li", getItemDetails("creators"));
   $(".js-add-new").click(toggleInfoForm);
   $("#edit-work").click(makeEditable("work"));
   $("#edit-creator").click(makeEditable("creator"));
