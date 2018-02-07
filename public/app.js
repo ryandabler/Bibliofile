@@ -148,26 +148,6 @@ function renderSection(sectionName, dataSegment, generatorObj) {
   }
 }
 
-function renderInformation(sectionName, dataSegments) {
-  // dataSegments is an array. The first element is the 'kind' property.
-  // The second element is the 'publication_info' property
-  const items   = [],
-        $liKind = $("<li>");
-  
-  $liKind.addClass("result clickable");
-  $liKind.text(`kind: ${dataSegments[0]}`);
-  items.push($liKind);
-  
-  for (let pubInfo in dataSegments[1]) {
-    const $li = $("<li>");
-    $li.addClass("result clickable");
-    $li.text(`${pubInfo}: ${dataSegments[1][pubInfo]}`);
-    items.push($li);
-  }
-  
-  $(`#item-${sectionName}-list`).append(items);
-}
-
 function renderCreator(data) {
   // Set banner text
   $("#banner-item-creator").text(data.name);
@@ -188,7 +168,6 @@ function renderWork(data) {
   // Handle sections
   renderSection("title-work", data.title, { fn: data.title.map.bind(data.title), param: createTitle } );
   renderSection("contributors-work", data.contributors, { fn: data.contributors.map.bind(data.contributors), param: createContributor } );
-  renderInformation("info-work", [data.kind, data.publication_info]);
   renderSection("contents-work", data.contents, { fn: createContents, param: data.contents } );
   renderSection("references-work", data.references, { fn: data.references.map.bind(data.references), param: createReference } );
   renderSection("identifiers-work", data.identifiers, { fn: data.identifiers.map.bind(data.identifiers), param: createIdentifier } );
