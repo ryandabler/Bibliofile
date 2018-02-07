@@ -198,6 +198,13 @@ workSchema.methods.populatedSerialize = function() {
     work.publication_info.published_in = title.name;
   }
   
+  // Revise references (if any exist)
+  work.references.forEach(reference => {
+    reference.id = reference.work._id;
+    reference.title = reference.work.title.find(elem => elem.lang === "en").name;
+    delete reference.work;
+  });
+  
   // Revise contents (if it exists) if any were populated with info from a linked document
   work.contents.forEach(content => {
     if (content.work) {
@@ -236,7 +243,8 @@ workSchema.statics.findAndPopulate = function(id = null) {
              .populate( { path: "publication_info.published_in", select: "title" } )
              .populate( { path: "contents.work", select: "title contributors kind",
                           populate: { path: "contributors.who", select: "name" }
-                        } );
+                        })
+             .populate( { path: "references.work", select: "title" } );
 };
 
 const Work = mongoose.model("Work", workSchema);
