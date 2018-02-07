@@ -29,12 +29,12 @@ function generateCreatorData() {
     ],
     awards: [
       {
-        award_name: faker.lorem.words(),
-        award_year: faker.date.past(25).getFullYear().toString()
+        name: faker.lorem.words(),
+        year: faker.date.past(25).getFullYear().toString()
       },
       {
-        award_name: faker.lorem.words(),
-        award_year: faker.date.past(25).getFullYear().toString()
+        name: faker.lorem.words(),
+        year: faker.date.past(25).getFullYear().toString()
       }
     ],
     created: Date.now().toString()
