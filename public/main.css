@@ -279,6 +279,16 @@ form .toolbox *:not(:last-child) {
   margin-bottom: 10px;
 }
 
+form .toolbox button {
+  border: none;
+  background-color: inherit;
+  padding: 0;
+}
+
+form .toolbox button:focus {
+  outline: none;
+}
+
 .toolbox {
   position: fixed;
   top: 100px;

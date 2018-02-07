@@ -86,7 +86,7 @@ function createContent(content) {
   let html = "<b>";
   
   html += content.kind ? content.kind : "";
-  html += content.number? ` ${content.number}</b>:` : "</b>";
+  html += content.number ? ` ${content.number}</b>:` : "</b>";
   html += ` ${content.name}`;
   
   $li.addClass("result clickable");
@@ -221,6 +221,10 @@ function generateFormInputs(infoPieces, formType) {
       divRow.push($label);
     }
     
+    if (infoPiece.required) {
+      $input.prop("required", true);
+    }
+    
     $input.addClass("table-cell");
     $input.attr("type", infoPiece.input);
     $input.attr("id", inputId);
@@ -240,16 +244,18 @@ function generateFormInputs(infoPieces, formType) {
 }
 
 function generateToolbox() {
-  const $save  = $("<i>"),
-        $clear = $("<i>");
-        
+  const $button = $("<button>"),
+        $save   = $("<i>"),
+        $clear  = $("<i>");
+  
+  $button.append($save);
+  
   $save.addClass("fa fa-floppy-o");
   $clear.addClass("fa fa-trash-o");
   
-  $save.click(saveForm);
   $clear.click(clearForm);
   
-  return [$save, $clear];
+  return [$button, $clear];
 }
 
 function generateFormFields(callingId) {
@@ -259,23 +265,23 @@ function generateFormFields(callingId) {
   switch(type) {
     case "title":
       fields = [
-        {label: "lang",  input: "text"},
-        {label: "name", input: "text"}
+        {label: "lang",  input: "text", required: true},
+        {label: "name", input: "text", required: true}
       ];
       break;
       
     case "contributors":
       fields = [
-        {label: "role", input: "text"},
-        {label: "who",  input: "text", id: "contributors-fullname", events: [ { type: "input", callback: searchDatabase("creators") } ] },
+        {label: "role", input: "text", required: true},
+        {label: "who",  input: "text", required: true, id: "contributors-fullname", events: [ { type: "input", callback: searchDatabase("creators") } ] },
         {input: "hidden", id: "contributors-id"}
       ];
       break;
       
     case "links":
       fields = [
-        {label: "domain", input: "text"},
-        {label: "url",    input: "text"}
+        {label: "domain", input: "text", required: true},
+        {label: "url",    input: "text", required: true}
       ];
       break;
       
@@ -283,23 +289,21 @@ function generateFormFields(callingId) {
       fields = [
         {label: "kind",   input: "text"},
         {label: "number", input: "text"},
-        {label: "name",   input: "text"},
-        {label: "author", input: "text"},
-        {label: "work",   input: "text"}
+        {label: "name",   input: "text", required: true}
       ];
       break;
       
     case "identifiers":
       fields = [
-        {label: "type",       input: "text"},
-        {label: "identifier", input: "text"},
+        {label: "type",       input: "text", required: true},
+        {label: "identifier", input: "text", required: true},
       ];
       break;
       
     case "references":
       fields = [
-        {label: "kind", input: "text"},
-        {label: "work", input: "text", id: "references-title", events: [ { type: "input", callback: searchDatabase("works") } ] },
+        {label: "kind", input: "text", required: true},
+        {label: "work", input: "text", required: true, id: "references-title", events: [ { type: "input", callback: searchDatabase("works") } ] },
         {input: "hidden", id: "references-id"}
       ];
       break;
@@ -313,8 +317,8 @@ function generateFormFields(callingId) {
     
     case "awards":
       fields = [
-        {label: "name", input: "text"},
-        {label: "year", input: "text"}
+        {label: "name", input: "text", required: true},
+        {label: "year", input: "text", required: true}
       ];
   }
   
@@ -323,7 +327,6 @@ function generateFormFields(callingId) {
 
 function showEditInfoForm($parentElem, infoPieces, id, textboxes) {
   const $form     = $("<form>"),
-        // textboxes = generateFormInputs(infoPieces, getTypeFromId(id)),
         $toolbox  = $("<div>");
         
   $toolbox.addClass("toolbox");
@@ -333,6 +336,7 @@ function showEditInfoForm($parentElem, infoPieces, id, textboxes) {
   $form.attr("id", id);
   $form.append(textboxes);
   $form.append($toolbox);
+  $form.submit(saveForm);
   
   $parentElem.after($form);
 }
@@ -349,12 +353,46 @@ function showNewInfoForm($parentElem, infoPieces, id) {
   $form.attr("id", id);
   $form.append(textboxes);
   $form.append($toolbox);
+  $form.submit(saveForm);
   
   $parentElem.after($form);
 }
 
-function removeNewInfoForm(idToRemove) {
-  $(`#${idToRemove}`).remove();
+function updateEntryInDOM($where, object, type) {
+  let $li;
+  console.log($where, object, type);
+  
+  switch(type) {
+    case "links":
+      $li = createLink(object);
+      break;
+      
+    case "awards":
+      $li = createAward(object);
+      break;
+      
+    case "title":
+      $li = createTitle(object);
+      break;
+      
+    case "contributors":
+      $li = createContributor(object);
+      break;
+      
+    case "identifiers":
+      $li = createIdentifier(object);
+      break;
+      
+    case "contents":
+      $li = createContent(object);
+      break;
+      
+    case "references":
+      $li = createReference(object);
+      break;
+  }
+  
+  $where.replaceWith($li);
 }
 
 function insertEntryIntoDOM($listToInsertInto, objectToInsert) {
@@ -371,9 +409,6 @@ function insertEntryIntoDOM($listToInsertInto, objectToInsert) {
       
     case "contributors":
       newItem = createContributor(objectToInsert);
-      break;
-      
-    case "info":
       break;
       
     case "contents":
@@ -453,7 +488,7 @@ function cancelEditing(event) {
 }
 
 function chooseItemFromDropdown(idToAddTextTo) {
-  return function chooseAuthor(event) {
+  return function(event) {
     const $current    = $(event.currentTarget),
           $form       = $current.closest("form"),
           $divOverlay = $current.closest("div");
@@ -468,12 +503,12 @@ function showSearchChoices(dataType, $emittingElement) {
   return function(data) {
     const $div           = $("#srch-over-contrib").length ? $("#srch-over-contrib") : $("<div>"),
           $ul            = $("<ul>"),
-          { top, left }  = $emittingElement.offset(),
-          height         = $emittingElement.height(),
+          // { top, left }  = $emittingElement.offset(),
+          // height         = $emittingElement.height(),
           width          = $emittingElement.outerWidth(),
           list           = data[dataType].map(item => {
                              const name = item.name || item.title.find(elem => elem.lang === "en").name;
-                             return createListItem(name, null, item.id);
+                             return createListItem(name, null, guid(), item.id);
                            });
     
     $ul.addClass("results-list");
@@ -615,6 +650,12 @@ function sanitizeAPP_STATE() {
       contributor.who = contributor.id;
     });
   }
+  
+  if (item.references) {
+    item.references.forEach(reference => {
+      reference.work = reference.id;
+    });
+  }
 }
 
 function getTypeFromId(id) {
@@ -626,40 +667,62 @@ function removeFromAPP_STATE(_id_, type) {
   APP_STATE.editedItem[type] = APP_STATE.editedItem[type].filter(item => item !== entry);
 }
 
+function updateEntryInAPP_STATE(type, _id_, object) {
+  const entry = APP_STATE.editedItem[type].find(item => item._id_ === _id_),
+        idx   = APP_STATE.editedItem[type].indexOf(entry);
+  object._id_ = entry._id_;
+  APP_STATE.editedItem[type][idx] = object;
+  return object;
+}
+
 function insertIntoAPP_STATE(field, object) {
-  // Need custom rule for when the items general info is updated
-  if(field === "info") {
-    if(object.type === "kind") {
-      APP_STATE.editedItem.kind = object.value;
-    } else {
-      APP_STATE.editedItem.publication_info[object.type] = object.value;
-    }
+  object._id_ = guid();
+  
+  // General rule for all other fields (because they are arrays)
+  // First check if the field exists in editedItem
+  if(APP_STATE.editedItem[field] && APP_STATE.editedItem[field] instanceof Array) {
+    APP_STATE.editedItem[field].push(object);
   } else {
-    object._id_ = guid();
-    
-    // General rule for all other fields (because they are arrays)
-    // First check if the field exists in editedItem
-    if(APP_STATE.editedItem[field] && APP_STATE.editedItem[field] instanceof Array) {
-      APP_STATE.editedItem[field].push(object);
-    } else {
-      APP_STATE.editedItem[field] = [ object ];
-    }
+    APP_STATE.editedItem[field] = [ object ];
+  }
+  
+  return object;
+}
+
+function sanitizeInput(type, object) {
+  if (type === "links" && !object.url.match(/https*:\/\//)) {
+    object.url = "http://" + object.url;
   }
 }
 
 function saveForm(event) {
-  const $form  = $(this).closest("form"),
-        type   = getTypeFromId($form.attr("id")),
-        inputs = $form.find("input"),
-        object = {};
+  event.preventDefault();
+  const $form     = $(this).closest("form"),
+        type      = getTypeFromId($form.attr("id")),
+        inputs    = $form.find("input"),
+        editOrNew = $form.attr("id").search("list");
+  let $where,
+      object = {};
   
   inputs.each(idx => {
     const $input = $(inputs[idx]);
     object[getTypeFromId($input.attr("id"))] = $input.val();
   });
+  console.log("object", object, type);
+  sanitizeInput(type, object);
   
-  insertIntoAPP_STATE(type, object);
-  insertEntryIntoDOM($form.next(), object);
+  if (editOrNew === -1) {
+    $where = $form.next();
+    
+    object = insertIntoAPP_STATE(type, object);
+    insertEntryIntoDOM($where, object);
+  } else {
+    const _id_ = $(this).prev().attr("data-id");
+    $where = $form.prev();
+    
+    object = updateEntryInAPP_STATE(type, _id_, object);
+    updateEntryInDOM($where, object, type);
+  }
 }
 
 function clearForm(event) {
