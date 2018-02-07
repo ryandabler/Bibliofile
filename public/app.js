@@ -14,13 +14,14 @@ const APP_STATE = {
 //////////////////////
 // DOM functions
 //////////////////////
-function createListItem(main, addl=null, id=null) {
+function createListItem(main, addl=null, data_id=null, id=null) {
   const $li = $("<li>");
   $li.addClass("result clickable");
   $li.text(main);
-    
-  id   ? $li.attr("id", id)                                                    : null;
-  addl ? $li.append($("<span>").text(`(${addl})`).addClass("additional-info")) : null;
+  
+  data_id ? $li.attr("data-id", data_id)                                          : null;
+  id      ? $li.attr("id", id)                                                    : null;
+  addl    ? $li.append($("<span>").text(`(${addl})`).addClass("additional-info")) : null;
   return $li;
 }
 
@@ -45,8 +46,8 @@ function renderListOfItemsToDOM(data, htmlIdToAppendTo) {
   $ulElement.empty();
   
   data[APP_STATE.currentlyLoaded].forEach(item => {
-    const name = item.name || item.title.find(elem => elem.lang === "en").name;
-    const $li = createListItem(name, null, item.id);
+    const name = item.name || item.title.find(elem => elem.lang === "en").name,
+          $li = createListItem(name, null, null, item.id);
     $ulElement.append($li);
   });
 }
@@ -56,7 +57,7 @@ function createLink(link) {
         $a  = $("<a>");
   
   $li.addClass("result clickable");
-  $li.attr("id", link._id_);
+  $li.attr("data-id", link._id_);
   $a.attr("href", link.url);
   $a.text(link.domain);
   
@@ -69,7 +70,7 @@ function createAward(award) {
 }
 
 function createWork(work) {
-  return createListItem(work.title, work.year, work.id);
+  return createListItem(work.title, work.year, work._id_, work.id);
 }
 
 function createTitle(title) {
@@ -77,13 +78,14 @@ function createTitle(title) {
 }
 
 function createContributor(contributor) {
-  return createListItem(contributor.fullname, contributor.role, contributor._id_);
+  return createListItem(contributor.fullname, contributor.role, contributor._id_, contributor.id);
 }
 
 function createContent(content) {
   const $li = $("<li>");
   $li.addClass("result clickable");
   $li.text(content.name);
+  $li.attr("data-id", content._id_);
   
   if(content.author) {
     const $span = $("<span>");
@@ -119,6 +121,7 @@ function createReference(reference) {
   
   $li.addClass("result clickable");
   $li.attr("id", reference.work ? reference.work.id : reference.id);
+  $li.attr("data-id", reference._id_);
   $li.text(reference.work ? reference.work.title : reference.title);
   
   $span.addClass("additional-info");
@@ -129,7 +132,7 @@ function createReference(reference) {
 }
 
 function createIdentifier(identifier) {
-  return createListItem(identifier.identifier, identifier.type);
+  return createListItem(identifier.identifier, identifier.type, identifier._id_);
 }
 
 function renderSection(sectionName, dataSegment, generatorObj) {
@@ -505,7 +508,7 @@ function showSearchChoices(dataType, $emittingElement) {
 function deleteListItem(event) {
   event.stopPropagation();
   const $li  = $(event.currentTarget).closest("li"),
-        _id_ = $li.attr("id"),
+        _id_ = $li.attr("data-id"),
         $ul  = $(event.currentTarget).closest("ul"),
         $h3  = $ul.prev(),
         type = getTypeFromId($ul.attr("id"));
@@ -771,7 +774,7 @@ function loadData(data, dataType) {
 
 function loadItem(data) {
   const dataWithIds = data,
-        fieldsNeedingIds = ["awards", "links", "title", "contributors", "contents", "references", "identifier"];
+        fieldsNeedingIds = ["awards", "links", "title", "contributors", "contents", "references", "identifiers"];
   
   fieldsNeedingIds.forEach(fieldNeedingId => {
     if(dataWithIds[fieldNeedingId]) {
