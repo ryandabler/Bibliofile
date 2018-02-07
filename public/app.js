@@ -744,6 +744,9 @@ function loadSegment(event) {
   const $current = $(event.currentTarget),
         dataSeg  = $current.attr("data-segment");
   
+  // If currently editing when navigating away, make uneditable
+  makeUneditable($("section:not(.hidden"));
+  
   if (dataSeg === "creators" || dataSeg === "works") {
     getListOfItems(dataSeg).then(processGETListData(dataSeg))
                            .catch(err => console.log("error"));
