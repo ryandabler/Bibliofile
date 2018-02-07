@@ -317,3 +317,7 @@ form .toolbox *:not(:last-child) {
 .search-overlay .results-list {
   margin-bottom: 0;
 }
+
+#item-works-creator-list .js-opt-list-item, #item-works-creator #new-works-creator {
+  display: none;
+}
