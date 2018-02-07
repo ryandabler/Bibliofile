@@ -682,7 +682,7 @@ function toggleEditInfoForm($currentTarget) {
   $currentTarget.attr("data-expanded", "true");
   fields    = generateFormFields(currentId);
   textboxes = generateFormInputs(fields, idType);
-  textboxes = setValuesForTextboxes(textboxes, $whereToPutForm.attr("id"), idType);
+  textboxes = setValuesForTextboxes(textboxes, $whereToPutForm.attr("data-id"), idType);
   showEditInfoForm($whereToPutForm, fields, formId, textboxes);
 }
 
