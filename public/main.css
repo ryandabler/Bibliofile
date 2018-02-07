@@ -111,7 +111,7 @@ a {
   width: 100%;
   top: 0;
   left: 0;
-  z-index: 1;
+  z-index: 2;
 }
 
 .header * {
@@ -298,7 +298,22 @@ form .toolbox *:not(:last-child) {
   display: none;
 }
 
-.js-delete-list-item {
+.js-opt-list-item {
   position: absolute;
   right: 10px;
+}
+
+.js-opt-list-item .fa:not(:last-child) {
+  margin-right: 5px;
+}
+
+.search-overlay {
+  position: absolute;
+  z-index: 1;
+  background-color: #FFFFFF;
+  border: 1px solid #555555;
+}
+
+.search-overlay .results-list {
+  margin-bottom: 0;
 }

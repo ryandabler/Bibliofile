@@ -4,7 +4,8 @@
 const express       = require("express");
 const routerCreator = express.Router();
 const routerWork    = express.Router();
-const routerSearch  = express.Router();
+const routerSearchWorks = express.Router();
+const routerSearchAuthors = express.Router();
 
 const bodyParser    = require("body-parser");
 const jsonParser    = bodyParser.json();
@@ -201,16 +202,31 @@ routerWork.put(
         });
 });
 
-// Search route
-routerSearch.get("/:string", (req, res) => {
+// Work search route
+routerSearchWorks.get("/:string", (req, res) => {
   const { string } = req.params;
-  Work.find({$text: {$search: string}})
+  Work.find( { "title.name": { $regex: new RegExp(string, "i") } } )
       .then(works => {
         res.json( { works: works.map(work => work.serialize()) } );
       });
 });
 
+// Author search route
+routerSearchAuthors.get("/:string", (req, res) => {
+  const { string } = req.params,
+        regex      = new RegExp(string, "i");
+        
+  Creator.find( { "$or": [
+      { "name.last": { $regex: regex } },
+      { "name.first": { $regex: regex } },
+      { "name.middle": { $regex: regex } }
+    ] } )
+    .then(creators => {
+      res.json( { creators: creators.map(creator => creator.serialize(["id", "name"])) } )
+    });
+});
+
 ////////////////////////////
 // Export routers
 ////////////////////////////
-module.exports = { routerCreator, routerWork, routerSearch };
+module.exports = { routerCreator, routerWork, routerSearchWorks, routerSearchAuthors };

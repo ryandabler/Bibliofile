@@ -12,11 +12,19 @@
   <body class="flex">
     <nav class="header" role="navigation">
       <span class="logo">βibliofile</span>
-      <ul>
-        <li tabindex="0"><span class="clickable activated" title="Creators"><i class="fa fa-users fa-style"></i></span></li>
-        <li tabindex="0"><span class="clickable" title="Works"><i class="fa fa-book fa-style"></i></span></li>
-        <li tabindex="0"><span class="clickable" title="Conversation"><i class="fa fa-comments fa-style"></i></span></li>
-        <li tabindex="0"><span class="clickable" title="Shelf"><i class="fa fa-bookmark fa-style"></i></span></li>
+      <ul id="nav-header">
+        <li data-segment="creators" tabindex="0">
+          <span class="clickable activated" title="Creators"><i class="fa fa-users fa-style"></i></span>
+        </li>
+        <li data-segment="works" tabindex="0">
+          <span class="clickable" title="Works"><i class="fa fa-book fa-style"></i></span>
+        </li>
+        <li data-segment="conversation" tabindex="0">
+          <span class="clickable" title="Conversation"><i class="fa fa-comments fa-style"></i></span>
+        </li>
+        <li data-segment="shelf" tabindex="0">
+          <span class="clickable" title="Shelf"><i class="fa fa-bookmark fa-style"></i></span>
+        </li>
       </ul>
     </nav>
     
@@ -30,17 +38,33 @@
       </section>
       
       <section id="item-creators" class="hidden">
+        <div class="toolbox">
+          <i id="edit-creator" class="fa fa-pencil-square-o clickable"> Edit</i>
+          <i id="delete-creator" class="fa fa-trash-o clickable hidden"> Delete</i>
+          <i id="cancel-creator" class="fa fa-times clickable hidden"> Cancel</i>
+          <i id="save-creator" class="fa fa-floppy-o clickable hidden"> Save</i>
+        </div>
+        
         <h2 id="banner-item-creator" class="banner banner-item"></h2>
         
-        <h3 id="item-links-creator" class="item-heading">Links</h3>
+        <h3 id="item-links-creator" class="item-heading">
+          Links
+          <i id="new-links-creator" class="js-add-new fa fa-plus-circle clickable hidden"></i>
+        </h3>
         <ul id="item-links-creator-list" class="results-list">
         </ul>
         
-        <h3 id="item-awards-creator" class="item-heading">Awards</h3>
+        <h3 id="item-awards-creator" class="item-heading">
+          Awards
+          <i id="new-awards-creator" class="js-add-new fa fa-plus-circle clickable hidden"></i>
+        </h3>
         <ul id="item-awards-creator-list" class="results-list">
         </ul>
         
-        <h3 id="item-works-creator" class="item-heading">Works</h3>
+        <h3 id="item-works-creator" class="item-heading">
+          Works
+          <i id="new-works-creator" class="js-add-new fa fa-plus-circle clickable hidden"></i>
+        </h3>
         <ul id="item-works-creator-list" class="results-list">
         </ul>
       </section>
@@ -55,7 +79,7 @@
         
         <h2 id="banner-item-work" class="banner banner-item"></h2>
         
-        <h3 id="item-title-work" data-val="title" class="item-heading">
+        <h3 id="item-title-work" class="item-heading">
           Titles
           <i id="new-title-work" class="js-add-new fa fa-plus-circle clickable hidden"></i>
         </h3>
