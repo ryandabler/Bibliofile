@@ -24,8 +24,25 @@ function createListItem(main, addl=null, id=null) {
   return $li;
 }
 
+function updateItemsSection(data, htmlIdToAppendTo, dataType) {
+  // Set banner text
+  const bannerText = dataType.charAt(0).toUpperCase() + dataType.slice(1, dataType.length);
+  $("#banner-items").text(bannerText);
+  
+  // Activate appropriate item
+  $("#nav-header").find("span").removeClass("activated");
+  $("#nav-header").find(`[data-segment=${dataType}]`).find("span").addClass("activated");
+  
+  // Switch to "items" section
+  switchDisplay("items");
+  
+  // Render list
+  renderListOfItemsToDOM(data, htmlIdToAppendTo);
+}
+
 function renderListOfItemsToDOM(data, htmlIdToAppendTo) {
   const $ulElement = $(`#${htmlIdToAppendTo}`);
+  $ulElement.empty();
   
   data[APP_STATE.currentlyLoaded].forEach(item => {
     const name = item.name || item.title.find(elem => elem.lang === "en").name;
