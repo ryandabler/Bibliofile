@@ -10,6 +10,14 @@ const APP_STATE = {
   currentItem: null,
   editedItem: null
 };
+const CREATE_FUNCTIONS = { links: createLink,
+                           awards: createAward,
+                           title: createTitle,
+                           contributors: createContributor,
+                           identifiers: createIdentifier,
+                           contents: createContent,
+                           references: createReference
+                         };
 
 //////////////////////
 // DOM functions
@@ -355,39 +363,7 @@ function showInfoForm($parentElem, infoPieces, id, textboxes = null) {
 }
 
 function updateEntryInDOM($where, object, type) {
-  let $li;
-  console.log($where, object, type);
-  
-  switch(type) {
-    case "links":
-      $li = createLink(object);
-      break;
-      
-    case "awards":
-      $li = createAward(object);
-      break;
-      
-    case "title":
-      $li = createTitle(object);
-      break;
-      
-    case "contributors":
-      $li = createContributor(object);
-      break;
-      
-    case "identifiers":
-      $li = createIdentifier(object);
-      break;
-      
-    case "contents":
-      $li = createContent(object);
-      break;
-      
-    case "references":
-      $li = createReference(object);
-      break;
-  }
-  
+  let $li = CREATE_FUNCTIONS[type](object);
   $where.replaceWith($li);
 }
 
@@ -396,37 +372,7 @@ function insertEntryIntoDOM($listToInsertInto, objectToInsert) {
   $listToInsertInto.prev().prev().removeClass("js-empty");
   
   const type = getTypeFromId($listToInsertInto.attr("id"));
-  let newItem;
-  
-  switch(type) {
-    case "title":
-      newItem = createTitle(objectToInsert);
-      break;
-      
-    case "contributors":
-      newItem = createContributor(objectToInsert);
-      break;
-      
-    case "contents":
-      newItem = createContent(objectToInsert);
-      break;
-      
-    case "links":
-      newItem = createLink(objectToInsert);
-      break;
-      
-    case "references":
-      newItem = createReference(objectToInsert);
-      break;
-      
-    case "identifiers":
-      newItem = createIdentifier(objectToInsert);
-      break;
-      
-    case "awards":
-      newItem = createAward(objectToInsert);
-      break;
-  }
+  let newItem = CREATE_FUNCTIONS[type](objectToInsert);
   
   $listToInsertInto.append(newItem);
 }
