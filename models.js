@@ -159,7 +159,7 @@ const Creator = mongoose.model("Creator", creatorSchema);
 const workSchema = mongoose.Schema({
   title:            { type: [ titleSchema ], required: true },
   contributors:     { type: [ contributorSchema ], required: true },
-  kind:             { type: String, required: true},
+  kind:             String,
   publication_info: publicationSchema,
   identifiers:      [ identifierSchema ],
   links:            [ linksSchema ],
@@ -192,7 +192,7 @@ workSchema.methods.populatedSerialize = function() {
   });
   
   // Revise published_in (if it exists) in publication info with English title
-  if (work.publication_info.published_in) {
+  if (work.publication_info && work.publication_info.published_in) {
     let title = work.publication_info.published_in.title.find(elem => elem.lang === "en");
     
     work.publication_info.published_in = title.name;

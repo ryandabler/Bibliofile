@@ -279,7 +279,7 @@ form .toolbox *:not(:last-child) {
   margin-bottom: 10px;
 }
 
-form .toolbox button {
+form button {
   border: none;
   background-color: inherit;
   padding: 0;
@@ -330,4 +330,32 @@ form .toolbox button:focus {
 
 #item-works-creator-list .js-opt-list-item, #item-works-creator #new-works-creator {
   display: none;
+}
+
+#items form {
+  margin-top: 70px;
+}
+
+#items form h2 {
+  text-align: center;
+}
+
+#items form div {
+  width: 50%;
+  display: flex;
+  margin: 0 auto;
+}
+
+#items form input {
+  flex: 1;
+  margin-right: 10px;
+  width: 50%;
+  font-size: 1.5vw;
+  padding: 5px 8px;
+  color: #555555;
+  border: 1px solid #555555;
+}
+
+#items form .fa {
+  padding: 5px;
 }

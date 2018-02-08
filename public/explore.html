@@ -27,11 +27,23 @@
     
     <main class="explore-main" role="main">
       <section id="items">
+        <div class="toolbox">
+          <i id="new-element" class="fa fa-plus-circle clickable"> New</i>
+        </div>
+        
         <h2 id="banner-items" class="banner">Creators</h2>
         <input type="text" class="search-box" placeholder="Search all items">
         
         <ul class="results-list" id="list-of-items">
         </ul>
+        
+        <form id="form-new" class="hidden">
+          <h2></h2>
+          <div>
+            <input type="text" required>
+            <button role="submit" class="fa fa-arrow-right clickable"></button>
+          </div>
+        </form>
       </section>
       
       <section id="item-creators" class="hidden">

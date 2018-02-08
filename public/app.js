@@ -325,6 +325,18 @@ function generateFormFields(callingId) {
   return fields;
 }
 
+function displayNewItemForm(event) {
+  const loadedSegment = $("#nav-header .activated").closest("li").attr("data-segment");
+  if (loadedSegment === "creators") {
+    $("#items form h2").text("Enter Name");
+  } else {
+    $("#items form h2").text("Enter Title");
+  }
+  
+  $("#items > *:not(div)").addClass("hidden");
+  $("#items > form").removeClass("hidden");
+}
+
 function showEditInfoForm($parentElem, infoPieces, id, textboxes) {
   const $form     = $("<form>"),
         $toolbox  = $("<div>");
@@ -466,12 +478,15 @@ function makeUneditable($section) {
   $section.find(".item-heading .js-add-new").addClass("hidden");
   $section.find(".js-opt-list-item").addClass("hidden");
   
-  // Remove all unopened forms
-  $section.find("form").remove();
+  // Remove all unopened forms unless we are on "#items"
+  if ($section.attr("id") !== "items") {
+    $section.find("form").remove();
+  }
   
   // Show toolbox items
   $section.find(".toolbox :not(.hidden)").addClass("hidden");
   $section.find(".toolbox .fa-pencil-square-o").removeClass("hidden");
+  $section.find(".toolbox .fa-plus-circle").removeClass("hidden");
   
   // Reset APP_STATE.editedItem
   APP_STATE.editedItem = null;
@@ -573,10 +588,10 @@ function getListOfItems(type) {
   })();
 }
 
-function getItemDetails(dataType = null) {
+function getItemDetails(dataType = null, id = null) {
   return function(event) {
     const type = dataType ? dataType : $("#nav-header").find("span.activated").closest("li").attr("data-segment");
-    const API_URL = `${API_GENERIC_ENDPOINT}/${type}/${this.id}`;
+    const API_URL = `${API_GENERIC_ENDPOINT}/${type}/${id || this.id}`;
     queryAPI(API_URL, "json", "GET").then(renderItemToDOM(type));
   };
 }
@@ -656,6 +671,23 @@ function sanitizeAPP_STATE() {
       reference.work = reference.id;
     });
   }
+}
+
+function createAndDisplayItem(event) {
+  event.preventDefault();
+  const type     = $("#nav-header .activated").closest("li").attr("data-segment"),
+        queryObj = { contentType: "application/json; charset=utf-8",
+                     processData: false
+                   };
+  
+  if (type === "creators") {
+    queryObj.data = JSON.stringify({ fullname: $(this).find("input").val() });
+  } else {
+    queryObj.data = JSON.stringify({ title: { lang: "en", name: $(this).find("input").val() } });
+  }
+  
+  queryAPI(`${API_GENERIC_ENDPOINT}/${type}`, "json", "POST", queryObj)
+    .then(getItemDetails(type, data.id);
 }
 
 function getTypeFromId(id) {
@@ -806,6 +838,8 @@ function addEventListeners() {
   $("#item-works-creator-list").on("click", "li", getItemDetails("works"));
   $("#item-contributors-work-list").on("click", "li", getItemDetails("creators"));
   $(".js-add-new").click(toggleInfoForm);
+  $("#new-element").click(displayNewItemForm);
+  $("#form-new").submit(createAndDisplayItem)
   $("#edit-work").click(makeEditable("work"));
   $("#edit-creator").click(makeEditable("creator"));
   $("#cancel-work, #cancel-creator").click(cancelEditing);
@@ -834,7 +868,6 @@ function loadItem(data) {
       });
     }
   });
-  
   
   APP_STATE.currentItem = data;
 }

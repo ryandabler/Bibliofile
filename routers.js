@@ -164,7 +164,7 @@ routerWork.get("/:id", (req, res) => {
 routerWork.post(
   "/",
   jsonParser,
-  checkRequiredFields(["title", "contributors", "kind"]),
+  checkRequiredFields(["title"]),
   (req, res) => {
     const {title, contributors, kind, publication_info, identifiers, links, references, contents} = req.body;
     Work.create({title, contributors, kind, publication_info, identifiers, links, references, contents})
