@@ -159,7 +159,7 @@ const Creator = mongoose.model("Creator", creatorSchema);
 const workSchema = mongoose.Schema({
   title:            { type: [ titleSchema ], required: true },
   contributors:     { type: [ contributorSchema ], required: true },
-  kind:             { type: String, required: true},
+  kind:             String,
   publication_info: publicationSchema,
   identifiers:      [ identifierSchema ],
   links:            [ linksSchema ],
