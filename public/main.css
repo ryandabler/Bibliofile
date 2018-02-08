@@ -10,6 +10,10 @@ body {
   color: #555555;
 }
 
+main {
+  width: 100%;
+}
+
 header, .header {
   background: #F5F5F5;
 }
@@ -26,12 +30,6 @@ h1::first-letter {
   font-size: 12vw;
 }
 
-h2 {
-  font-size: 7vw;
-  margin-top: 10px;
-  margin-left: 10px;
-}
-
 h3 .fa {
   position: absolute;
   right: 0;
@@ -40,6 +38,15 @@ h3 .fa {
 a {
   text-decoration: none;
   color: #555555;
+}
+
+section {
+  position: relative;
+  padding: 0 15px;
+}
+
+section:not(#items) .banner-item {
+  padding-top: 50px;
 }
 
 .splash {
@@ -63,13 +70,6 @@ a {
 .flex-1 {
   font-size: 1.5vw;
   width: 300px;
-}
-
-.fa-style.fa {
-  display: block;
-  font-size: 5vw;
-  text-align: center;
-  margin-bottom: 10px;
 }
 
 .lead-me {
@@ -112,6 +112,7 @@ a {
   top: 0;
   left: 0;
   z-index: 2;
+  font-size: 8vw;
 }
 
 .header * {
@@ -125,19 +126,19 @@ a {
 
 .header .logo {
   padding: 5px;
-  margin: 0 55px 0 15px;
-  font-size: 3vw;
+  margin-left: 15px;
 }
 
 .header ul {
   list-style: none;
-  padding: 0 25px 0 0;
+  padding: 0 15px 0 0;
   margin: 0;
   float: right;
 }
 
 .header ul li {
   float: left;
+  outline: none;
 }
 
 .header .clickable {
@@ -150,21 +151,16 @@ a {
 }
 
 .header .fa-style {
-  font-size: 3vw;
   margin-bottom: 0;
+  display: block;
 }
 
-.hidden {
-  display: none;
-}
-
-.fa.hidden {
+.hidden, .fa.hidden, .toolbox .fa.hidden {
   display: none;
 }
 
 .explore-main {
   max-width: 1000px;
-  width: 800px;
   margin: 0 auto;
 }
 
@@ -176,18 +172,21 @@ a {
 }
 
 .banner-item {
-  font-size: 5vw;
   text-align: left;
 }
 
 .search-box {
-  width: 50%;
-  margin: 0 auto 100px auto;
+  width: 90%;
+  margin: 0 auto 35px auto;
   display: block;
   padding: 5px 8px;
-  font-size: 1.5vw;
+  font-size: 7vw;
   color: #555555;
   border: 1px solid #555555;
+}
+
+.search-box.hidden {
+  display: none;
 }
 
 .results-list {
@@ -197,7 +196,7 @@ a {
 }
 
 .result {
-  padding: 15px 20px;
+  padding: 15px 5px;
   position: relative;
 }
 
@@ -210,7 +209,6 @@ a {
 }
 
 .item-heading {
-  font-size: 3vw;
   margin-bottom: 0;
   border-bottom: 1px solid #E7E7E7;
   position: relative;
@@ -239,7 +237,7 @@ a {
 }
 
 .table-cell {
-  display: table-cell;
+  display: block;
   margin-bottom: 5px;
 }
 
@@ -255,11 +253,6 @@ form.table input[type=text] {
   padding: 5px;
 }
 
-form.table label {
-  width: 10%;
-  padding-right: 25px;
-}
-
 form .toolbox {
   margin: 0;
   position: absolute;
@@ -272,7 +265,6 @@ form .toolbox {
 form .toolbox * {
   display: block;
   cursor: pointer;
-  font-size: 30px;
 }
 
 form .toolbox *:not(:last-child) {
@@ -289,28 +281,32 @@ form .toolbox button:focus {
   outline: none;
 }
 
+form .toolbox .fa::before {
+  font-size: 8vw;
+}
+
 .toolbox {
-  position: fixed;
-  top: 100px;
-  left: 30px;
+  position: absolute;
+  left: 20px;
 }
 
 .toolbox .fa {
-  display: block;
-  font-size: 2vw;
+  display: inline-block;
+  font-size: 0;
+}
+
+.toolbox .fa::before {
+  font-size: 10vw;
 }
 
 .toolbox .fa:not(:last-child) {
-  margin-bottom: 10px;
-}
-
-.toolbox .fa.hidden {
-  display: none;
+  margin-right: 10px;
 }
 
 .js-opt-list-item {
   position: absolute;
-  right: 10px;
+  right: 5px;
+  background-color: #FFFFFF;
 }
 
 .js-opt-list-item .fa:not(:last-child) {
@@ -328,7 +324,7 @@ form .toolbox button:focus {
   margin-bottom: 0;
 }
 
-#item-works-creator-list .js-opt-list-item, #item-works-creator #new-works-creator {
+#item-works-creator-list .js-opt-list-item {
   display: none;
 }
 
@@ -341,15 +337,15 @@ form .toolbox button:focus {
 }
 
 #items form div {
-  width: 50%;
   display: flex;
+  justify-content: center;
   margin: 0 auto;
 }
 
 #items form input {
   flex: 1;
   margin-right: 10px;
-  width: 50%;
+  max-width: 70%;
   font-size: 1.5vw;
   padding: 5px 8px;
   color: #555555;
@@ -358,4 +354,84 @@ form .toolbox button:focus {
 
 #items form .fa {
   padding: 5px;
+}
+
+@media only screen and (min-width: 640px) {
+  section {
+    padding: 0;
+  }
+  
+  section:not(#items) .banner-item {
+    padding-top: 0;
+  }
+  
+  .explore-main {
+    width: 800px;
+  }
+  
+  .header {
+    font-size: 3vw;
+  }
+  
+  .header ul {
+    padding-right: 25px;
+  }
+  
+  h2 {
+    font-size: 7vw;
+  }
+  
+  .toolbox {
+    position: fixed;
+    top: 100px;
+    left: 30px;
+  }
+  
+  form.table label {
+    width: 10%;
+    padding-right: 25px;
+  }
+  
+  .toolbox .fa, .toolbox .fa::before, form .toolbox .fa::before {
+    font-size: 2vw;
+  }
+  
+  .toolbox .fa {
+    display: block;
+  }
+  
+  .toolbox .fa:not(:last-child) {
+    margin-bottom: 10px;
+    margin-right: 0;
+  }
+
+  .search-box {
+    width: 50%;
+    font-size: 1.5vw;
+    margin-bottom: 100px;
+  }
+  
+  .banner-item {
+    font-size: 5vw;
+  }
+  
+  .result {
+    padding: 15px 20px;
+  }
+  
+  .js-opt-list-item {
+    right: 20px;
+  }
+  
+  .item-heading {
+    font-size: 3vw;
+  }
+  
+  .table-cell {
+    display: table-cell;
+  }
+  
+  #items form div {
+    width: 70%;
+  }
 }
