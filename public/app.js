@@ -337,33 +337,17 @@ function displayNewItemForm(event) {
   $("#items > form").removeClass("hidden");
 }
 
-function showEditInfoForm($parentElem, infoPieces, id, textboxes) {
+function showInfoForm($parentElem, infoPieces, id, textboxes = null) {
   const $form     = $("<form>"),
-        $toolbox  = $("<div>");
+        $toolbox  = $("<div>"),
+        tboxes    = textboxes ? textboxes : generateFormInputs(infoPieces, getTypeFromId(id));
         
   $toolbox.addClass("toolbox");
   $toolbox.append(generateToolbox());
   
   $form.addClass("table");
   $form.attr("id", id);
-  $form.append(textboxes);
-  $form.append($toolbox);
-  $form.submit(saveForm);
-  
-  $parentElem.after($form);
-}
-
-function showNewInfoForm($parentElem, infoPieces, id) {
-  const $form     = $("<form>"),
-        textboxes = generateFormInputs(infoPieces, getTypeFromId(id)),
-        $toolbox  = $("<div>");
-        
-  $toolbox.addClass("toolbox");
-  $toolbox.append(generateToolbox());
-  
-  $form.addClass("table");
-  $form.attr("id", id);
-  $form.append(textboxes);
+  $form.append(tboxes);
   $form.append($toolbox);
   $form.submit(saveForm);
   
@@ -773,35 +757,21 @@ function setValuesForTextboxes(textboxes, _id_, type) {
   });
 }
 
-function toggleEditInfoForm($currentTarget) {
-  const currentId       = $currentTarget.closest("ul").attr("id"),
-        $whereToPutForm = $currentTarget.closest("li"),
-        formId          = `${currentId}-div`,
-        idType          = getTypeFromId(formId);
-  let fields, textboxes;
-  
-  $currentTarget.attr("data-expanded", "true");
-  fields    = generateFormFields(currentId);
-  textboxes = generateFormInputs(fields, idType);
-  textboxes = setValuesForTextboxes(textboxes, $whereToPutForm.attr("data-id"), idType);
-  showEditInfoForm($whereToPutForm, fields, formId, textboxes);
-}
-
-function toggleNewInfoForm($currentTarget) {
-  const currentId       = $currentTarget.attr("id"),
-        $whereToPutForm = $currentTarget.parent(),
-        formId          = `${currentId}-div`;
-  let fields;
-  
-  $currentTarget.attr("data-expanded", "true");
-  fields = generateFormFields(currentId);
-  showNewInfoForm($whereToPutForm, fields, formId);
-}
-
 function toggleInfoForm(event) {
-  const $currentTarget = $(event.currentTarget),
-        $form = $currentTarget.closest("section").find("form");
-  let currentId, $whereToPutForm, fields;
+  const $currentTarget  = $(event.currentTarget),
+        $section        = $currentTarget.closest("section"),
+        $form           = $section.find("form"),
+        currentId       = $currentTarget.hasClass("js-add-new") ? $currentTarget.attr("id")
+                                                                : $currentTarget.closest("ul").attr("id"),
+        $whereToPutForm = $currentTarget.hasClass("js-add-new") ? $currentTarget.parent()
+                                                                : $currentTarget.closest("li"),
+        fields          = generateFormFields(currentId),
+        formId          = `${currentId}-div`,
+        type            = getTypeFromId(formId);
+        
+  let textboxes         = $currentTarget.hasClass("js-add-new") ? null : generateFormInputs(fields, type);
+  textboxes = textboxes ? setValuesForTextboxes(textboxes, $whereToPutForm.attr("data-id"), type)
+                        : null;
   
   // Remove form if one already exists
   if ($form.length > 0) {
@@ -812,11 +782,11 @@ function toggleInfoForm(event) {
   if ($currentTarget.attr("data-expanded") === "true") {
     $currentTarget.attr("data-expanded", "false");
   } else {
-    if ($currentTarget.hasClass("js-add-new")) {
-      toggleNewInfoForm($currentTarget);
-    } else if ($currentTarget.hasClass("js-edit-list-item")) {
-      toggleEditInfoForm($currentTarget);
-    }
+    // Revert "data-expanded" for all items other than the one clicked
+    $section.find(`[data-expanded=true]:not(${$currentTarget.attr("id")})`).attr("data-expanded", "false");
+    $currentTarget.attr("data-expanded", "true");
+    
+    showInfoForm($whereToPutForm, fields, formId, textboxes);
   }
 }
 
