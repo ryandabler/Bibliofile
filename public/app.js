@@ -126,9 +126,9 @@ function createReference(reference) {
         $span = $("<span>");
   
   $li.addClass("result clickable");
-  $li.attr("id", reference.work ? reference.work.id : reference.id);
+  $li.attr("id", reference.id);
   $li.attr("data-id", reference._id_);
-  $li.text(reference.work ? reference.work.title : reference.title);
+  $li.text(reference.title);
   
   $span.addClass("additional-info");
   $span.text(`(${reference.kind})`);
