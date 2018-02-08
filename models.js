@@ -192,7 +192,7 @@ workSchema.methods.populatedSerialize = function() {
   });
   
   // Revise published_in (if it exists) in publication info with English title
-  if (work.publication_info.published_in) {
+  if (work.publication_info && work.publication_info.published_in) {
     let title = work.publication_info.published_in.title.find(elem => elem.lang === "en");
     
     work.publication_info.published_in = title.name;
