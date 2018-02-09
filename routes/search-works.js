@@ -4,7 +4,6 @@ const express     = require("express");
 const router      = express.Router();
 const bodyParser  = require("body-parser");
 const jsonParser  = bodyParser.json();
-const mongoose    = require("mongoose");
 const { Work }    = require("../models");
 
 router.get("/:string", (req, res) => {
