@@ -3,7 +3,7 @@
 //////////////////////
 // Globals
 //////////////////////
-const API_GENERIC_ENDPOINT = "http://localhost:8080/api";
+const API_GENERIC_ENDPOINT = "/api";
 const APP_STATE = {
   currentlyLoaded: null,
   data: [],
@@ -527,12 +527,15 @@ function getItemDetails(dataType = null, id = null) {
 }
 
 function deleteItem(dataType) {
-  return function() {
+  return function(event) {
     queryAPI(`${API_GENERIC_ENDPOINT}/${dataType}/${APP_STATE.currentItem.id}`,
              "json",
              "DELETE"
             )
-            .then(res => switchDisplay("items"))
+            .then(res => {
+              makeUneditable($(event.currentTarget).closest("section"));
+              switchDisplay("items");
+            })
             .catch(console.log);
   };
 }
