@@ -8,9 +8,6 @@ const morgan   = require("morgan");
 const mongoose = require("mongoose");
 
 const app = express();
-
-const { routerCreator, routerWork, routerSearchWorks, routerSearchAuthors } = require("./routers");
-
 const { PORT, DATABASE_URL } = require("./config");
 
 app.use(express.static("public"));
@@ -29,10 +26,10 @@ app.use(function(req, res, next) {
 app.use(morgan("common"));
 
 // Set up router
-app.use("/api/creators", routerCreator);
-app.use("/api/works", routerWork);
-app.use("/api/search/works", routerSearchWorks);
-app.use("/api/search/creators", routerSearchAuthors);
+app.use("/api/creators", require("./routes/creator").router);
+app.use("/api/works", require("./routes/work").router);
+app.use("/api/search/works", require("./routes/search-works").router);
+app.use("/api/search/creators", require("./routes/search-creators").router);
 
 // Error handling
 app.use((err, req, res, next) => {
