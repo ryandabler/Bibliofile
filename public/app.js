@@ -10,6 +10,14 @@ const APP_STATE = {
   currentItem: null,
   editedItem: null
 };
+const CREATE_FUNCTIONS = { links: createLink,
+                           awards: createAward,
+                           title: createTitle,
+                           contributors: createContributor,
+                           identifiers: createIdentifier,
+                           contents: createContent,
+                           references: createReference
+                         };
 
 //////////////////////
 // DOM functions
@@ -126,9 +134,9 @@ function createReference(reference) {
         $span = $("<span>");
   
   $li.addClass("result clickable");
-  $li.attr("id", reference.work ? reference.work.id : reference.id);
+  $li.attr("id", reference.id);
   $li.attr("data-id", reference._id_);
-  $li.text(reference.work ? reference.work.title : reference.title);
+  $li.text(reference.title);
   
   $span.addClass("additional-info");
   $span.text(`(${reference.kind})`);
@@ -337,33 +345,17 @@ function displayNewItemForm(event) {
   $("#items > form").removeClass("hidden");
 }
 
-function showEditInfoForm($parentElem, infoPieces, id, textboxes) {
+function showInfoForm($parentElem, infoPieces, id, textboxes = null) {
   const $form     = $("<form>"),
-        $toolbox  = $("<div>");
+        $toolbox  = $("<div>"),
+        tboxes    = textboxes ? textboxes : generateFormInputs(infoPieces, getTypeFromId(id));
         
   $toolbox.addClass("toolbox");
   $toolbox.append(generateToolbox());
   
   $form.addClass("table");
   $form.attr("id", id);
-  $form.append(textboxes);
-  $form.append($toolbox);
-  $form.submit(saveForm);
-  
-  $parentElem.after($form);
-}
-
-function showNewInfoForm($parentElem, infoPieces, id) {
-  const $form     = $("<form>"),
-        textboxes = generateFormInputs(infoPieces, getTypeFromId(id)),
-        $toolbox  = $("<div>");
-        
-  $toolbox.addClass("toolbox");
-  $toolbox.append(generateToolbox());
-  
-  $form.addClass("table");
-  $form.attr("id", id);
-  $form.append(textboxes);
+  $form.append(tboxes);
   $form.append($toolbox);
   $form.submit(saveForm);
   
@@ -371,39 +363,7 @@ function showNewInfoForm($parentElem, infoPieces, id) {
 }
 
 function updateEntryInDOM($where, object, type) {
-  let $li;
-  console.log($where, object, type);
-  
-  switch(type) {
-    case "links":
-      $li = createLink(object);
-      break;
-      
-    case "awards":
-      $li = createAward(object);
-      break;
-      
-    case "title":
-      $li = createTitle(object);
-      break;
-      
-    case "contributors":
-      $li = createContributor(object);
-      break;
-      
-    case "identifiers":
-      $li = createIdentifier(object);
-      break;
-      
-    case "contents":
-      $li = createContent(object);
-      break;
-      
-    case "references":
-      $li = createReference(object);
-      break;
-  }
-  
+  let $li = CREATE_FUNCTIONS[type](object);
   $where.replaceWith($li);
 }
 
@@ -412,37 +372,7 @@ function insertEntryIntoDOM($listToInsertInto, objectToInsert) {
   $listToInsertInto.prev().prev().removeClass("js-empty");
   
   const type = getTypeFromId($listToInsertInto.attr("id"));
-  let newItem;
-  
-  switch(type) {
-    case "title":
-      newItem = createTitle(objectToInsert);
-      break;
-      
-    case "contributors":
-      newItem = createContributor(objectToInsert);
-      break;
-      
-    case "contents":
-      newItem = createContent(objectToInsert);
-      break;
-      
-    case "links":
-      newItem = createLink(objectToInsert);
-      break;
-      
-    case "references":
-      newItem = createReference(objectToInsert);
-      break;
-      
-    case "identifiers":
-      newItem = createIdentifier(objectToInsert);
-      break;
-      
-    case "awards":
-      newItem = createAward(objectToInsert);
-      break;
-  }
+  let newItem = CREATE_FUNCTIONS[type](objectToInsert);
   
   $listToInsertInto.append(newItem);
 }
@@ -687,7 +617,7 @@ function createAndDisplayItem(event) {
   }
   
   queryAPI(`${API_GENERIC_ENDPOINT}/${type}`, "json", "POST", queryObj)
-    .then(getItemDetails(type, data.id);
+    .then(getItemDetails(type, data.id));
 }
 
 function getTypeFromId(id) {
@@ -773,35 +703,21 @@ function setValuesForTextboxes(textboxes, _id_, type) {
   });
 }
 
-function toggleEditInfoForm($currentTarget) {
-  const currentId       = $currentTarget.closest("ul").attr("id"),
-        $whereToPutForm = $currentTarget.closest("li"),
-        formId          = `${currentId}-div`,
-        idType          = getTypeFromId(formId);
-  let fields, textboxes;
-  
-  $currentTarget.attr("data-expanded", "true");
-  fields    = generateFormFields(currentId);
-  textboxes = generateFormInputs(fields, idType);
-  textboxes = setValuesForTextboxes(textboxes, $whereToPutForm.attr("data-id"), idType);
-  showEditInfoForm($whereToPutForm, fields, formId, textboxes);
-}
-
-function toggleNewInfoForm($currentTarget) {
-  const currentId       = $currentTarget.attr("id"),
-        $whereToPutForm = $currentTarget.parent(),
-        formId          = `${currentId}-div`;
-  let fields;
-  
-  $currentTarget.attr("data-expanded", "true");
-  fields = generateFormFields(currentId);
-  showNewInfoForm($whereToPutForm, fields, formId);
-}
-
 function toggleInfoForm(event) {
-  const $currentTarget = $(event.currentTarget),
-        $form = $currentTarget.closest("section").find("form");
-  let currentId, $whereToPutForm, fields;
+  const $currentTarget  = $(event.currentTarget),
+        $section        = $currentTarget.closest("section"),
+        $form           = $section.find("form"),
+        currentId       = $currentTarget.hasClass("js-add-new") ? $currentTarget.attr("id")
+                                                                : $currentTarget.closest("ul").attr("id"),
+        $whereToPutForm = $currentTarget.hasClass("js-add-new") ? $currentTarget.parent()
+                                                                : $currentTarget.closest("li"),
+        fields          = generateFormFields(currentId),
+        formId          = `${currentId}-div`,
+        type            = getTypeFromId(formId);
+        
+  let textboxes         = $currentTarget.hasClass("js-add-new") ? null : generateFormInputs(fields, type);
+  textboxes = textboxes ? setValuesForTextboxes(textboxes, $whereToPutForm.attr("data-id"), type)
+                        : null;
   
   // Remove form if one already exists
   if ($form.length > 0) {
@@ -812,11 +728,11 @@ function toggleInfoForm(event) {
   if ($currentTarget.attr("data-expanded") === "true") {
     $currentTarget.attr("data-expanded", "false");
   } else {
-    if ($currentTarget.hasClass("js-add-new")) {
-      toggleNewInfoForm($currentTarget);
-    } else if ($currentTarget.hasClass("js-edit-list-item")) {
-      toggleEditInfoForm($currentTarget);
-    }
+    // Revert "data-expanded" for all items other than the one clicked
+    $section.find(`[data-expanded=true]:not(${$currentTarget.attr("id")})`).attr("data-expanded", "false");
+    $currentTarget.attr("data-expanded", "true");
+    
+    showInfoForm($whereToPutForm, fields, formId, textboxes);
   }
 }
 
