@@ -364,7 +364,20 @@ function showInfoForm($parentElem, infoPieces, id, textboxes = null) {
 
 function updateEntryInDOM($where, object, type) {
   let $li = CREATE_FUNCTIONS[type](object);
+  addEditButtons($li, true);
+  
   $where.replaceWith($li);
+}
+
+function addEditButtons($li, makeExpanded = false) {
+  const $span    = $("<span>").addClass("js-opt-list-item");
+  const $iEdit   = $("<i>").addClass("fa fa-pencil-square-o js-edit-list-item");
+  const $iDelete = $("<i>").addClass("fa fa-times js-delete-list-item");
+  
+  makeExpanded ? $iEdit.attr("data-expanded", "true") : null;
+  
+  $span.append( [ $iEdit, $iDelete ] );
+  $li.append($span);
 }
 
 function insertEntryIntoDOM($listToInsertInto, objectToInsert) {
@@ -374,6 +387,9 @@ function insertEntryIntoDOM($listToInsertInto, objectToInsert) {
   const type = getTypeFromId($listToInsertInto.attr("id"));
   let newItem = CREATE_FUNCTIONS[type](objectToInsert);
   
+  addEditButtons(newItem);
+  
+  // Insert into list
   $listToInsertInto.append(newItem);
 }
 
@@ -381,13 +397,8 @@ function makeEditable(dataType) {
   return function(event) {
     const $nearestSection = $(this).closest("section");
   
-    // Add delete buttons to each list item
-    const $span    = $("<span>").addClass("js-opt-list-item");
-    const $iEdit   = $("<i>").addClass("fa fa-pencil-square-o js-edit-list-item");
-    const $iDelete = $("<i>").addClass("fa fa-times js-delete-list-item");
-    
-    $span.append( [ $iEdit, $iDelete ] );
-    $nearestSection.find("li").append($span);
+    // Add edit and delete buttons to each list item
+    addEditButtons($nearestSection.find("li"));
     
     // Unhide all section headings and edit buttons
     $nearestSection.find(".item-heading").removeClass("hidden");
