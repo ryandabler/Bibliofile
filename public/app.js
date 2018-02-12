@@ -64,7 +64,7 @@ function createLink(link) {
   const $li = $("<li>"),
         $a  = $("<a>");
   
-  $li.addClass("result clickable");
+  $li.addClass("result");
   $li.attr("data-id", link._id_);
   $a.attr("href", link.url);
   $a.text(link.domain);
@@ -74,7 +74,7 @@ function createLink(link) {
 }
 
 function createAward(award) {
-  return createListItem(award.name, award.year, award._id_);
+  return createListItem(award.name, award.year, award._id_, null, false);
 }
 
 function createWork(work) {
@@ -82,7 +82,7 @@ function createWork(work) {
 }
 
 function createTitle(title) {
-  return createListItem(title.name, null, title._id_);
+  return createListItem(title.name, null, title._id_, null, false);
 }
 
 function createContributor(contributor) {
@@ -146,7 +146,7 @@ function createReference(reference) {
 }
 
 function createIdentifier(identifier) {
-  return createListItem(identifier.identifier, identifier.type, identifier._id_);
+  return createListItem(identifier.identifier, identifier.type, identifier._id_, null, false);
 }
 
 function renderSection(sectionName, dataSegment, generatorObj) {
