@@ -560,6 +560,12 @@ function deleteItem(dataType) {
   };
 }
 
+function displayErrorMessage($section, message) {
+  const $text = $section.find(".text");
+  $text.text(message);
+  $text.parent().removeClass("hidden");
+}
+
 function saveItem(dataType) {
   return function(event) {
     const $section = $(event.currentTarget).closest("section");
@@ -786,6 +792,7 @@ function addEventListeners() {
   $("#delete-creator").click(deleteItem("creators"));
   $("#save-work").click(saveItem("works"));
   $("#save-creator").click(saveItem("creators"));
+  $(".x").click(event => $(event.currentTarget).parent().addClass("hidden"));
   $("ul").on("click", ".js-delete-list-item", deleteListItem);
   $("ul").on("click", ".js-edit-list-item", editListItem);
   $("#nav-header").on("click", "li", loadSegment);
