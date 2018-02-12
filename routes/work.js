@@ -11,6 +11,7 @@ const { checkRequiredFields,
 
 router.get("/", (req, res) => {
   Work.findAndPopulate()
+      .sort({"title.name": 1})
       .then(works => {
         res.json( { works: works.map(work => work.populatedSerialize()) } );
       })

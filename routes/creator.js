@@ -11,6 +11,7 @@ const { checkRequiredFields,
 
 router.get("/", (req, res) => {
   Creator.findAndPopulate()
+         .sort({"name.last": 1, "name.first": 1, "name.middle": 1})
          .then(creators => {
             res.json( { creators: creators.map(creator => creator.populatedSerialize()) } );
           })
