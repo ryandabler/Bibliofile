@@ -787,6 +787,8 @@ function saveForm(event) {
     object = updateEntryInAPP_STATE(type, _id_, object);
     updateEntryInDOM($where, object, type);
   }
+  
+  clearForm(event);
 }
 
 function clearForm(event) {
