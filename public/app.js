@@ -435,6 +435,8 @@ function makeUneditable($section) {
     $section.find("form").remove();
   }
   
+  $section.find("[data-expanded=true]").attr("data-expanded", "false");
+  
   // Show toolbox items
   $section.find(".toolbox :not(.hidden)").addClass("hidden");
   $section.find(".toolbox .fa-pencil-square-o").removeClass("hidden");
