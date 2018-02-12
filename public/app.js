@@ -22,9 +22,9 @@ const CREATE_FUNCTIONS = { links: createLink,
 //////////////////////
 // DOM functions
 //////////////////////
-function createListItem(main, addl=null, data_id=null, id=null) {
+function createListItem(main, addl=null, data_id=null, id=null, clickable=true) {
   const $li = $("<li>");
-  $li.addClass("result clickable");
+  clickable ? $li.addClass("result clickable") : $li.addClass("result");
   $li.text(main);
   
   data_id ? $li.attr("data-id", data_id)                                          : null;
