@@ -858,8 +858,10 @@ function addEventListeners() {
   $("#list-of-items").on("click", "li", getItemDetails());
   $("#item-works-creator-list").on("click", "li", getItemDetails("works"));
   $("#item-contributors-work-list").on("click", "li", getItemDetails("creators"));
+  $("#item-references-work-list").on("click", "li", getItemDetails("works"));
   $(".js-add-new").click(toggleInfoForm);
   $("#new-element").click(displayNewItemForm);
+  $("#cancel-new-element").click(hideNewItemForm);
   $("#form-new").submit(createAndDisplayItem)
   $("#edit-work").click(makeEditable("work"));
   $("#edit-creator").click(makeEditable("creator"));
