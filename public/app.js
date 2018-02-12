@@ -793,7 +793,8 @@ function saveForm(event) {
 
 function clearForm(event) {
   const $form = $(this).closest("form");
-  $form.find("input[type=text]").val("");
+  $form.find("input").val("");
+  $("#srch-over-contrib").remove();
 }
 
 function setValuesForTextboxes(textboxes, _id_, type) {
