@@ -693,6 +693,18 @@ function sanitizeAPP_STATE($section) {
   }
 }
 
+function checkAPP_STATEForErrors($section) {
+  const item = APP_STATE.editedItem;
+  let errors = 0;
+  
+  if (item.title && item.title.length === 0) {
+    displayErrorMessage($section, "Please ensure there is at least one title");
+    errors++;
+  }
+  
+  return errors;
+}
+
 function createAndDisplayItem(event) {
   event.preventDefault();
   const type     = $("#nav-header .activated").closest("li").attr("data-segment"),
