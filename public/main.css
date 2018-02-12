@@ -18,16 +18,24 @@ header, .header {
   background: #F5F5F5;
 }
 
+header {
+  padding: 15px;
+}
+
 header * {
   margin: 0;
 }
 
 h1 {
-  font-size: 8vw;
+  font-size: 18vw;
 }
 
 h1::first-letter {
-  font-size: 12vw;
+  font-size: 21vw;
+}
+
+h2 {
+  font-size: 10vw;
 }
 
 h3 .fa {
@@ -49,13 +57,16 @@ section:not(#items) .banner-item {
   padding-top: 50px;
 }
 
+section.splash ul {
+  margin-bottom: 0;
+}
+
 .splash {
-  height: 100vh;
+  min-height: 100vh;
 }
 
 .splash-content {
   margin: auto;
-  /* Add width element when rewriting this for mobile-first */
 }
 
 .flex {
@@ -68,8 +79,12 @@ section:not(#items) .banner-item {
 }
 
 .flex-1 {
-  font-size: 1.5vw;
-  width: 300px;
+  font-size: 6vw;
+  width: 100%;
+}
+
+.flex-1:not(:last-of-type) {
+  margin-bottom: 20px;
 }
 
 .lead-me {
@@ -100,7 +115,7 @@ section:not(#items) .banner-item {
 .explore {
   display: block;
   text-align: center;
-  margin: 100px auto 0 auto;
+  margin: 50px auto 20px auto;
   width: 50vw;
   background-color: #5F5F5F;
   color: #F5F5F5;
@@ -165,9 +180,9 @@ section:not(#items) .banner-item {
 }
 
 .banner {
-  margin-top: 70px;
+  margin-top: 18vw;
   margin-left: 0;
-  margin-bottom: 20px;
+  margin-bottom: 5vw;
   text-align: center;
 }
 
@@ -180,7 +195,7 @@ section:not(#items) .banner-item {
   margin: 0 auto 35px auto;
   display: block;
   padding: 5px 8px;
-  font-size: 7vw;
+  font-size: 15px;
   color: #555555;
   border: 1px solid #555555;
 }
@@ -251,6 +266,7 @@ form.table * {
 
 form.table input[type=text] {
   padding: 5px;
+  width: 85%;
 }
 
 form .toolbox {
@@ -281,22 +297,19 @@ form .toolbox button:focus {
   outline: none;
 }
 
-form .toolbox .fa::before {
+form .toolbox .fa::before, .toolbox .fa::before {
   font-size: 8vw;
 }
 
 .toolbox {
   position: absolute;
-  left: 20px;
+  left: 6.25vw;
+  top: auto;
 }
 
 .toolbox .fa {
   display: inline-block;
   font-size: 0;
-}
-
-.toolbox .fa::before {
-  font-size: 10vw;
 }
 
 .toolbox .fa:not(:last-child) {
@@ -305,8 +318,10 @@ form .toolbox .fa::before {
 
 .js-opt-list-item {
   position: absolute;
-  right: 5px;
   background-color: #FFFFFF;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .js-opt-list-item .fa:not(:last-child) {
@@ -317,6 +332,9 @@ form .toolbox .fa::before {
   position: absolute;
   z-index: 1;
   background-color: #FFFFFF;
+}
+
+.search-overlay .results-list:not(:empty) {
   border: 1px solid #555555;
 }
 
@@ -329,7 +347,7 @@ form .toolbox .fa::before {
 }
 
 #items form {
-  margin-top: 70px;
+  margin-top: 18vw;
 }
 
 #items form h2 {
@@ -356,13 +374,50 @@ form .toolbox .fa::before {
   padding: 5px;
 }
 
+.error {
+  margin-top: 18vw;
+  padding-top: 50px;
+  padding-bottom: 2vw;
+  position: relative;
+}
+
+.error .x {
+  position: absolute;
+  right: 4px;
+  top: 0;
+}
+
+.error .text {
+  background-color: #FFB5B5;
+  border: 1px solid #CE6565;
+  border-radius: 5px;
+  padding: 4px 16px 4px 4px;
+}
+
+.error:not(.hidden) + #banner-item-creator.banner-item,  .error:not(.hidden) + #banner-item-work.banner-item{
+  margin-top: 0;
+  padding-top: 0;
+}
+
 @media only screen and (min-width: 640px) {
+  h1 {
+    font-size: 12vw;
+  }
+  
+  h1::first-letter {
+    font-size: 16vw;
+  }
+
   section {
-    padding: 0;
+    padding: 0 15px;
   }
   
   section:not(#items) .banner-item {
-    padding-top: 0;
+    padding-top: 4vw;
+  }
+  
+  .explore {
+    margin-top: 100px;
   }
   
   .explore-main {
@@ -382,8 +437,7 @@ form .toolbox .fa::before {
   }
   
   .toolbox {
-    position: fixed;
-    top: 100px;
+    position: absolute;
     left: 30px;
   }
   
@@ -393,11 +447,7 @@ form .toolbox .fa::before {
   }
   
   .toolbox .fa, .toolbox .fa::before, form .toolbox .fa::before {
-    font-size: 2vw;
-  }
-  
-  .toolbox .fa {
-    display: block;
+    font-size: 3vw;
   }
   
   .toolbox .fa:not(:last-child) {
@@ -407,8 +457,14 @@ form .toolbox .fa::before {
 
   .search-box {
     width: 50%;
-    font-size: 1.5vw;
+    font-size: 2.5vw;
     margin-bottom: 100px;
+  }
+  
+  .banner {
+    margin-top: 7vw;
+    margin-left: 0;
+    margin-bottom: 20px;
   }
   
   .banner-item {
@@ -431,7 +487,55 @@ form .toolbox .fa::before {
     display: table-cell;
   }
   
+  .flex-1 {
+    font-size: 3vw;
+    width: 300px;
+  }
+  
+  #items form {
+    margin-top: 7vw;
+  }
+  
   #items form div {
     width: 70%;
+  }
+  
+  .error {
+    padding-top: 7vw;
+    margin-top: 7vw;
+  }
+  
+  .error .top {
+    padding-top: 4vw;
+  }
+}
+
+@media only screen and (min-width: 1000px) {
+  .flex-1 {
+    font-size: 1.5vw;
+  }
+  
+  .toolbox {
+    position: fixed;
+  }
+  
+  .toolbox .fa, .toolbox .fa::before, form .toolbox .fa::before {
+    font-size: 2vw;
+  }
+  
+  .toolbox .fa {
+    display: block;
+  }
+  
+  section:not(#items) .banner-item {
+    padding-top: 0;
+  }
+  
+  .error {
+    padding-top: 0;
+  }
+  
+  .error .top {
+    padding-top: 0;
   }
 }
