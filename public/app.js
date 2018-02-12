@@ -470,8 +470,6 @@ function showSearchChoices(dataType, $emittingElement) {
   return function(data) {
     const $div           = $("#srch-over-contrib").length ? $("#srch-over-contrib") : $("<div>"),
           $ul            = $("<ul>"),
-          // { top, left }  = $emittingElement.offset(),
-          // height         = $emittingElement.height(),
           width          = $emittingElement.outerWidth(),
           list           = data[dataType].map(item => {
                              const name = item.name || item.title.find(elem => elem.lang === "en").name;
