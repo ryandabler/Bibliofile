@@ -772,7 +772,7 @@ function saveForm(event) {
     const $input = $(inputs[idx]);
     object[getTypeFromId($input.attr("id"))] = $input.val();
   });
-  console.log("object", object, type);
+  
   sanitizeInput(type, object);
   
   if (editOrNew === -1) {
