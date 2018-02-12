@@ -676,7 +676,7 @@ function searchDatabase(dataType) {
 //////////////////////
 // Other functions
 //////////////////////
-function sanitizeAPP_STATE() {
+function sanitizeAPP_STATE($section) {
   const item = APP_STATE.editedItem;
   
   if (item.contributors) {
