@@ -20,18 +20,28 @@ const workSchema = mongoose.Schema({
   contents:         [ contentSchema ]
 });
 
-workSchema.methods.serialize = function() {
-  return {
-    id:               this._id,
-    title:            this.title,
-    contributors:     this.contributors,
-    kind:             this.kind,
-    publication_info: this.publication_info,
-    identifiers:      this.identifiers,
-    links:            this.links,
-    references:       this.references,
-    contents:         this.contents
-  };
+workSchema.methods.serialize = function(fieldsArr = null) {
+  let work = {
+                id:               this._id,
+                title:            this.title,
+                contributors:     this.contributors,
+                kind:             this.kind,
+                publication_info: this.publication_info,
+                identifiers:      this.identifiers,
+                links:            this.links,
+                references:       this.references,
+                contents:         this.contents
+             },
+      filteredWork;
+      
+  if (fieldsArr) {
+    filteredWork = {};
+    fieldsArr.forEach(field => {
+      filteredWork[field] = work[field];
+    });
+  }
+  
+  return filteredWork ? filteredWork : work;
 };
 
 workSchema.methods.populatedSerialize = function() {
