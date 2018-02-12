@@ -568,35 +568,94 @@ function displayErrorMessage($section, message) {
   $text.parent().removeClass("hidden");
 }
 
+function generateIntermediateSavePromises($liElements, field, type) {
+  const promises = [];
+  const data     = [];
+  $liElements.each(function(idx) {
+    const data_id = $(this).attr("data-id");
+    const itemInAPP_STATE = APP_STATE.editedItem[field].find(item => item._id_ === data_id);
+    const queryObj = { contentType: "application/json; charset=utf-8",
+                       processData: false
+                     };
+    
+    if (type === "creators") {
+      queryObj.data = JSON.stringify({ fullname: itemInAPP_STATE.fullname });
+    } else {
+      queryObj.data = JSON.stringify({ title: { lang: "en", name: itemInAPP_STATE.title } });
+    }
+    
+    data.push({ data_id, field, type });
+    promises.push(queryAPI(`${API_GENERIC_ENDPOINT}/${type}`, "json", "POST", queryObj));
+  });
+  
+  return [data, promises];
+}
+
+function updateAPP_STATEWithNewData(dataArr, data_info, $lis) {
+  dataArr.forEach((elem, idx) => {
+    const { data_id, field, type } = data_info[idx];
+    const itemInAPP_STATE = APP_STATE.editedItem[field].find(item => item._id_ === data_id);
+    itemInAPP_STATE.id = elem.id;
+    itemInAPP_STATE.work = elem.id;
+    $lis[idx].id = itemInAPP_STATE.id;
+  });
+}
+
 function saveItem(dataType) {
   return function(event) {
     const $section = $(event.currentTarget).closest("section");
     
-    // Sanitize APP_STATE so that it will fit model
-    sanitizeAPP_STATE();
-    
-    // Perform query
-    const queryObj = { data: JSON.stringify(APP_STATE.editedItem),
-                       contentType: "application/json; charset=utf-8",
-                       processData: false
-                     };
-    queryAPI(`${API_GENERIC_ENDPOINT}/${dataType}/${APP_STATE.editedItem.id}`,
-             "json",
-             "PUT",
-              queryObj
-             )
-             .then(res => {
-               APP_STATE.currentItem = APP_STATE.editedItem;
-               makeUneditable($section);
-             })
-              .catch(err => {
-                if(err.status === 200) {
-                  APP_STATE.currentItem = APP_STATE.editedItem;
-                  makeUneditable($section);
-                } else {
-                  console.log(err);
-                }
-             });
+    // Check for errors
+    const errors = checkAPP_STATEForErrors($section);
+    if (!errors) {
+      // Create new contributors/references if they don't already exist
+      const [referenceData, referencePromises] = generateIntermediateSavePromises(
+        $("#item-references-work-list li:not([id])"),
+        "references",
+        "works");
+      const [contributorData, contributorPromises] = generateIntermediateSavePromises(
+        $("#item-contributors-work-list li:not([id])"),
+        "contributors",
+        "creators");
+      const promises  = referencePromises.concat(contributorPromises);
+      const data_info = referenceData.concat(contributorData);
+      const $lis      = $.merge($("#item-references-work-list li:not([id])"), $("#item-contributors-work-list li:not([id])"));
+      
+      Promise.all(promises)
+        .then(data => {
+          // Need to modify APP_STATE and the DOM with returned "id" fields in order to allow the
+          // update to happen
+          updateAPP_STATEWithNewData(data, data_info, $lis);
+          
+          // Sanitize APP_STATE so that it will fit model
+          sanitizeAPP_STATE($section);
+          
+            // Perform query
+          const queryObj = { data: JSON.stringify(APP_STATE.editedItem),
+                            contentType: "application/json; charset=utf-8",
+                            processData: false
+                          };
+          queryAPI(`${API_GENERIC_ENDPOINT}/${dataType}/${APP_STATE.editedItem.id}`,
+                  "json",
+                  "PUT",
+                    queryObj
+                  )
+                  .then(res => {
+                    APP_STATE.currentItem = APP_STATE.editedItem;
+                  })
+                  .catch(err => {
+                    if(err.status === 200) {
+                      APP_STATE.currentItem = APP_STATE.editedItem;
+                    } else {
+                      console.log(err);
+                    }
+                  });
+                  
+          makeUneditable($section);
+        });
+    } else {
+      cancelEditing(event);
+    }
   };
 }
 
