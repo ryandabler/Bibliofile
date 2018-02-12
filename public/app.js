@@ -67,6 +67,7 @@ function createLink(link) {
   $li.addClass("result");
   $li.attr("data-id", link._id_);
   $a.attr("href", link.url);
+  $a.attr("target", "_blank");
   $a.text(link.domain);
   
   $li.append($a);
