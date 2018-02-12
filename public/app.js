@@ -707,7 +707,7 @@ function createAndDisplayItem(event) {
   }
   
   queryAPI(`${API_GENERIC_ENDPOINT}/${type}`, "json", "POST", queryObj)
-    .then(getItemDetails(type, data.id));
+    .then(data => getItemDetails(type, data.id)());
 }
 
 function getTypeFromId(id) {
