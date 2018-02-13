@@ -884,7 +884,7 @@ function addEventListeners() {
   $(".js-add-new").click(toggleInfoForm);
   $("#new-element").click(displayNewItemForm);
   $("#cancel-new-element").click(hideNewItemForm);
-  $("#form-new").submit(createAndDisplayItem)
+  $("#form-new").submit(createAndDisplayItem);
   $("#edit-work").click(makeEditable("work"));
   $("#edit-creator").click(makeEditable("creator"));
   $("#cancel-work, #cancel-creator").click(cancelEditing);
