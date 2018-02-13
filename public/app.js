@@ -566,7 +566,8 @@ function getListOfItems(type, convoId = null) {
 
 function getItemDetails(dataType = null, id = null) {
   return function(event) {
-    const type = dataType ? dataType : $("#nav-header").find("span.activated").closest("li").attr("data-segment");
+    const dataSeg = $("#nav-header").find("span.activated").closest("li").attr("data-segment");
+    const type = dataType ? dataType : (dataSeg === "conversation" ? "works" : dataSeg);
     const API_URL = `${API_GENERIC_ENDPOINT}/${type}/${id || this.id}`;
     queryAPI(API_URL, "json", "GET").then(renderItemToDOM(type));
   };
