@@ -3,7 +3,7 @@
 //////////////////////
 // Globals
 //////////////////////
-const API_GENERIC_ENDPOINT = "http://localhost:8080/api";
+const API_GENERIC_ENDPOINT = "/api";
 const APP_STATE = {
   currentlyLoaded: null,
   data: [],
