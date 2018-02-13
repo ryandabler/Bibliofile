@@ -360,14 +360,17 @@ form .toolbox .fa::before, .toolbox .fa::before {
   margin: 0 auto;
 }
 
-#items form input {
+#items input {
   flex: 1;
   margin-right: 10px;
   max-width: 70%;
-  font-size: 1.5vw;
   padding: 5px 8px;
   color: #555555;
   border: 1px solid #555555;
+}
+
+#items input.search-box {
+  margin-right: auto;
 }
 
 #items form .fa {
@@ -457,7 +460,7 @@ form .toolbox .fa::before, .toolbox .fa::before {
 
   .search-box {
     width: 50%;
-    font-size: 2.5vw;
+    font-size: 1.5vw;
     margin-bottom: 100px;
   }
   
