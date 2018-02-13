@@ -687,6 +687,7 @@ function saveItem(dataType) {
 function searchDatabase(dataType) {
   return function(event) {
     const $currentTarget = $(event.currentTarget);
+    
     if ($currentTarget.val().length > 3) {
       queryAPI(`${API_GENERIC_ENDPOINT}/search/${dataType}/${$currentTarget.val()}`,
                 "json",
