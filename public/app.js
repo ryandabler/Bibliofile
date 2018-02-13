@@ -552,12 +552,15 @@ function queryAPI(endpointURL, dataType, method, optionsObj = null) {
   return $.ajax(ajaxRequestObject);
 }
 
-function getListOfItems(type) {
+function getListOfItems(type, convoId = null) {
+  let API_ENDPOINT = `${API_GENERIC_ENDPOINT}/${type}`;
+  API_ENDPOINT += convoId ? `/${convoId}` : "";
+  
   // Return an IIFE in order to be able to use promise chaining in the
   // function that invokes getListOfItems();
   return (function() {
     APP_STATE.currentlyLoaded = type;
-    return queryAPI(`${API_GENERIC_ENDPOINT}/${type}`, "json", "GET");
+    return queryAPI(API_ENDPOINT, "json", "GET");
   })();
 }
 
