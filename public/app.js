@@ -896,6 +896,7 @@ function addEventListeners() {
   $("ul").on("click", ".js-delete-list-item", deleteListItem);
   $("ul").on("click", ".js-edit-list-item", editListItem);
   $("#nav-header").on("click", "li", loadSegment);
+  $("#search-text").on("input", searchDatabase("works"));
 }
 
 function loadData(data, dataType) {
