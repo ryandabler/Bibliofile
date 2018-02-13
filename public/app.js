@@ -351,10 +351,13 @@ function displayNewItemForm(event) {
 
 function hideNewItemForm(event) {
   $("#items > *:not(div)").removeClass("hidden");
-  $("#form-new").addClass("hidden");
-  $("#items input").val("");
   $("#new-element").removeClass("hidden");
+  
+  $("#form-new").addClass("hidden");
   $("#cancel-new-element").addClass("hidden");
+  $("#items input").addClass("hidden");
+  
+  $("#items input").val("");
 }
 
 function showInfoForm($parentElem, infoPieces, id, textboxes = null) {
