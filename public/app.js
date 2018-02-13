@@ -824,7 +824,7 @@ function saveForm(event) {
 }
 
 function clearForm(event) {
-  const $form = $(this).closest("form");
+  const $form = $(event.currentTarget).closest("form");
   $form.find("input").val("");
   $("#srch-over-contrib").remove();
 }
