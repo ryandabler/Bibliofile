@@ -50,7 +50,7 @@ function updateItemsSection(data, htmlIdToAppendTo, dataType) {
     $("#form-new").addClass("hidden");
   } else {
     $("#items .toolbox").removeClass("hidden");
-    $("#items > input").val("");
+    $("#items input").val("");
     $("#convo-form").addClass("hidden");
   }
   
