@@ -844,7 +844,7 @@ function toggleInfoForm(event) {
 
 function loadSegment(event) {
   const $current = $(event.currentTarget),
-        dataSeg  = $current.attr("data-segment");
+        dataSeg  = $current.attr("data-segment") || $("#nav-header .activated").closest("li").attr("data-segment");
   
   // If currently editing when navigating away, make uneditable
   makeUneditable($("section:not(.hidden"));
