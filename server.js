@@ -30,6 +30,7 @@ app.use("/api/creators", require("./routes/creator").router);
 app.use("/api/works", require("./routes/work").router);
 app.use("/api/search/works", require("./routes/search-works").router);
 app.use("/api/search/creators", require("./routes/search-creators").router);
+app.use("/api/conversation", require("./routes/conversation").router);
 
 // Error handling
 app.use((err, req, res, next) => {

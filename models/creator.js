@@ -74,10 +74,9 @@ creatorSchema.methods.populatedSerialize = function() {
   // Revise list of works to only be title and publication year
   const revisedWorks = creator.works.map(work => {
     let title = work.title.find(title => title.lang === "en").name,
-        year  = work.publication_info.year,
         id    = work._id;
     
-    return { id, title, year };
+    return { id, title };
   });
   
   return {

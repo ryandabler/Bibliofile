@@ -3,7 +3,7 @@
 //////////////////////
 // Globals
 //////////////////////
-const API_GENERIC_ENDPOINT = "/api";
+const API_GENERIC_ENDPOINT = "http://localhost:8080/api";
 const APP_STATE = {
   currentlyLoaded: null,
   data: [],
@@ -22,9 +22,9 @@ const CREATE_FUNCTIONS = { links: createLink,
 //////////////////////
 // DOM functions
 //////////////////////
-function createListItem(main, addl=null, data_id=null, id=null) {
+function createListItem(main, addl=null, data_id=null, id=null, clickable=true) {
   const $li = $("<li>");
-  $li.addClass("result clickable");
+  clickable ? $li.addClass("result clickable") : $li.addClass("result");
   $li.text(main);
   
   data_id ? $li.attr("data-id", data_id)                                          : null;
@@ -38,6 +38,22 @@ function updateItemsSection(data, htmlIdToAppendTo, dataType) {
   const bannerText = dataType.charAt(0).toUpperCase() + dataType.slice(1, dataType.length);
   $("#banner-items").text(bannerText);
   
+  // Hide new item form
+  hideNewItemForm();
+  
+  // Toggle conversation-specific views
+  if (dataType === "conversation") {
+    $("#items .toolbox").addClass("hidden");
+    $("#banner-items").text("Conversation");
+    $("#convo-form").removeClass("hidden");
+    $("#items > .results-list").empty();
+    $("#form-new").addClass("hidden");
+  } else {
+    $("#items .toolbox").removeClass("hidden");
+    $("#items > input").val("");
+    $("#convo-form").addClass("hidden");
+  }
+  
   // Activate appropriate item
   $("#nav-header").find("span").removeClass("activated");
   $("#nav-header").find(`[data-segment=${dataType}]`).find("span").addClass("activated");
@@ -45,8 +61,8 @@ function updateItemsSection(data, htmlIdToAppendTo, dataType) {
   // Switch to "items" section
   switchDisplay("items");
   
-  // Render list
-  renderListOfItemsToDOM(data, htmlIdToAppendTo);
+  // Render list if data is supplied
+  data ? renderListOfItemsToDOM(data, htmlIdToAppendTo) : null;
 }
 
 function renderListOfItemsToDOM(data, htmlIdToAppendTo) {
@@ -64,9 +80,10 @@ function createLink(link) {
   const $li = $("<li>"),
         $a  = $("<a>");
   
-  $li.addClass("result clickable");
+  $li.addClass("result");
   $li.attr("data-id", link._id_);
   $a.attr("href", link.url);
+  $a.attr("target", "_blank");
   $a.text(link.domain);
   
   $li.append($a);
@@ -74,7 +91,7 @@ function createLink(link) {
 }
 
 function createAward(award) {
-  return createListItem(award.name, award.year, award._id_);
+  return createListItem(award.name, award.year, award._id_, null, false);
 }
 
 function createWork(work) {
@@ -82,7 +99,7 @@ function createWork(work) {
 }
 
 function createTitle(title) {
-  return createListItem(title.name, null, title._id_);
+  return createListItem(title.name, null, title._id_, null, false);
 }
 
 function createContributor(contributor) {
@@ -134,7 +151,7 @@ function createReference(reference) {
         $span = $("<span>");
   
   $li.addClass("result clickable");
-  $li.attr("id", reference.id);
+  reference.id ? $li.attr("id", reference.id) : null;
   $li.attr("data-id", reference._id_);
   $li.text(reference.title);
   
@@ -146,7 +163,7 @@ function createReference(reference) {
 }
 
 function createIdentifier(identifier) {
-  return createListItem(identifier.identifier, identifier.type, identifier._id_);
+  return createListItem(identifier.identifier, identifier.type, identifier._id_, null, false);
 }
 
 function renderSection(sectionName, dataSegment, generatorObj) {
@@ -211,6 +228,7 @@ function renderItemToDOM(itemType) {
 function switchDisplay(activeDisplayId) {
   $("main section").addClass("hidden");
   $(`#${activeDisplayId}`).removeClass("hidden");
+  window.scrollTo(0, 0);
 }
 
 function generateFormInputs(infoPieces, formType) {
@@ -342,7 +360,20 @@ function displayNewItemForm(event) {
   }
   
   $("#items > *:not(div)").addClass("hidden");
-  $("#items > form").removeClass("hidden");
+  $("#items > #form-new").removeClass("hidden");
+  $("#cancel-new-element").removeClass("hidden");
+  $("#new-element").addClass("hidden");
+}
+
+function hideNewItemForm(event) {
+  $("#items > *:not(div)").removeClass("hidden");
+  $("#new-element").removeClass("hidden");
+  
+  $("#form-new").addClass("hidden");
+  $("#cancel-new-element").addClass("hidden");
+  $("#items > input").addClass("hidden");
+  
+  $("#items input").val("");
 }
 
 function showInfoForm($parentElem, infoPieces, id, textboxes = null) {
@@ -364,7 +395,20 @@ function showInfoForm($parentElem, infoPieces, id, textboxes = null) {
 
 function updateEntryInDOM($where, object, type) {
   let $li = CREATE_FUNCTIONS[type](object);
+  addEditButtons($li, true);
+  
   $where.replaceWith($li);
+}
+
+function addEditButtons($li, makeExpanded = false) {
+  const $span    = $("<span>").addClass("js-opt-list-item");
+  const $iEdit   = $("<i>").addClass("fa fa-pencil-square-o js-edit-list-item");
+  const $iDelete = $("<i>").addClass("fa fa-times js-delete-list-item");
+  
+  makeExpanded ? $iEdit.attr("data-expanded", "true") : null;
+  
+  $span.append( [ $iEdit, $iDelete ] );
+  $li.append($span);
 }
 
 function insertEntryIntoDOM($listToInsertInto, objectToInsert) {
@@ -374,6 +418,9 @@ function insertEntryIntoDOM($listToInsertInto, objectToInsert) {
   const type = getTypeFromId($listToInsertInto.attr("id"));
   let newItem = CREATE_FUNCTIONS[type](objectToInsert);
   
+  addEditButtons(newItem);
+  
+  // Insert into list
   $listToInsertInto.append(newItem);
 }
 
@@ -381,13 +428,8 @@ function makeEditable(dataType) {
   return function(event) {
     const $nearestSection = $(this).closest("section");
   
-    // Add delete buttons to each list item
-    const $span    = $("<span>").addClass("js-opt-list-item");
-    const $iEdit   = $("<i>").addClass("fa fa-pencil-square-o js-edit-list-item");
-    const $iDelete = $("<i>").addClass("fa fa-times js-delete-list-item");
-    
-    $span.append( [ $iEdit, $iDelete ] );
-    $nearestSection.find("li").append($span);
+    // Add edit and delete buttons to each list item
+    addEditButtons($nearestSection.find("li"));
     
     // Unhide all section headings and edit buttons
     $nearestSection.find(".item-heading").removeClass("hidden");
@@ -412,6 +454,8 @@ function makeUneditable($section) {
   if ($section.attr("id") !== "items") {
     $section.find("form").remove();
   }
+  
+  $section.find("[data-expanded=true]").attr("data-expanded", "false");
   
   // Show toolbox items
   $section.find(".toolbox :not(.hidden)").addClass("hidden");
@@ -438,7 +482,8 @@ function chooseItemFromDropdown(idToAddTextTo) {
           $form       = $current.closest("form"),
           $divOverlay = $current.closest("div");
           
-    $form.find("input[type=hidden]").val($current.attr("id"));
+    $form.find("input[type=hidden]").val($current.attr("id"))
+                                    .trigger("change");
     $form.find(`#${idToAddTextTo}`).val($current.text());
     $divOverlay.remove();
   };
@@ -448,8 +493,6 @@ function showSearchChoices(dataType, $emittingElement) {
   return function(data) {
     const $div           = $("#srch-over-contrib").length ? $("#srch-over-contrib") : $("<div>"),
           $ul            = $("<ul>"),
-          // { top, left }  = $emittingElement.offset(),
-          // height         = $emittingElement.height(),
           width          = $emittingElement.outerWidth(),
           list           = data[dataType].map(item => {
                              const name = item.name || item.title.find(elem => elem.lang === "en").name;
@@ -509,18 +552,22 @@ function queryAPI(endpointURL, dataType, method, optionsObj = null) {
   return $.ajax(ajaxRequestObject);
 }
 
-function getListOfItems(type) {
+function getListOfItems(type, convoId = null) {
+  let API_ENDPOINT = `${API_GENERIC_ENDPOINT}/${type}`;
+  API_ENDPOINT += convoId ? `/${convoId}` : "";
+  
   // Return an IIFE in order to be able to use promise chaining in the
   // function that invokes getListOfItems();
   return (function() {
     APP_STATE.currentlyLoaded = type;
-    return queryAPI(`${API_GENERIC_ENDPOINT}/${type}`, "json", "GET");
+    return queryAPI(API_ENDPOINT, "json", "GET");
   })();
 }
 
 function getItemDetails(dataType = null, id = null) {
   return function(event) {
-    const type = dataType ? dataType : $("#nav-header").find("span.activated").closest("li").attr("data-segment");
+    const dataSeg = $("#nav-header").find("span.activated").closest("li").attr("data-segment");
+    const type = dataType ? dataType : (dataSeg === "conversation" ? "works" : dataSeg);
     const API_URL = `${API_GENERIC_ENDPOINT}/${type}/${id || this.id}`;
     queryAPI(API_URL, "json", "GET").then(renderItemToDOM(type));
   };
@@ -534,47 +581,113 @@ function deleteItem(dataType) {
             )
             .then(res => {
               makeUneditable($(event.currentTarget).closest("section"));
-              switchDisplay("items");
+              loadSegment(event);
             })
             .catch(console.log);
   };
+}
+
+function displayErrorMessage($section, message) {
+  const $text = $section.find(".text");
+  $text.text(message);
+  $text.parent().removeClass("hidden");
+}
+
+function generateIntermediateSavePromises($liElements, field, type) {
+  const promises = [];
+  const data     = [];
+  $liElements.each(function(idx) {
+    const data_id = $(this).attr("data-id");
+    const itemInAPP_STATE = APP_STATE.editedItem[field].find(item => item._id_ === data_id);
+    const queryObj = { contentType: "application/json; charset=utf-8",
+                       processData: false
+                     };
+    
+    if (type === "creators") {
+      queryObj.data = JSON.stringify({ fullname: itemInAPP_STATE.fullname });
+    } else {
+      queryObj.data = JSON.stringify({ title: { lang: "en", name: itemInAPP_STATE.title } });
+    }
+    
+    data.push({ data_id, field, type });
+    promises.push(queryAPI(`${API_GENERIC_ENDPOINT}/${type}`, "json", "POST", queryObj));
+  });
+  
+  return [data, promises];
+}
+
+function updateAPP_STATEWithNewData(dataArr, data_info, $lis) {
+  dataArr.forEach((elem, idx) => {
+    const { data_id, field, type } = data_info[idx];
+    const itemInAPP_STATE = APP_STATE.editedItem[field].find(item => item._id_ === data_id);
+    itemInAPP_STATE.id = elem.id;
+    itemInAPP_STATE.work = elem.id;
+    $lis[idx].id = itemInAPP_STATE.id;
+  });
 }
 
 function saveItem(dataType) {
   return function(event) {
     const $section = $(event.currentTarget).closest("section");
     
-    // Sanitize APP_STATE so that it will fit model
-    sanitizeAPP_STATE();
-    
-    // Perform query
-    const queryObj = { data: JSON.stringify(APP_STATE.editedItem),
-                       contentType: "application/json; charset=utf-8",
-                       processData: false
-                     };
-    queryAPI(`${API_GENERIC_ENDPOINT}/${dataType}/${APP_STATE.editedItem.id}`,
-             "json",
-             "PUT",
-              queryObj
-             )
-             .then(res => {
-               APP_STATE.currentItem = APP_STATE.editedItem;
-               makeUneditable($section);
-             })
-              .catch(err => {
-                if(err.status === 200) {
-                  APP_STATE.currentItem = APP_STATE.editedItem;
-                  makeUneditable($section);
-                } else {
-                  console.log(err);
-                }
-             });
+    // Check for errors
+    const errors = checkAPP_STATEForErrors($section);
+    if (!errors) {
+      // Create new contributors/references if they don't already exist
+      const [referenceData, referencePromises] = generateIntermediateSavePromises(
+        $("#item-references-work-list li:not([id])"),
+        "references",
+        "works");
+      const [contributorData, contributorPromises] = generateIntermediateSavePromises(
+        $("#item-contributors-work-list li:not([id])"),
+        "contributors",
+        "creators");
+      const promises  = referencePromises.concat(contributorPromises);
+      const data_info = referenceData.concat(contributorData);
+      const $lis      = $.merge($("#item-references-work-list li:not([id])"), $("#item-contributors-work-list li:not([id])"));
+      
+      Promise.all(promises)
+        .then(data => {
+          // Need to modify APP_STATE and the DOM with returned "id" fields in order to allow the
+          // update to happen
+          updateAPP_STATEWithNewData(data, data_info, $lis);
+          
+          // Sanitize APP_STATE so that it will fit model
+          sanitizeAPP_STATE($section);
+          
+            // Perform query
+          const queryObj = { data: JSON.stringify(APP_STATE.editedItem),
+                            contentType: "application/json; charset=utf-8",
+                            processData: false
+                          };
+          queryAPI(`${API_GENERIC_ENDPOINT}/${dataType}/${APP_STATE.editedItem.id}`,
+                  "json",
+                  "PUT",
+                    queryObj
+                  )
+                  .then(res => {
+                    APP_STATE.currentItem = APP_STATE.editedItem;
+                  })
+                  .catch(err => {
+                    if(err.status === 200) {
+                      APP_STATE.currentItem = APP_STATE.editedItem;
+                    } else {
+                      console.log(err);
+                    }
+                  });
+                  
+          makeUneditable($section);
+        });
+    } else {
+      cancelEditing(event);
+    }
   };
 }
 
 function searchDatabase(dataType) {
   return function(event) {
     const $currentTarget = $(event.currentTarget);
+    
     if ($currentTarget.val().length > 3) {
       queryAPI(`${API_GENERIC_ENDPOINT}/search/${dataType}/${$currentTarget.val()}`,
                 "json",
@@ -586,10 +699,17 @@ function searchDatabase(dataType) {
   };
 }
 
+function getConversation(event) {
+  const $current = $(event.currentTarget),
+        id       = $current.val();
+  getListOfItems("conversation", id).then(processGETListData("conversation"))
+                                    .catch(err => console.log(err));
+}
+
 //////////////////////
 // Other functions
 //////////////////////
-function sanitizeAPP_STATE() {
+function sanitizeAPP_STATE($section) {
   const item = APP_STATE.editedItem;
   
   if (item.contributors) {
@@ -606,6 +726,18 @@ function sanitizeAPP_STATE() {
   }
 }
 
+function checkAPP_STATEForErrors($section) {
+  const item = APP_STATE.editedItem;
+  let errors = 0;
+  
+  if (item.title && item.title.length === 0) {
+    displayErrorMessage($section, "Please ensure there is at least one title");
+    errors++;
+  }
+  
+  return errors;
+}
+
 function createAndDisplayItem(event) {
   event.preventDefault();
   const type     = $("#nav-header .activated").closest("li").attr("data-segment"),
@@ -620,7 +752,7 @@ function createAndDisplayItem(event) {
   }
   
   queryAPI(`${API_GENERIC_ENDPOINT}/${type}`, "json", "POST", queryObj)
-    .then(getItemDetails(type, data.id));
+    .then(data => getItemDetails(type, data.id)());
 }
 
 function getTypeFromId(id) {
@@ -673,7 +805,7 @@ function saveForm(event) {
     const $input = $(inputs[idx]);
     object[getTypeFromId($input.attr("id"))] = $input.val();
   });
-  console.log("object", object, type);
+  
   sanitizeInput(type, object);
   
   if (editOrNew === -1) {
@@ -688,11 +820,14 @@ function saveForm(event) {
     object = updateEntryInAPP_STATE(type, _id_, object);
     updateEntryInDOM($where, object, type);
   }
+  
+  clearForm(event);
 }
 
 function clearForm(event) {
-  const $form = $(this).closest("form");
-  $form.find("input[type=text]").val("");
+  const $form = $(event.currentTarget).closest("form");
+  $form.find("input").val("");
+  $("#srch-over-contrib").remove();
 }
 
 function setValuesForTextboxes(textboxes, _id_, type) {
@@ -741,7 +876,7 @@ function toggleInfoForm(event) {
 
 function loadSegment(event) {
   const $current = $(event.currentTarget),
-        dataSeg  = $current.attr("data-segment");
+        dataSeg  = $current.attr("data-segment") || $("#nav-header .activated").closest("li").attr("data-segment");
   
   // If currently editing when navigating away, make uneditable
   makeUneditable($("section:not(.hidden"));
@@ -749,6 +884,8 @@ function loadSegment(event) {
   if (dataSeg === "creators" || dataSeg === "works") {
     getListOfItems(dataSeg).then(processGETListData(dataSeg))
                            .catch(err => console.log("error"));
+  } else if (dataSeg === "conversation") {
+    updateItemsSection(null, null, "conversation");
   }
 }
 
@@ -756,9 +893,11 @@ function addEventListeners() {
   $("#list-of-items").on("click", "li", getItemDetails());
   $("#item-works-creator-list").on("click", "li", getItemDetails("works"));
   $("#item-contributors-work-list").on("click", "li", getItemDetails("creators"));
+  $("#item-references-work-list").on("click", "li", getItemDetails("works"));
   $(".js-add-new").click(toggleInfoForm);
   $("#new-element").click(displayNewItemForm);
-  $("#form-new").submit(createAndDisplayItem)
+  $("#cancel-new-element").click(hideNewItemForm);
+  $("#form-new").submit(createAndDisplayItem);
   $("#edit-work").click(makeEditable("work"));
   $("#edit-creator").click(makeEditable("creator"));
   $("#cancel-work, #cancel-creator").click(cancelEditing);
@@ -766,9 +905,12 @@ function addEventListeners() {
   $("#delete-creator").click(deleteItem("creators"));
   $("#save-work").click(saveItem("works"));
   $("#save-creator").click(saveItem("creators"));
+  $(".x").click(event => $(event.currentTarget).parent().addClass("hidden"));
   $("ul").on("click", ".js-delete-list-item", deleteListItem);
   $("ul").on("click", ".js-edit-list-item", editListItem);
   $("#nav-header").on("click", "li", loadSegment);
+  $("#search-text").on("input", searchDatabase("works"));
+  $("#convo-hidden").on("change", getConversation);
 }
 
 function loadData(data, dataType) {

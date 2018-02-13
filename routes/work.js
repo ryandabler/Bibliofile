@@ -4,7 +4,6 @@ const express     = require("express");
 const router      = express.Router();
 const bodyParser  = require("body-parser");
 const jsonParser  = bodyParser.json();
-const mongoose    = require("mongoose");
 const { Work }    = require("../models");
 const { checkRequiredFields,
         validateIds,
@@ -12,6 +11,7 @@ const { checkRequiredFields,
 
 router.get("/", (req, res) => {
   Work.findAndPopulate()
+      .sort({"title.name": 1})
       .then(works => {
         res.json( { works: works.map(work => work.populatedSerialize()) } );
       })
@@ -62,7 +62,7 @@ router.put(
   "/:id",
   jsonParser,
   validateIds,
-  generateUpdateDocument(["title", "contributors", "kind", "publication_info", "identifiers", "links", "references", "contents"]),
+  generateUpdateDocument(["title", "contributors", "identifiers", "links", "references", "contents"]),
   (req, res) => {
     const {id} = req.params;
     

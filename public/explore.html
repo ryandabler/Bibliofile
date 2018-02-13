@@ -29,10 +29,14 @@
       <section id="items">
         <div class="toolbox">
           <i id="new-element" class="fa fa-plus-circle clickable"> New</i>
+          <i id="cancel-new-element" class="fa fa-times clickable hidden"> Cancel</i>
         </div>
         
         <h2 id="banner-items" class="banner">Creators</h2>
-        <input type="text" class="search-box" placeholder="Search all items">
+        <form id="convo-form" class="hidden">
+          <input id="search-text" type="text" class="search-box" placeholder="Search all items">
+          <input id="convo-hidden" type="hidden">
+        </form>
         
         <ul class="results-list" id="list-of-items">
         </ul>
@@ -52,6 +56,11 @@
           <i id="delete-creator" class="fa fa-trash-o clickable hidden"> Delete</i>
           <i id="cancel-creator" class="fa fa-times clickable hidden"> Cancel</i>
           <i id="save-creator" class="fa fa-floppy-o clickable hidden"> Save</i>
+        </div>
+        
+        <div id="creators-error" class="error hidden">
+          <div class="x clickable">×</div>
+          <div class="text"></div>
         </div>
         
         <h2 id="banner-item-creator" class="banner banner-item"></h2>
@@ -83,6 +92,11 @@
           <i id="delete-work" class="fa fa-trash-o clickable hidden"> Delete</i>
           <i id="cancel-work" class="fa fa-times clickable hidden"> Cancel</i>
           <i id="save-work" class="fa fa-floppy-o clickable hidden"> Save</i>
+        </div>
+        
+        <div id="works-error" class="error hidden">
+          <div class="x clickable">×</div>
+          <div class="text"></div>
         </div>
         
         <h2 id="banner-item-work" class="banner banner-item"></h2>
