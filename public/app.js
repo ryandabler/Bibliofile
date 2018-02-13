@@ -557,7 +557,7 @@ function deleteItem(dataType) {
             )
             .then(res => {
               makeUneditable($(event.currentTarget).closest("section"));
-              switchDisplay("items");
+              loadSegment(event);
             })
             .catch(console.log);
   };
