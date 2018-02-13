@@ -871,6 +871,8 @@ function loadSegment(event) {
   if (dataSeg === "creators" || dataSeg === "works") {
     getListOfItems(dataSeg).then(processGETListData(dataSeg))
                            .catch(err => console.log("error"));
+  } else if (dataSeg === "conversation") {
+    updateItemsSection(null, null, "conversation");
   }
 }
 
