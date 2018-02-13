@@ -62,7 +62,7 @@ router.put(
   "/:id",
   jsonParser,
   validateIds,
-  generateUpdateDocument(["title", "contributors", "kind", "publication_info", "identifiers", "links", "references", "contents"]),
+  generateUpdateDocument(["title", "contributors", "identifiers", "links", "references", "contents"]),
   (req, res) => {
     const {id} = req.params;
     
