@@ -38,6 +38,22 @@ function updateItemsSection(data, htmlIdToAppendTo, dataType) {
   const bannerText = dataType.charAt(0).toUpperCase() + dataType.slice(1, dataType.length);
   $("#banner-items").text(bannerText);
   
+  // Hide new item form
+  hideNewItemForm();
+  
+  // Toggle conversation-specific views
+  if (dataType === "conversation") {
+    $("#items .toolbox").addClass("hidden");
+    $("#banner-items").text("Conversation");
+    $("#items > input").removeClass("hidden");
+    $("#items > .results-list").empty();
+    $("#form-new").addClass("hidden");
+  } else {
+    $("#items .toolbox").removeClass("hidden");
+    $("#items > input").addClass("hidden")
+                       .val("");
+  }
+  
   // Activate appropriate item
   $("#nav-header").find("span").removeClass("activated");
   $("#nav-header").find(`[data-segment=${dataType}]`).find("span").addClass("activated");
@@ -45,8 +61,8 @@ function updateItemsSection(data, htmlIdToAppendTo, dataType) {
   // Switch to "items" section
   switchDisplay("items");
   
-  // Render list
-  renderListOfItemsToDOM(data, htmlIdToAppendTo);
+  // Render list if data is supplied
+  data ? renderListOfItemsToDOM(data, htmlIdToAppendTo) : null;
 }
 
 function renderListOfItemsToDOM(data, htmlIdToAppendTo) {
