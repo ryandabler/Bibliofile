@@ -33,7 +33,7 @@ router.get("/:id", (req, res) => {
                         const newWork = new Work(work);
                         return newWork.serialize(["id", "title"]);
                       });
-                      res.json( { works: conversation } );
+                      res.json( { conversation } );
                     }
                   }
                 );
