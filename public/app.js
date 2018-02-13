@@ -50,7 +50,7 @@ function updateItemsSection(data, htmlIdToAppendTo, dataType) {
     $("#form-new").addClass("hidden");
   } else {
     $("#items .toolbox").removeClass("hidden");
-    $("#items > input").val("");
+    $("#items input").val("");
     $("#convo-form").addClass("hidden");
   }
   
@@ -371,7 +371,7 @@ function hideNewItemForm(event) {
   
   $("#form-new").addClass("hidden");
   $("#cancel-new-element").addClass("hidden");
-  $("#items > input").addClass("hidden");
+  $("#convo-form").addClass("hidden");
   
   $("#items input").val("");
 }
@@ -402,8 +402,8 @@ function updateEntryInDOM($where, object, type) {
 
 function addEditButtons($li, makeExpanded = false) {
   const $span    = $("<span>").addClass("js-opt-list-item");
-  const $iEdit   = $("<i>").addClass("fa fa-pencil-square-o js-edit-list-item");
-  const $iDelete = $("<i>").addClass("fa fa-times js-delete-list-item");
+  const $iEdit   = $("<i>").addClass("fa fa-pencil-square-o js-edit-list-item clickable");
+  const $iDelete = $("<i>").addClass("fa fa-times js-delete-list-item clickable");
   
   makeExpanded ? $iEdit.attr("data-expanded", "true") : null;
   

@@ -257,6 +257,10 @@ section.splash ul {
   margin-bottom: 5px;
 }
 
+input:invalid {
+  box-shadow: none;
+}
+
 form.table {
   position: relative;
 }
