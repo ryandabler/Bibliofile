@@ -212,6 +212,7 @@ function renderItemToDOM(itemType) {
 function switchDisplay(activeDisplayId) {
   $("main section").addClass("hidden");
   $(`#${activeDisplayId}`).removeClass("hidden");
+  window.scrollTo(0, 0);
 }
 
 function generateFormInputs(infoPieces, formType) {
