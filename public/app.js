@@ -355,7 +355,7 @@ function hideNewItemForm(event) {
   
   $("#form-new").addClass("hidden");
   $("#cancel-new-element").addClass("hidden");
-  $("#items input").addClass("hidden");
+  $("#items > input").addClass("hidden");
   
   $("#items input").val("");
 }
