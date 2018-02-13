@@ -698,6 +698,13 @@ function searchDatabase(dataType) {
   };
 }
 
+function getConversation(event) {
+  const $current = $(event.currentTarget),
+        id       = $current.val();
+  getListOfItems("conversation", id).then(processGETListData("conversation"))
+                                    .catch(err => console.log(err));
+}
+
 //////////////////////
 // Other functions
 //////////////////////
@@ -902,6 +909,7 @@ function addEventListeners() {
   $("ul").on("click", ".js-edit-list-item", editListItem);
   $("#nav-header").on("click", "li", loadSegment);
   $("#search-text").on("input", searchDatabase("works"));
+  $("#convo-hidden").on("change", getConversation);
 }
 
 function loadData(data, dataType) {
