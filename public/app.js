@@ -45,13 +45,13 @@ function updateItemsSection(data, htmlIdToAppendTo, dataType) {
   if (dataType === "conversation") {
     $("#items .toolbox").addClass("hidden");
     $("#banner-items").text("Conversation");
-    $("#items > input").removeClass("hidden");
+    $("#convo-form").removeClass("hidden");
     $("#items > .results-list").empty();
     $("#form-new").addClass("hidden");
   } else {
     $("#items .toolbox").removeClass("hidden");
-    $("#items > input").addClass("hidden")
-                       .val("");
+    $("#items > input").val("");
+    $("#convo-form").addClass("hidden");
   }
   
   // Activate appropriate item
@@ -360,7 +360,7 @@ function displayNewItemForm(event) {
   }
   
   $("#items > *:not(div)").addClass("hidden");
-  $("#items > form").removeClass("hidden");
+  $("#items > #form-new").removeClass("hidden");
   $("#cancel-new-element").removeClass("hidden");
   $("#new-element").addClass("hidden");
 }
