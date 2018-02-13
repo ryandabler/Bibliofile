@@ -57,6 +57,10 @@ section:not(#items) .banner-item {
   padding-top: 50px;
 }
 
+section.splash h2 {
+  margin-top: 0;
+}
+
 section.splash ul {
   margin-bottom: 0;
 }
