@@ -4,7 +4,7 @@ const express     = require("express");
 const router      = express.Router();
 const bodyParser  = require("body-parser");
 const jsonParser  = bodyParser.json();
-const { Creator } = require("../models");
+const { Creator, Work } = require("../models");
 const { checkRequiredFields,
         validateIds,
         generateUpdateDocument } = require("../middleware");
@@ -54,7 +54,8 @@ router.delete("/:id", (req, res) => {
   
   // Check that ID exists in data
   Creator.findByIdAndRemove(id)
-         .then(creator => res.status(204).end())
+         .then(creator => Work.removeContributor(id))
+         .then(res.status(204).end())
          .catch(err => {
            console.error(err);
            res.status(500).json( { message: "Internal server error" } );

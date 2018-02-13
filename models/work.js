@@ -110,6 +110,13 @@ workSchema.statics.findAndPopulate = function(id = null) {
              .populate( { path: "references.work", select: "title" } );
 };
 
+workSchema.statics.removeContributor = function(id) {
+  return Work.update( { },
+                      { $pull: { contributors: { who: new mongoose.Types.ObjectId(id) } } },
+                      { multi: true }
+                    );
+};
+
 const Work = mongoose.model("Work", workSchema);
 
 module.exports = { Work };
