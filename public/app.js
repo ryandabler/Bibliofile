@@ -482,7 +482,8 @@ function chooseItemFromDropdown(idToAddTextTo) {
           $form       = $current.closest("form"),
           $divOverlay = $current.closest("div");
           
-    $form.find("input[type=hidden]").val($current.attr("id"));
+    $form.find("input[type=hidden]").val($current.attr("id"))
+                                    .trigger("change");
     $form.find(`#${idToAddTextTo}`).val($current.text());
     $divOverlay.remove();
   };
