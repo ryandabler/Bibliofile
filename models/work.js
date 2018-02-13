@@ -75,7 +75,9 @@ workSchema.methods.populatedSerialize = function() {
       content.name = title.name;
       
       let author = content.work.contributors.find(elem => elem.role === "author");
-      content.author = author.who.fullname;
+      
+      // If work has no contributor, make content.author = null
+      content.author = author ? author.who.fullname : null;
       content.kind = content.work.kind;
       
       delete content.work;
