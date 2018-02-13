@@ -208,6 +208,7 @@ section.splash ul {
   padding: 0;
   list-style: none;
   margin-top: 0;
+  width: 100%;
 }
 
 .result {
@@ -346,7 +347,7 @@ form .toolbox .fa::before, .toolbox .fa::before {
   display: none;
 }
 
-#items form {
+#items form:not(#convo-form) {
   margin-top: 18vw;
 }
 
@@ -375,6 +376,26 @@ form .toolbox .fa::before, .toolbox .fa::before {
 
 #items form .fa {
   padding: 5px;
+}
+
+#convo-form {
+  position: relative;
+  width: 75%;
+  margin: 0 auto;
+}
+
+#convo-form input {
+  max-width: 100%;
+  width: 100%;
+  margin: 0 auto;
+}
+
+#srch-over-contrib {
+  font-size: 15px;
+}
+
+#convo-form #srch-over-contrib {
+  display: block;
 }
 
 .error {
@@ -495,7 +516,7 @@ form .toolbox .fa::before, .toolbox .fa::before {
     width: 300px;
   }
   
-  #items form {
+  #items form:not(#convo-form) {
     margin-top: 7vw;
   }
   
@@ -510,6 +531,10 @@ form .toolbox .fa::before, .toolbox .fa::before {
   
   .error .top {
     padding-top: 4vw;
+  }
+  
+  #srch-over-contrib {
+    font-size: 1.5vw;
   }
 }
 
