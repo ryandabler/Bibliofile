@@ -453,35 +453,6 @@ describe("Work API", function() {
                    expect(res.body).to.deep.equal(Object.assign(work, assignableFields));
                    });
     });
-    
-    it("Should throw error due to missing required field", function() {
-      return chai.request(app)
-                 .get("/api/creators")
-                 .then(function(res) {
-                   work = {
-                             title: [{
-                               lang: "en",
-                               name: "This is a test work"
-                             }],
-                             contributors: [{
-                               role: "author",
-                               who: res.body.creators[0].id
-                             }],
-                             publication_info: {
-                               year: "2017"
-                             }
-                   };
-                   
-                   return chai.request(app)
-                              .post("/api/works")
-                              .send(work);
-                 })
-                 .catch(function(err) {
-                   expect(err.response).to.have.status(400);
-                   expect(err.response.text).to.be.a("string");
-                   expect(err.response.text).to.match(/{"message":"The request is missing the following field\(s\): .+"}/);
-                 });
-    });
   });
   
   describe("DELETE endpoint", function() {
