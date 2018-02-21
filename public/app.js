@@ -668,16 +668,16 @@ function saveItem(dataType) {
                   )
                   .then(res => {
                     APP_STATE.currentItem = APP_STATE.editedItem;
+                    makeUneditable($section);
                   })
                   .catch(err => {
                     if(err.status === 200) {
                       APP_STATE.currentItem = APP_STATE.editedItem;
+                      makeUneditable($section);
                     } else {
                       console.log(err);
                     }
                   });
-                  
-          makeUneditable($section);
         });
     } else {
       cancelEditing(event);
