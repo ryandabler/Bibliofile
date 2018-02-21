@@ -160,6 +160,14 @@ section.splash ul {
   outline: none;
 }
 
+.header ul li:focus {
+  background-color: #E7E7E7;
+}
+
+.header ul li.activated:focus {
+  outline: 1px solid #555555;
+}
+
 .header .clickable {
   display: inline-block;
   padding: 10px;
@@ -220,8 +228,12 @@ section.splash ul {
   position: relative;
 }
 
-.result:hover {
+.result:hover, .result:focus {
   box-shadow: 1px 1px 6px 1px;
+}
+
+.result:focus {
+  outline: none;
 }
 
 .result a:hover {
