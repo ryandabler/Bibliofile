@@ -23,7 +23,7 @@ const workSchema = mongoose.Schema({
 workSchema.methods.serialize = function(fieldsArr = null) {
   const workObj = this.toObject();
   let   work = {
-                id:               workObj._id,
+                id:               workObj._id.toString(),
                 title:            workObj.title,
                 contributors:     workObj.contributors.map(contributor => contributor.who.toString()),
                 kind:             workObj.kind,

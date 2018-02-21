@@ -51,7 +51,7 @@ creatorSchema.virtual("works", {
 creatorSchema.methods.serialize = function(fieldsArr = null) {
   const creatorObj = this.toObject();
   let   creator    = {
-                        id:     creatorObj._id,
+                        id:     creatorObj._id.toString(),
                         name:   creatorObj.fullname,
                         links:  creatorObj.links,
                         awards: creatorObj.awards,
