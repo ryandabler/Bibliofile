@@ -24,7 +24,7 @@ const CREATE_FUNCTIONS = { links: createLink,
 //////////////////////
 function createListItem(main, addl=null, data_id=null, id=null, clickable=true) {
   const $li = $("<li>");
-  clickable ? $li.addClass("result clickable") : $li.addClass("result");
+  clickable ? $li.addClass("result clickable").attr("tabindex", "0") : $li.addClass("result");
   $li.text(main);
   
   data_id ? $li.attr("data-id", data_id)                                          : null;
@@ -403,8 +403,8 @@ function updateEntryInDOM($where, object, type) {
 
 function addEditButtons($li, makeExpanded = false) {
   const $span    = $("<span>").addClass("js-opt-list-item");
-  const $iEdit   = $("<i>").addClass("fa fa-pencil-square-o js-edit-list-item clickable");
-  const $iDelete = $("<i>").addClass("fa fa-times js-delete-list-item clickable");
+  const $iEdit   = $("<i>").addClass("fa fa-pencil-square-o js-edit-list-item clickable").attr("tabindex", "0");
+  const $iDelete = $("<i>").addClass("fa fa-times js-delete-list-item clickable").attr("tabindex", "0");
   
   makeExpanded ? $iEdit.attr("data-expanded", "true") : null;
   
