@@ -34,7 +34,7 @@
         
         <h2 id="banner-items" class="banner">Creators</h2>
         <form id="convo-form" class="hidden">
-          <input id="search-text" type="text" class="search-box" placeholder="Search all items">
+          <input id="search-text" type="text" class="search-box" placeholder="Search all items" aria-label="Enter title of work">
           <input id="convo-hidden" type="hidden">
         </form>
         
@@ -44,8 +44,8 @@
         <form id="form-new" class="hidden">
           <h2></h2>
           <div>
-            <input type="text" required>
-            <button role="submit" class="fa fa-arrow-right clickable"></button>
+            <input type="text" aria-label="Enter name" required>
+            <button type="submit" class="fa fa-arrow-right clickable" aria-label="Create"></button>
           </div>
         </form>
       </section>

@@ -275,6 +275,7 @@ function generateToolbox() {
         $clear  = $("<i>");
   
   $button.append($save);
+  $button.attr("aria-label", "Save entry");
   
   $save.addClass("fa fa-floppy-o");
   $clear.addClass("fa fa-trash-o");
