@@ -515,3 +515,130 @@ describe("Work API", function() {
     });
   });
 });
+
+// Search
+describe("Search API", function() {
+  describe("Works", function() {
+    before(function() {
+      return runServer(TEST_DATABASE_URL);
+    });
+    
+    beforeEach(function() {
+      this.timeout(10000);
+      return seedWorkData().then(data => Work.insertMany(data));
+    });
+    
+    after(function() {
+      return closeServer();
+    });
+    
+    afterEach(function() {
+      return tearDownDb();
+    });
+    
+    it("Should return a list of works", function() {
+      let work;
+      
+      return chai.request(app)
+                 .get("/api/works")
+                 .then(function(res) {
+                   work = res.body.works[0];
+                   const partialTitle = work.title[0].name.slice(0, work.title[0].name.length - 1);
+                   
+                   return chai.request(app)
+                              .get(`/api/search/works/${partialTitle}`)
+                 })
+                 .then(function(res) {
+                   const arrayOfIds = res.body.works.map(work => work.id);
+                   expect(res).to.have.status(200)
+                   expect(res).to.be.json;
+                   expect(res.body).to.be.a("object");
+                   expect(res.body.works.length).to.be.at.least(1);
+                   expect(arrayOfIds).to.include(work.id);
+                 })
+    });
+  });
+  
+  describe("Creators", function() {
+    before(function() {
+      return runServer(TEST_DATABASE_URL);
+    });
+  
+    beforeEach(function() {
+      return seedCreatorData();
+    });
+    
+    after(function() {
+      return closeServer();
+    });
+    
+    afterEach(function() {
+      return tearDownDb();
+    });
+    
+    it("Should return a list of creators", function() {
+      let creator;
+      
+      return chai.request(app)
+                 .get("/api/creators")
+                 .then(function(res) {
+                   creator = res.body.creators[0];
+                   const firstName = creator.name.split(" ")[0]
+                   const partialName = firstName.slice(0, firstName.length - 1);
+                   
+                   return chai.request(app)
+                              .get(`/api/search/creators/${partialName}`)
+                 })
+                 .then(function(res) {
+                   const arrayOfIds = res.body.creators.map(creator => creator.id);
+                   expect(res).to.have.status(200)
+                   expect(res).to.be.json;
+                   expect(res.body).to.be.a("object");
+                   expect(res.body.creators.length).to.be.at.least(1);
+                   expect(arrayOfIds).to.include(creator.id);
+                 })
+    });
+  });
+});
+
+// Conversation
+describe("Conversation API", function() {
+  before(function() {
+    return runServer(TEST_DATABASE_URL);
+  });
+  
+  after(function() {
+    return closeServer();
+  });
+  
+  it("Should return a conversation", async function() {
+    // Create two works, one which references the other
+    let workA, workB;
+    
+    return Promise.all([
+      Work.create({title: [{ lang: "en", name: "Work A" }] }),
+      Work.create({title: [{ lang: "en", name: "Work B" }] })
+    ])
+    .then(function(data) {
+      [workA, workB] = data;
+      workA = workA.serialize();
+      workB = workB.serialize();
+      workA.references = { kind: "footnote", work: workB.id };
+      
+      return chai.request(app)
+                 .put(`/api/works/${workA.id}`)
+                 .send(workA)
+    })
+    .then(function(response) {
+      return chai.request(app)
+                 .get(`/api/conversation/${workA.id}`)
+    })
+    .then(function(res) {
+      const conversation = res.body.conversation;
+      const convoIds = conversation.map(work => work.id);
+      
+      expect(convoIds).to.include.members([ workA.id, workB.id ]);
+    });
+    
+  });
+});
