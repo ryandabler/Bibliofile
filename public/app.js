@@ -55,8 +55,8 @@ function updateItemsSection(data, htmlIdToAppendTo, dataType) {
   }
   
   // Activate appropriate item
-  $("#nav-header").find("span").removeClass("activated");
-  $("#nav-header").find(`[data-segment=${dataType}]`).find("span").addClass("activated");
+  $("#nav-header").find("li").removeClass("activated");
+  $("#nav-header").find(`[data-segment=${dataType}]`).addClass("activated").blur();
   
   // Switch to "items" section
   switchDisplay("items");
@@ -567,7 +567,7 @@ function getListOfItems(type, convoId = null) {
 
 function getItemDetails(dataType = null, id = null) {
   return function(event) {
-    const dataSeg = $("#nav-header").find("span.activated").closest("li").attr("data-segment");
+    const dataSeg = $("#nav-header").find("li.activated").attr("data-segment");
     const type = dataType ? dataType : (dataSeg === "conversation" ? "works" : dataSeg);
     const API_URL = `${API_GENERIC_ENDPOINT}/${type}/${id || this.id}`;
     queryAPI(API_URL, "json", "GET").then(renderItemToDOM(type));
