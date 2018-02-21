@@ -49,13 +49,14 @@ creatorSchema.virtual("works", {
 });
 
 creatorSchema.methods.serialize = function(fieldsArr = null) {
-  let creator         = {
-                          id:     this._id,
-                          name:   this.fullname,
-                          links:  this.links,
-                          awards: this.awards,
-                          works:  this.works
-                        },
+  const creatorObj = this.toObject();
+  let   creator    = {
+                        id:     creatorObj._id,
+                        name:   creatorObj.fullname,
+                        links:  creatorObj.links,
+                        awards: creatorObj.awards,
+                        works:  creatorObj.works
+                     },
       filteredCreator;
   
   if (fieldsArr) {

@@ -37,7 +37,6 @@ function generateCreatorData() {
         year: faker.date.past(25).getFullYear().toString()
       }
     ],
-    created: Date.now().toString()
   };
 }
 
