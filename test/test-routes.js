@@ -54,9 +54,9 @@ function seedCreatorData() {
 async function generateWorkData() {
   const creator = await Creator.create(generateCreatorData());
   const work = {
-    title: { lang: "en",
+    title: [{ lang: "en",
              name: faker.lorem.words()
-           },
+           }],
     contributors: { role: "author",
                     who:  creator.id
                   },
@@ -65,10 +65,10 @@ async function generateWorkData() {
     identifiers: [],
     links: [ { domain: faker.lorem.word(), url: faker.internet.url() } ],
     references: [],
-    contents: {
+    contents: [{
                 kind: "chapter",
                 name: faker.lorem.words()
-    }
+    }]
   };
   
   return work;
