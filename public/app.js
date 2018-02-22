@@ -431,7 +431,7 @@ function insertEntryIntoDOM($listToInsertInto, objectToInsert) {
 
 function makeEditable(dataType) {
   return function(event) {
-    const $nearestSection = $(this).closest("section");
+    const $nearestSection = $(event.currentTarget).closest("section");
   
     // Add edit and delete buttons to each list item
     addEditButtons($nearestSection.find("li"));
