@@ -506,7 +506,8 @@ function showSearchChoices(dataType, $emittingElement) {
     
     $ul.addClass("results-list");
     $ul.append(list);
-    $ul.on("click", "li", chooseItemFromDropdown($emittingElement[0].id));
+    $ul.on("click", "li", chooseItemFromDropdown($emittingElement[0].id))
+       .on("keypress", "li", e => e.key === "Enter" ? chooseItemFromDropdown($emittingElement[0].id)(e) : null);
     
     $div.empty();
     $div.append($ul);
@@ -895,31 +896,47 @@ function loadSegment(event) {
 }
 
 function addEventListeners() {
-  $("#list-of-items").on("click", "li", getItemDetails());
-  $("#item-works-creator-list").on("click", "li", getItemDetails("works"));
-  $("#item-contributors-work-list").on("click", "li", getItemDetails("creators"));
-  $("#item-references-work-list").on("click", "li", getItemDetails("works"));
+  $("#list-of-items").on("click", "li", getItemDetails())
+                     .on("keypress", "li", e => e.key === "Enter" ? getItemDetails(null, e.currentTarget.id)(e) : null);
+  $("#item-works-creator-list").on("click", "li", getItemDetails("works"))
+                               .on("keypress", "li", e => e.key === "Enter" ? getItemDetails("works", e.currentTarget.id)(e) : null);
+  $("#item-contributors-work-list").on("click", "li", getItemDetails("creators"))
+                                   .on("keypress", "li", e => e.key === "Enter" ? getItemDetails("creators", e.currentTarget.id)(e) : null);
+  $("#item-references-work-list").on("click", "li", getItemDetails("works"))
+                                 .on("keypress", "li", e => e.key === "Enter" ? getItemDetails("works", e.currentTarget.id)(e) : null);
   $(".js-add-new").click(toggleInfoForm)
                   .keypress(e => e.key === "Enter" ? toggleInfoForm(e) : null);
-  $("#new-element").click(displayNewItemForm);
-  $("#cancel-new-element").click(hideNewItemForm);
+  $("#new-element").click(displayNewItemForm)
+                   .keypress(e => e.key === "Enter" ? displayNewItemForm(e) : null);
+  $("#cancel-new-element").click(hideNewItemForm)
+                          .keypress(e => e.key === "Enter" ? hideNewItemForm(e) : null);
   $("#form-new").submit(createAndDisplayItem);
-  $("#edit-work").click(makeEditable("work"));
-  $("#edit-creator").click(makeEditable("creator"));
-  $("#cancel-work, #cancel-creator").click(cancelEditing);
-  $("#delete-work").click(deleteItem("works"));
-  $("#delete-creator").click(deleteItem("creators"));
-  $("#save-work").click(saveItem("works"));
-  $("#save-creator").click(saveItem("creators"));
-  $(".x").click(event => $(event.currentTarget).parent().addClass("hidden"));
+  $("#edit-work").click(makeEditable("work"))
+                 .keypress(e => e.key === "Enter" ? makeEditable("work")(e) : null);
+  $("#edit-creator").click(makeEditable("creator"))
+                    .keypress(e => e.key === "Enter" ? makeEditable("creator")(e) : null);
+  $("#cancel-work, #cancel-creator").click(cancelEditing)
+                                    .keypress(e => e.key === "Enter" ? cancelEditing(e) : null);
+  $("#delete-work").click(deleteItem("works"))
+                   .keypress(e => e.key === "Enter" ? deleteItem("works")(e) : null);
+  $("#delete-creator").click(deleteItem("creators"))
+                      .keypress(e => e.key === "Enter" ? deleteItem("creators")(e) : null);
+  $("#save-work").click(saveItem("works"))
+                 .keypress(e => e.key === "Enter" ? saveItem("works")(e) : null);
+  $("#save-creator").click(saveItem("creators"))
+                    .keypress(e => e.key === "Enter" ? saveItem("creators")(e) : null);
+  $(".x").click(event => $(event.currentTarget).parent().addClass("hidden"))
+         .keypress(e => e.key === "Enter" ? $(event.currentTarget).parent().addClass("hidden") : null);
   $("ul").on("click", ".js-delete-list-item", deleteListItem)
          .on("keypress", ".js-delete-list-item", e => e.key === "Enter" ? deleteListItem(e) : null);
   $("ul").on("click", ".js-edit-list-item", editListItem)
          .on("keypress", ".js-edit-list-item", e => e.key === "Enter" ? editListItem(e) : null);
-  $("#nav-header").on("click", "li", loadSegment);
+  $("#nav-header").on("click", "li", loadSegment)
+                  .on("keypress", "li", e => e.key === "Enter" ? loadSegment(e) : null);
   $("#search-text").on("input", searchDatabase("works"));
   $("#convo-hidden").on("change", getConversation);
   $("#item-creators, #item-works").on("click", "i.fa-trash-o", clearForm)
+                                  .on("keypress", "i.fa-trash-o", e => e.key === "Enter" ? clearForm(e) : null)
                                   .on("submit", "form", saveForm);
 }
 
