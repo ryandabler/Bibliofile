@@ -153,6 +153,7 @@ function createReference(reference) {
   $li.addClass("result clickable");
   reference.id ? $li.attr("id", reference.id) : null;
   $li.attr("data-id", reference._id_);
+  $li.attr("tabindex", 0);
   $li.text(reference.title);
   
   $span.addClass("additional-info");
