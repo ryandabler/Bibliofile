@@ -114,7 +114,7 @@ function createContent(content) {
   html += content.number ? ` ${content.number}</b>:` : "</b>";
   html += ` ${content.name}`;
   
-  $li.addClass("result clickable");
+  $li.addClass("result");
   $li.html(html);
   $li.attr("data-id", content._id_);
   
