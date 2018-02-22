@@ -8,7 +8,7 @@ const { Creator } = require("../models");
 
 router.get("/:string", (req, res) => {
   const { string } = req.params,
-        regex      = new RegExp(string, "i");
+        regex      = new RegExp(string.replace(" ", "|"), "i");
         
   Creator.find( { "$or": [
       { "name.last": { $regex: regex } },
