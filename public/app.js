@@ -389,6 +389,8 @@ function showInfoForm($parentElem, infoPieces, id, textboxes = null) {
   $form.append($toolbox);
   
   $parentElem.after($form);
+  
+  tboxes[0].find("input").focus();
 }
 
 function updateEntryInDOM($where, object, type) {
