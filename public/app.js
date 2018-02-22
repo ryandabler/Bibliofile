@@ -275,12 +275,10 @@ function generateToolbox() {
         $clear  = $("<i>");
   
   $button.append($save);
-  $button.attr("aria-label", "Save entry");
+  $button.attr("aria-label", "Save entry").attr("type", "submit");
   
   $save.addClass("fa fa-floppy-o").attr("tabindex", "0");
   $clear.addClass("fa fa-trash-o").attr("tabindex", "0");
-  
-  $clear.click(clearForm);
   
   return [$button, $clear];
 }
@@ -389,7 +387,6 @@ function showInfoForm($parentElem, infoPieces, id, textboxes = null) {
   $form.attr("id", id);
   $form.append(tboxes);
   $form.append($toolbox);
-  $form.submit(saveForm);
   
   $parentElem.after($form);
 }
@@ -912,6 +909,8 @@ function addEventListeners() {
   $("#nav-header").on("click", "li", loadSegment);
   $("#search-text").on("input", searchDatabase("works"));
   $("#convo-hidden").on("change", getConversation);
+  $("#item-creators, #item-works").on("click", "i.fa-trash-o", clearForm);
+  $("#item-creators, #item-works").on("submit", "form", saveForm);
 }
 
 function loadData(data, dataType) {
