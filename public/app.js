@@ -898,7 +898,8 @@ function addEventListeners() {
   $("#item-works-creator-list").on("click", "li", getItemDetails("works"));
   $("#item-contributors-work-list").on("click", "li", getItemDetails("creators"));
   $("#item-references-work-list").on("click", "li", getItemDetails("works"));
-  $(".js-add-new").click(toggleInfoForm);
+  $(".js-add-new").click(toggleInfoForm)
+                  .keypress(e => e.key === "Enter" ? toggleInfoForm(e) : null);
   $("#new-element").click(displayNewItemForm);
   $("#cancel-new-element").click(hideNewItemForm);
   $("#form-new").submit(createAndDisplayItem);
@@ -910,13 +911,15 @@ function addEventListeners() {
   $("#save-work").click(saveItem("works"));
   $("#save-creator").click(saveItem("creators"));
   $(".x").click(event => $(event.currentTarget).parent().addClass("hidden"));
-  $("ul").on("click", ".js-delete-list-item", deleteListItem);
-  $("ul").on("click", ".js-edit-list-item", editListItem);
+  $("ul").on("click", ".js-delete-list-item", deleteListItem)
+         .on("keypress", ".js-delete-list-item", e => e.key === "Enter" ? deleteListItem(e) : null);
+  $("ul").on("click", ".js-edit-list-item", editListItem)
+         .on("keypress", ".js-edit-list-item", e => e.key === "Enter" ? editListItem(e) : null);
   $("#nav-header").on("click", "li", loadSegment);
   $("#search-text").on("input", searchDatabase("works"));
   $("#convo-hidden").on("change", getConversation);
-  $("#item-creators, #item-works").on("click", "i.fa-trash-o", clearForm);
-  $("#item-creators, #item-works").on("submit", "form", saveForm);
+  $("#item-creators, #item-works").on("click", "i.fa-trash-o", clearForm)
+                                  .on("submit", "form", saveForm);
 }
 
 function loadData(data, dataType) {
