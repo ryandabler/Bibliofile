@@ -13,19 +13,19 @@
     <nav class="header" role="navigation">
       <span class="logo"><a href="./index.html">βibliofile</a></span>
       <ul id="nav-header">
-        <li data-segment="creators" class="clickable activated" tabindex="0">
-          <span title="Creators"><i class="fa fa-users fa-style"></i></span>
+        <li data-segment="creators" title="Creators" class="clickable activated" tabindex="0">
+          <span aria-label="Creators"><i class="fa fa-users fa-style"></i></span>
         </li>
-        <li data-segment="works" class="clickable" tabindex="0">
-          <span title="Works"><i class="fa fa-book fa-style"></i></span>
+        <li data-segment="works" title="Works" class="clickable" tabindex="0">
+          <span aria-label="Works"><i class="fa fa-book fa-style"></i></span>
         </li>
-        <li data-segment="conversation" class="clickable" tabindex="0">
-          <span title="Conversation"><i class="fa fa-comments fa-style"></i></span>
+        <li data-segment="conversation" title="Conversation" class="clickable" tabindex="0">
+          <span aria-label="Conversation"><i class="fa fa-comments fa-style"></i></span>
         </li>
       </ul>
     </nav>
     
-    <main class="explore-main" role="main">
+    <main class="explore-main" role="main" aria-live="assertive">
       <section id="items">
         <div class="toolbox">
           <i id="new-element" class="fa fa-plus-circle clickable" tabindex="0"> New</i>
@@ -67,14 +67,14 @@
         
         <h3 id="item-links-creator" class="item-heading">
           Links
-          <i id="new-links-creator" class="js-add-new fa fa-plus-circle clickable hidden" tabindex="0"></i>
+          <i id="new-links-creator" aria-label="Add new link" class="js-add-new fa fa-plus-circle clickable hidden" tabindex="0"></i>
         </h3>
         <ul id="item-links-creator-list" class="results-list">
         </ul>
         
         <h3 id="item-awards-creator" class="item-heading">
           Awards
-          <i id="new-awards-creator" class="js-add-new fa fa-plus-circle clickable hidden" tabindex="0"></i>
+          <i id="new-awards-creator" aria-label="Add new award" class="js-add-new fa fa-plus-circle clickable hidden" tabindex="0"></i>
         </h3>
         <ul id="item-awards-creator-list" class="results-list">
         </ul>
