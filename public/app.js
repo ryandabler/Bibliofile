@@ -22,8 +22,8 @@ const CREATE_FUNCTIONS = { links: createLink,
 //////////////////////
 // DOM functions
 //////////////////////
-function createListItem(main, addl=null, data_id=null, id=null, clickable=true) {
-  const $li = $("<li>");
+function createListItem(main, addl=null, data_id=null, id=null, clickable=true, lang="en") {
+  const $li = $("<li>").attr("lang", lang);
   clickable ? $li.addClass("result clickable").attr("tabindex", "0") : $li.addClass("result");
   $li.text(main);
   
@@ -99,7 +99,7 @@ function createWork(work) {
 }
 
 function createTitle(title) {
-  return createListItem(title.name, null, title._id_, null, false);
+  return createListItem(title.name, null, title._id_, null, false, title.lang);
 }
 
 function createContributor(contributor) {
