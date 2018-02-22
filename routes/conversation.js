@@ -28,7 +28,6 @@ router.get("/:id", (req, res) => {
                     if (err) {
                       res.status(500).send(err);
                     } else {
-                      console.log(result);
                       const conversation = result[0].citations.map(work => {
                         const newWork = new Work(work);
                         return newWork.serialize(["id", "title"]);

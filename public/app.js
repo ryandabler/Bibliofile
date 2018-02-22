@@ -22,9 +22,9 @@ const CREATE_FUNCTIONS = { links: createLink,
 //////////////////////
 // DOM functions
 //////////////////////
-function createListItem(main, addl=null, data_id=null, id=null, clickable=true) {
-  const $li = $("<li>");
-  clickable ? $li.addClass("result clickable") : $li.addClass("result");
+function createListItem(main, addl=null, data_id=null, id=null, clickable=true, lang="en") {
+  const $li = $("<li>").attr("lang", lang);
+  clickable ? $li.addClass("result clickable").attr("tabindex", "0") : $li.addClass("result");
   $li.text(main);
   
   data_id ? $li.attr("data-id", data_id)                                          : null;
@@ -55,8 +55,8 @@ function updateItemsSection(data, htmlIdToAppendTo, dataType) {
   }
   
   // Activate appropriate item
-  $("#nav-header").find("span").removeClass("activated");
-  $("#nav-header").find(`[data-segment=${dataType}]`).find("span").addClass("activated");
+  $("#nav-header").find("li").removeClass("activated");
+  $("#nav-header").find(`[data-segment=${dataType}]`).addClass("activated").blur();
   
   // Switch to "items" section
   switchDisplay("items");
@@ -99,7 +99,7 @@ function createWork(work) {
 }
 
 function createTitle(title) {
-  return createListItem(title.name, null, title._id_, null, false);
+  return createListItem(title.name, null, title._id_, null, false, title.lang);
 }
 
 function createContributor(contributor) {
@@ -114,7 +114,7 @@ function createContent(content) {
   html += content.number ? ` ${content.number}</b>:` : "</b>";
   html += ` ${content.name}`;
   
-  $li.addClass("result clickable");
+  $li.addClass("result");
   $li.html(html);
   $li.attr("data-id", content._id_);
   
@@ -153,6 +153,7 @@ function createReference(reference) {
   $li.addClass("result clickable");
   reference.id ? $li.attr("id", reference.id) : null;
   $li.attr("data-id", reference._id_);
+  $li.attr("tabindex", 0);
   $li.text(reference.title);
   
   $span.addClass("additional-info");
@@ -275,11 +276,10 @@ function generateToolbox() {
         $clear  = $("<i>");
   
   $button.append($save);
+  $button.attr("aria-label", "Save entry").attr("type", "submit");
   
-  $save.addClass("fa fa-floppy-o");
-  $clear.addClass("fa fa-trash-o");
-  
-  $clear.click(clearForm);
+  $save.addClass("fa fa-floppy-o").attr("tabindex", "0");
+  $clear.addClass("fa fa-trash-o").attr("tabindex", "0");
   
   return [$button, $clear];
 }
@@ -388,9 +388,10 @@ function showInfoForm($parentElem, infoPieces, id, textboxes = null) {
   $form.attr("id", id);
   $form.append(tboxes);
   $form.append($toolbox);
-  $form.submit(saveForm);
   
   $parentElem.after($form);
+  
+  tboxes[0].find("input").focus();
 }
 
 function updateEntryInDOM($where, object, type) {
@@ -402,8 +403,12 @@ function updateEntryInDOM($where, object, type) {
 
 function addEditButtons($li, makeExpanded = false) {
   const $span    = $("<span>").addClass("js-opt-list-item");
-  const $iEdit   = $("<i>").addClass("fa fa-pencil-square-o js-edit-list-item clickable");
-  const $iDelete = $("<i>").addClass("fa fa-times js-delete-list-item clickable");
+  const $iEdit   = $("<i>").addClass("fa fa-pencil-square-o js-edit-list-item clickable")
+                           .attr("tabindex", "0")
+                           .attr("aria-label", "Edit item");
+  const $iDelete = $("<i>").addClass("fa fa-times js-delete-list-item clickable")
+                           .attr("tabindex", "0")
+                           .attr("aria-label", "Delete item");
   
   makeExpanded ? $iEdit.attr("data-expanded", "true") : null;
   
@@ -426,7 +431,7 @@ function insertEntryIntoDOM($listToInsertInto, objectToInsert) {
 
 function makeEditable(dataType) {
   return function(event) {
-    const $nearestSection = $(this).closest("section");
+    const $nearestSection = $(event.currentTarget).closest("section");
   
     // Add edit and delete buttons to each list item
     addEditButtons($nearestSection.find("li"));
@@ -501,7 +506,8 @@ function showSearchChoices(dataType, $emittingElement) {
     
     $ul.addClass("results-list");
     $ul.append(list);
-    $ul.on("click", "li", chooseItemFromDropdown($emittingElement[0].id));
+    $ul.on("click", "li", chooseItemFromDropdown($emittingElement[0].id))
+       .on("keypress", "li", e => e.key === "Enter" ? chooseItemFromDropdown($emittingElement[0].id)(e) : null);
     
     $div.empty();
     $div.append($ul);
@@ -566,7 +572,7 @@ function getListOfItems(type, convoId = null) {
 
 function getItemDetails(dataType = null, id = null) {
   return function(event) {
-    const dataSeg = $("#nav-header").find("span.activated").closest("li").attr("data-segment");
+    const dataSeg = $("#nav-header").find("li.activated").attr("data-segment");
     const type = dataType ? dataType : (dataSeg === "conversation" ? "works" : dataSeg);
     const API_URL = `${API_GENERIC_ENDPOINT}/${type}/${id || this.id}`;
     queryAPI(API_URL, "json", "GET").then(renderItemToDOM(type));
@@ -667,16 +673,16 @@ function saveItem(dataType) {
                   )
                   .then(res => {
                     APP_STATE.currentItem = APP_STATE.editedItem;
+                    makeUneditable($section);
                   })
                   .catch(err => {
                     if(err.status === 200) {
                       APP_STATE.currentItem = APP_STATE.editedItem;
+                      makeUneditable($section);
                     } else {
                       console.log(err);
                     }
                   });
-                  
-          makeUneditable($section);
         });
     } else {
       cancelEditing(event);
@@ -890,27 +896,48 @@ function loadSegment(event) {
 }
 
 function addEventListeners() {
-  $("#list-of-items").on("click", "li", getItemDetails());
-  $("#item-works-creator-list").on("click", "li", getItemDetails("works"));
-  $("#item-contributors-work-list").on("click", "li", getItemDetails("creators"));
-  $("#item-references-work-list").on("click", "li", getItemDetails("works"));
-  $(".js-add-new").click(toggleInfoForm);
-  $("#new-element").click(displayNewItemForm);
-  $("#cancel-new-element").click(hideNewItemForm);
+  $("#list-of-items").on("click", "li", getItemDetails())
+                     .on("keypress", "li", e => e.key === "Enter" ? getItemDetails(null, e.currentTarget.id)(e) : null);
+  $("#item-works-creator-list").on("click", "li", getItemDetails("works"))
+                               .on("keypress", "li", e => e.key === "Enter" ? getItemDetails("works", e.currentTarget.id)(e) : null);
+  $("#item-contributors-work-list").on("click", "li", getItemDetails("creators"))
+                                   .on("keypress", "li", e => e.key === "Enter" ? getItemDetails("creators", e.currentTarget.id)(e) : null);
+  $("#item-references-work-list").on("click", "li", getItemDetails("works"))
+                                 .on("keypress", "li", e => e.key === "Enter" ? getItemDetails("works", e.currentTarget.id)(e) : null);
+  $(".js-add-new").click(toggleInfoForm)
+                  .keypress(e => e.key === "Enter" ? toggleInfoForm(e) : null);
+  $("#new-element").click(displayNewItemForm)
+                   .keypress(e => e.key === "Enter" ? displayNewItemForm(e) : null);
+  $("#cancel-new-element").click(hideNewItemForm)
+                          .keypress(e => e.key === "Enter" ? hideNewItemForm(e) : null);
   $("#form-new").submit(createAndDisplayItem);
-  $("#edit-work").click(makeEditable("work"));
-  $("#edit-creator").click(makeEditable("creator"));
-  $("#cancel-work, #cancel-creator").click(cancelEditing);
-  $("#delete-work").click(deleteItem("works"));
-  $("#delete-creator").click(deleteItem("creators"));
-  $("#save-work").click(saveItem("works"));
-  $("#save-creator").click(saveItem("creators"));
-  $(".x").click(event => $(event.currentTarget).parent().addClass("hidden"));
-  $("ul").on("click", ".js-delete-list-item", deleteListItem);
-  $("ul").on("click", ".js-edit-list-item", editListItem);
-  $("#nav-header").on("click", "li", loadSegment);
+  $("#edit-work").click(makeEditable("work"))
+                 .keypress(e => e.key === "Enter" ? makeEditable("work")(e) : null);
+  $("#edit-creator").click(makeEditable("creator"))
+                    .keypress(e => e.key === "Enter" ? makeEditable("creator")(e) : null);
+  $("#cancel-work, #cancel-creator").click(cancelEditing)
+                                    .keypress(e => e.key === "Enter" ? cancelEditing(e) : null);
+  $("#delete-work").click(deleteItem("works"))
+                   .keypress(e => e.key === "Enter" ? deleteItem("works")(e) : null);
+  $("#delete-creator").click(deleteItem("creators"))
+                      .keypress(e => e.key === "Enter" ? deleteItem("creators")(e) : null);
+  $("#save-work").click(saveItem("works"))
+                 .keypress(e => e.key === "Enter" ? saveItem("works")(e) : null);
+  $("#save-creator").click(saveItem("creators"))
+                    .keypress(e => e.key === "Enter" ? saveItem("creators")(e) : null);
+  $(".x").click(event => $(event.currentTarget).parent().addClass("hidden"))
+         .keypress(e => e.key === "Enter" ? $(event.currentTarget).parent().addClass("hidden") : null);
+  $("ul").on("click", ".js-delete-list-item", deleteListItem)
+         .on("keypress", ".js-delete-list-item", e => e.key === "Enter" ? deleteListItem(e) : null);
+  $("ul").on("click", ".js-edit-list-item", editListItem)
+         .on("keypress", ".js-edit-list-item", e => e.key === "Enter" ? editListItem(e) : null);
+  $("#nav-header").on("click", "li", loadSegment)
+                  .on("keypress", "li", e => e.key === "Enter" ? loadSegment(e) : null);
   $("#search-text").on("input", searchDatabase("works"));
   $("#convo-hidden").on("change", getConversation);
+  $("#item-creators, #item-works").on("click", "i.fa-trash-o", clearForm)
+                                  .on("keypress", "i.fa-trash-o", e => e.key === "Enter" ? clearForm(e) : null)
+                                  .on("submit", "form", saveForm);
 }
 
 function loadData(data, dataType) {

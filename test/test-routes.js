@@ -37,7 +37,6 @@ function generateCreatorData() {
         year: faker.date.past(25).getFullYear().toString()
       }
     ],
-    created: Date.now().toString()
   };
 }
 
@@ -55,9 +54,9 @@ function seedCreatorData() {
 async function generateWorkData() {
   const creator = await Creator.create(generateCreatorData());
   const work = {
-    title: { lang: "en",
+    title: [{ lang: "en",
              name: faker.lorem.words()
-           },
+           }],
     contributors: { role: "author",
                     who:  creator.id
                   },
@@ -66,10 +65,10 @@ async function generateWorkData() {
     identifiers: [],
     links: [ { domain: faker.lorem.word(), url: faker.internet.url() } ],
     references: [],
-    contents: {
+    contents: [{
                 kind: "chapter",
                 name: faker.lorem.words()
-    }
+    }]
   };
   
   return work;
@@ -160,33 +159,25 @@ describe("Creator API", function() {
   });
 
   describe("POST endpoint", function() {
-    it("Should create a creator", function() {
-      const newCreator = generateCreatorData();
+    it("Should create a creator", async function() {
+      const newCreatorObj = generateCreatorData();
+      let   newCreator    = await Creator.create(newCreatorObj);
+      newCreator = newCreator.serialize();
+      
       return chai.request(app)
                  .post("/api/creators")
-                 .send(newCreator)
+                 .send(newCreatorObj)
                  .then(function(res) {
                    expect(res).to.have.status(201);
                    expect(res).to.be.json;
                    expect(res.body).to.be.a("object");
                    expect(res.body).to.include.keys("id", "name", "links", "awards");
                    expect(res.body.id).to.not.equal(null);
-                   
-                   // Process newCreator to make it match the response from the server
-                   newCreator.name = newCreator.fullname;
-                   delete newCreator.fullname;
-                   delete newCreator.created;
-                   delete res.body.works;
-                   
-                  // const authorMinusVirtual = {res.body.
-                   expect(res.body).to.deep.equal(Object.assign(newCreator, {id: res.body.id}));
-                    
-                   return Creator.findById(res.body.id);
-                 })
-                 .then(function(creator) {
-                   let serialCreator = creator.serialize();
-                   
-                   expect(serialCreator.name).to.equal(newCreator.name);
+                  
+                  expect(res.body.name).to.equal(newCreator.name);
+                  expect(res.body.links).to.deep.equal(newCreator.links);
+                  expect(res.body.awards).deep.equal(newCreator.awards);
+                  expect(res.body.works).to.deep.equal(newCreator.works);
                  });
     });
   
@@ -253,17 +244,16 @@ describe("Creator API", function() {
                                   url: "https://plato.stanford.edu/"
                                 }
                               ]
-                           },
-          originalCreator;
+                           };
       
       return chai.request(app)
                  .get("/api/creators")
                  .then(function(res) {
-                   originalCreator = res.body.creators[0];
-                   updatedCreator.id = originalCreator.id;
+                   const id = res.body.creators[0].id;
+                   updatedCreator.id = id;
                     
                    return chai.request(app)
-                              .put(`/api/creators/${originalCreator.id}`)
+                              .put(`/api/creators/${id}`)
                               .send(updatedCreator);
                  })
                  .then(function(res) {
@@ -273,8 +263,7 @@ describe("Creator API", function() {
                  })
                  .then(function(creator) {
                    const serialCreator = creator.serialize();
-                   expect(serialCreator.links[0].url).to.equal("https://plato.stanford.edu/");
-                   expect(serialCreator.links[0].domain).to.equal("Stanford Encyclopedia of Philosophy");
+                   expect(serialCreator.links).to.deep.equal(updatedCreator.links);
                  });
     });
   
@@ -283,7 +272,7 @@ describe("Creator API", function() {
                  .get("/api/creators")
                  .then(function(res) {
                    const updateId = res.body.creators[0].id;
-                   const updatedCreator = { id:       updateId.slice(0, updateId.length - 1),
+                   const updatedCreator = { id: updateId.slice(0, updateId.length - 1),
                                             links: [
                                               {
                                                 domain: "Stanford Encyclopedia of Philosophy",
@@ -365,43 +354,21 @@ describe("Work API", function() {
                    expect(res).to.have.status(200);
                    expect(res).to.be.json;
                    expect(res.body.works).to.be.a("object");
-                   
-                   const expectedKeys = ["id", "title", "contributors", "kind", "publication_info", "identifiers", "links", "references", "contents"];
-                   expect(res.body.works).to.include.keys(expectedKeys);
-                   
-                   expect(res.body.works).to.deep.include(work);
+                   expect(res.body.works).to.deep.equal(work);
                  });
     });
   });
   
   describe("POST endpoint", function() {
-    it("Should create a new work", function() {
+    // it("Should create a new work", function() {
+    it("Should create a new work", async function() {
+      const newWorkObj = await generateWorkData();
+      let   newWork    = await Work.create(newWorkObj);
+      newWork = newWork.serialize();
+      
       return chai.request(app)
-                 .get("/api/creators")
-                 .then(function(res) {
-                   work = {
-                             title: [{
-                               lang: "en",
-                               name: "This is a test work"
-                             }],
-                             contributors: [{
-                               role: "author",
-                               who: res.body.creators[0].id
-                             }],
-                             kind: "book",
-                             publication_info: {
-                               year: "2017"
-                             },
-                             identifiers: [],
-                             links: [],
-                             references: [],
-                             contents: []
-                   };
-                   
-                   return chai.request(app)
-                              .post("/api/works")
-                              .send(work);
-                 })
+                 .post("/api/works")
+                 .send(newWorkObj)
                  .then(function(res) {
                    expect(res).to.have.status(201);
                    expect(res).to.be.json;
@@ -409,43 +376,40 @@ describe("Work API", function() {
                     
                    const expectedKeys = ["id", "title", "contributors", "kind", "publication_info", "identifiers", "links", "references", "contents"];
                    expect(res.body).to.include.keys(expectedKeys);
+                   expect(res.body.id).to.not.equal(null);
                    
-                   expect(res.body).to.deep.equal(Object.assign(work, {id: res.body.id}));
-                   });
+                   expect(res.body.title).to.deep.equal(newWork.title);
+                   expect(res.body.contributors).to.deep.equal(newWork.contributors);
+                   expect(res.body.kind).to.equal(newWork.kind);
+                   expect(res.body.publication_info).to.deep.equal(newWork.publication_info);
+                   expect(res.body.identifiers).to.deep.equal(newWork.identifiers);
+                   expect(res.body.links).to.deep.equal(newWork.links);
+                   expect(res.body.references).to.deep.equal(newWork.references);
+                   expect(res.body.contents).to.deep.equal(newWork.contents);
+                 });
     });
     
     it("Should create a new work with default values for non-essential properties", function() {
-      return chai.request(app)
-                 .get("/api/creators")
-                 .then(function(res) {
-                   work = {
-                             title: [{
-                               lang: "en",
-                               name: "This is a test work"
-                             }],
-                             contributors: [{
-                               role: "author",
-                               who: res.body.creators[0].id
-                             }],
-                             kind: "book",
-                             publication_info: {
-                               year: "2017"
-                             }
+      const work = {
+                      title: [{
+                                 lang: "en",
+                                 name: "This is a test work"
+                             }]
                    };
                    
-                   return chai.request(app)
-                              .post("/api/works")
-                              .send(work);
-                 })
+      return chai.request(app)
+                 .post("/api/works")
+                 .send(work)
                  .then(function(res) {
                    expect(res).to.have.status(201);
                    expect(res).to.be.json;
                    expect(res.body).to.be.a("object");
-                    
-                   const expectedKeys = ["id", "title", "contributors", "kind", "publication_info", "identifiers", "links", "references", "contents"];
+                   
+                   const expectedKeys = ["id", "title", "contributors", "identifiers", "links", "references", "contents"];
                    expect(res.body).to.include.keys(expectedKeys);
                    
                    const assignableFields = { id: res.body.id,
+                                              contributors: [],
                                               identifiers: [],
                                               links: [],
                                               references: [],
@@ -453,35 +417,6 @@ describe("Work API", function() {
                                             };
                    expect(res.body).to.deep.equal(Object.assign(work, assignableFields));
                    });
-    });
-    
-    it("Should throw error due to missing required field", function() {
-      return chai.request(app)
-                 .get("/api/creators")
-                 .then(function(res) {
-                   work = {
-                             title: [{
-                               lang: "en",
-                               name: "This is a test work"
-                             }],
-                             contributors: [{
-                               role: "author",
-                               who: res.body.creators[0].id
-                             }],
-                             publication_info: {
-                               year: "2017"
-                             }
-                   };
-                   
-                   return chai.request(app)
-                              .post("/api/works")
-                              .send(work);
-                 })
-                 .catch(function(err) {
-                   expect(err.response).to.have.status(400);
-                   expect(err.response.text).to.be.a("string");
-                   expect(err.response.text).to.match(/{"message":"The request is missing the following field\(s\): .+"}/);
-                 });
     });
   });
   
@@ -524,19 +459,23 @@ describe("Work API", function() {
   
   describe("PUT endpoint", function() {
     it("Should update a work", function() {
-      let updatedWork = {};
+      const updatedWork = {
+                             links: [
+                               {
+                                 domain: "Google",
+                                 url: "www.google.com"
+                               }
+                             ]
+                          };
       
-      return Work.findOne()
-                 .then(function(work) {
-                   updatedWork = work.toObject();
-                   // Hack - REPLACE THIS WITH A BETTER API
-                   updatedWork.id = work._id;
-                   //
-                   updatedWork.contributors[0].role = "translator";
-                   updatedWork.links[0].url = "www.google.com";
+      return chai.request(app)
+                 .get("/api/works")
+                 .then(function(res) {
+                   const id = res.body.works[0].id;
+                   updatedWork.id = id;
                    
                    return chai.request(app)
-                              .put(`/api/works/${updatedWork._id}`)
+                              .put(`/api/works/${id}`)
                               .send(updatedWork);
                  })
                  .then(function(res) {
@@ -544,25 +483,29 @@ describe("Work API", function() {
                    
                    return Work.findById(updatedWork.id);
                  })
-                 .then(function(res) {
-                   expect(res.contributors[0].role).to.equal("translator");
-                   expect(res.links[0].url).to.equal("www.google.com");
+                 .then(function(work) {
+                   const serialWork = work.serialize();
+                   expect(serialWork.links).to.deep.equal(updatedWork.links);
                  });
     });
     
     it("Should throw an error due to incorrect id", function() {
-      return Work.findOne()
-                 .then(function(work) {
-                   updatedWork = work.toObject();
-                   // Hack - REPLACE THIS WITH A BETTER API
-                   updatedWork.id = work._id.toString();
-                   //
-                   
-                   updatedWork.contributors[0].role = "translator";
-                   updatedWork.links[0].url = "www.google.com";
+      const updatedWork = {
+                             links: [
+                               {
+                                 domain: "Google",
+                                 url: "www.google.com"
+                               }
+                             ]
+                          };
+      return chai.request(app)
+                 .get("/api/works")
+                 .then(function(res) {
+                   const id = res.body.works[0].id;
+                   updatedWork.id = id;
                    
                    return chai.request(app)
-                              .put(`/api/works/${updatedWork.id.slice(0, updatedWork.id.length - 1)}`)
+                              .put(`/api/works/${id.slice(0, id.length - 1)}`)
                               .send(updatedWork);
                  })
                  .catch(function(err) {
@@ -570,5 +513,132 @@ describe("Work API", function() {
                    expect(err.response.text).to.match(/Please ensure the correctness of the ids/);
                  });
     });
+  });
+});
+
+// Search
+describe("Search API", function() {
+  describe("Works", function() {
+    before(function() {
+      return runServer(TEST_DATABASE_URL);
+    });
+    
+    beforeEach(function() {
+      this.timeout(10000);
+      return seedWorkData().then(data => Work.insertMany(data));
+    });
+    
+    after(function() {
+      return closeServer();
+    });
+    
+    afterEach(function() {
+      return tearDownDb();
+    });
+    
+    it("Should return a list of works", function() {
+      let work;
+      
+      return chai.request(app)
+                 .get("/api/works")
+                 .then(function(res) {
+                   work = res.body.works[0];
+                   const partialTitle = work.title[0].name.slice(0, work.title[0].name.length - 1);
+                   
+                   return chai.request(app)
+                              .get(`/api/search/works/${partialTitle}`)
+                 })
+                 .then(function(res) {
+                   const arrayOfIds = res.body.works.map(work => work.id);
+                   expect(res).to.have.status(200)
+                   expect(res).to.be.json;
+                   expect(res.body).to.be.a("object");
+                   expect(res.body.works.length).to.be.at.least(1);
+                   expect(arrayOfIds).to.include(work.id);
+                 })
+    });
+  });
+  
+  describe("Creators", function() {
+    before(function() {
+      return runServer(TEST_DATABASE_URL);
+    });
+  
+    beforeEach(function() {
+      return seedCreatorData();
+    });
+    
+    after(function() {
+      return closeServer();
+    });
+    
+    afterEach(function() {
+      return tearDownDb();
+    });
+    
+    it("Should return a list of creators", function() {
+      let creator;
+      
+      return chai.request(app)
+                 .get("/api/creators")
+                 .then(function(res) {
+                   creator = res.body.creators[0];
+                   const firstName = creator.name.split(" ")[0]
+                   const partialName = firstName.slice(0, firstName.length - 1);
+                   
+                   return chai.request(app)
+                              .get(`/api/search/creators/${partialName}`)
+                 })
+                 .then(function(res) {
+                   const arrayOfIds = res.body.creators.map(creator => creator.id);
+                   expect(res).to.have.status(200)
+                   expect(res).to.be.json;
+                   expect(res.body).to.be.a("object");
+                   expect(res.body.creators.length).to.be.at.least(1);
+                   expect(arrayOfIds).to.include(creator.id);
+                 })
+    });
+  });
+});
+
+// Conversation
+describe("Conversation API", function() {
+  before(function() {
+    return runServer(TEST_DATABASE_URL);
+  });
+  
+  after(function() {
+    return closeServer();
+  });
+  
+  it("Should return a conversation", async function() {
+    // Create two works, one which references the other
+    let workA, workB;
+    
+    return Promise.all([
+      Work.create({title: [{ lang: "en", name: "Work A" }] }),
+      Work.create({title: [{ lang: "en", name: "Work B" }] })
+    ])
+    .then(function(data) {
+      [workA, workB] = data;
+      workA = workA.serialize();
+      workB = workB.serialize();
+      workA.references = { kind: "footnote", work: workB.id };
+      
+      return chai.request(app)
+                 .put(`/api/works/${workA.id}`)
+                 .send(workA)
+    })
+    .then(function(response) {
+      return chai.request(app)
+                 .get(`/api/conversation/${workA.id}`)
+    })
+    .then(function(res) {
+      const conversation = res.body.conversation;
+      const convoIds = conversation.map(work => work.id);
+      
+      expect(convoIds).to.include.members([ workA.id, workB.id ]);
+    });
+    
   });
 });
