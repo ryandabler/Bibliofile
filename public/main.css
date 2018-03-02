@@ -35,7 +35,8 @@ h1::first-letter {
 }
 
 h2 {
-  font-size: 10vw;
+  font-size: 12vw;
+  text-align: center;
 }
 
 h3 .fa {
@@ -75,11 +76,34 @@ section.splash ul {
 
 .flex {
   display: flex;
-  flex-wrap: wrap;
 }
 
-.flex-even {
-  justify-content: space-evenly;
+.flex-alternate {
+  order: 2;
+}
+
+.selling-points {
+  width: 80%;
+  margin: 0 auto;
+}
+
+.selling-points > .logo {
+  display: block;
+  margin: 0;
+  font-size: 13vw;
+  text-align: center;
+  cursor: default;
+}
+
+  .selling-points:not(:last-of-type) {
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #F5F5F5;
+}
+
+.selling-points p {
+  font-size: 5vw;
+  margin-bottom: 0;
 }
 
 .flex-1 {
@@ -89,10 +113,6 @@ section.splash ul {
 
 .flex-1:not(:last-of-type) {
   margin-bottom: 20px;
-}
-
-.lead-me {
-  position: relative;
 }
 
 .clickable {
@@ -108,12 +128,8 @@ section.splash ul {
   color: #F5F5F5;
 }
 
-.lead-me:after {
-  content: "→";
-}
-
-.lead-me:hover:after {
-  content: " →";
+.lead-me {
+  position: relative;
 }
 
 .explore {
@@ -460,6 +476,36 @@ form .toolbox .fa::before, .toolbox .fa::before {
     padding-top: 4vw;
   }
   
+  .flex-item-p {
+    flex-basis: 70%
+  }
+
+  .discover {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+  }
+
+  .selling-points {
+    width: 60%;
+  }
+
+  .selling-points:not(:last-of-type) {
+    margin-bottom: 25px;
+    padding-bottom: 0;
+    border-bottom-width: 0;
+  }
+
+  .selling-points > .logo {
+    display: inline-block;
+    flex-basis: 0;
+    font-size: 8vw;
+  }
+
+  .selling-points p {
+    font-size: 2.2vw;
+  }
+
   .explore {
     margin-top: 100px;
   }
@@ -585,5 +631,9 @@ form .toolbox .fa::before, .toolbox .fa::before {
   
   .error .top {
     padding-top: 0;
+  }
+
+  .selling-points p {
+    font-size: 2vw;
   }
 }
