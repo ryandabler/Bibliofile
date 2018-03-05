@@ -528,13 +528,9 @@ form .toolbox .fa::before, .toolbox .fa::before {
 dl {
   overflow:hidden;
 }
-dt, dd {
-  float: left;
-}
 
 dt {
   font-weight: 700;
-  width: 30%
 }
 
 dt:after {
@@ -544,7 +540,6 @@ dt:after {
 dd {
   margin-left: 0;
   margin-bottom: 5px;
-  width: 70%;
 }
 
 .error {
@@ -719,6 +714,19 @@ dd {
   
   #srch-over-contrib {
     font-size: 1.5vw;
+  }
+
+  dt {
+    width: 30%;
+  }
+
+  dd {
+    width: 70%;
+    margin-left: 0;
+  }
+
+  dt, dd {
+    float: left;
   }
 }
 
