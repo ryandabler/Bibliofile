@@ -558,11 +558,12 @@ dd {
   position: absolute;
   right: 4px;
   top: 50px;
+  color: #CE3030;
 }
 
 .error .text {
   background-color: #FFB5B5;
-  border: 1px solid #CE6565;
+  border: 1px solid #CE3030;
   border-radius: 5px;
   padding: 4px 16px 4px 4px;
 }
