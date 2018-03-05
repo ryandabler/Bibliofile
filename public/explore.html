@@ -13,20 +13,23 @@
     <nav class="header" role="navigation">
       <span class="logo"><a href="./index.html">βibliofile</a></span>
       <ul id="nav-header">
-        <li data-segment="creators" title="Creators" class="clickable activated" tabindex="0">
+        <li data-segment="creators" title="Creators" class="clickable logo-creators" tabindex="0">
           <span aria-label="Creators"><i class="fa fa-users fa-style"></i></span>
         </li>
-        <li data-segment="works" title="Works" class="clickable" tabindex="0">
+        <li data-segment="works" title="Works" class="clickable logo-works" tabindex="0">
           <span aria-label="Works"><i class="fa fa-book fa-style"></i></span>
         </li>
-        <li data-segment="conversation" title="Conversation" class="clickable" tabindex="0">
+        <li data-segment="conversation" title="Conversation" class="clickable logo-convo" tabindex="0">
           <span aria-label="Conversation"><i class="fa fa-comments fa-style"></i></span>
+        </li>
+        <li data-segment="help" title="Help" class="clickable activated logo-help" tabindex="0">
+          <span aria-label="Help"><i class="fa fa-question fa-style"></i></span>
         </li>
       </ul>
     </nav>
     
     <main class="explore-main" role="main" aria-live="assertive">
-      <section id="items">
+      <section id="items" class="hidden">
         <div class="toolbox">
           <i id="new-element" class="fa fa-plus-circle clickable" tabindex="0"> New</i>
           <i id="cancel-new-element" class="fa fa-times clickable hidden" tabindex="0"> Cancel</i>
@@ -142,6 +145,68 @@
         </h3>
         <ul id="item-links-work-list" class="results-list">
         </ul>
+      </section>
+
+      <section id="help">
+        <h2 class="banner banner-item">How Does This Work?</h2>
+        <h3>Creators and Works Lists</h3>
+        <p>
+          The <b>Creators</b> and <b>Works</b> sections list all the entries in our database.
+          Users can scroll down the list to find an entry they are interested in knowing more
+          about or contributing data to. If the entry does not exist, clicking the "New" button
+          in the toolbox on the left side will display a form to enter in the creator's or work's
+          name. From there the user will see the details page for the newly created entry.
+        </p>
+
+        <h3>Creator and Work Details</h3>
+        <p>
+          The details page lists all information currently collected about the item in question.
+          To add, modify, or delete information, click the "Edit" button in the left toolbox. This
+          will display a large number of interactive elements that allow all info pieces to be
+          changed.
+        </p>
+
+        <p>
+          Make sure before navigating away to click "Save" in the toolbox or all changes will
+          be reverted. Clicking "Cancel" will revert all changes without leaving that page, and
+          "Delete" will delete the entry and navigate back to the main listing.
+        </p>
+
+        <h4>Works</h4>
+        <p>
+          On the works details page, you have the option of adding a wide variety of
+          information. Each section has the general properties:
+        </p>
+        <dl>
+          <dt>Titles</dt><dd>Enter in the title and its language</dd>
+          <dt>Conbtributors</dt><dd>Anyone who has contributed to a work (author, translator, editor,
+            etc.). Specify what role the person took in the creation of the work. Adding the contributor
+            will display a dropdown, where you can click an existing author or manually enter a new one.
+            </dd>
+          <dt>Contents</dt><dd>List the table of contents, including its <i>kind</i> (e.g.,
+            essay, chapter), <i>number</i>, and <i>name</i></dd>
+          <dt>References</dt><dd>If the work references in some way another work, list the <i>kind</i>
+            of reference (e.g., main in-text reference, footnote, artistic adaptation) and the title.
+            If you choose the title from a drop down, a link will be created to that work; if you
+            don't choose from the dropdown, you will create the work you listed behind the scenes.</dd>
+          <dt>Identifiers</dt><dd>Add any kind of number that is used to catalog a work (ISBNs, DOIs,
+            Opus number, etc.)</dd>
+          <dt>Links</dt><dd>Any website that has information or a way to view the work should be
+            added</dd>
+        </dl> 
+        
+        <h3>Conversation</h3>
+        <p>
+          Generate a reading list by choosing a work from the dropdown that appears as you begin
+          typing. Because of how the data is looked up on the server, it is important to select
+          an item from the dropdown window.
+        </p>
+        <p>
+          A list of works that are tied together through their references field will be displayed.
+          If the list is shorter than expected, that is because not enough works have been linked
+          together. You can help expand the list by adding new works or fleshing out the references
+          sections for works that already exist.
+        </p>
       </section>
     </main>
     
