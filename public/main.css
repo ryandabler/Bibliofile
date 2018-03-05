@@ -137,11 +137,6 @@ section.splash h2 {
   margin-bottom: 0;
 }
 
-
-.flex-1:not(:last-of-type) {
-  margin-bottom: 20px;
-}
-
 .clickable {
   cursor: pointer;
 }
