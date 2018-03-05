@@ -168,7 +168,7 @@ section.splash ul {
 }
 
 .header * {
-  color: #555555;
+  color: inherit;
 }
 
 .header > * {
@@ -233,18 +233,18 @@ section.splash ul {
   background-color: #E7E7E7;
 }
 
-.header ul li.activated:focus {
+/* .header ul li.activated:focus {
   outline: 1px solid #555555;
-}
+} */
 
 .header .clickable {
   display: inline-block;
   padding: 10px;
 }
 
-.header .clickable:hover {
+/* .header .clickable:hover {
   background-color: #E7E7E7;
-}
+} */
 
 .header .fa-style {
   margin-bottom: 0;
