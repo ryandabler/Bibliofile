@@ -95,6 +95,23 @@ section.splash ul {
   cursor: default;
 }
 
+.logo-beta {
+  color: #CC2900;
+}
+
+.logo-creators, #banner-item-creator {
+  color: #8B008B;
+}
+
+.logo-works, #banner-item-work {
+  /* color: #DAA520; */
+  color: #af851a
+}
+
+.logo-convo {
+  color: #4682B4;
+}
+
   .selling-points:not(:last-of-type) {
   margin-bottom: 15px;
   padding-bottom: 15px;
@@ -162,6 +179,42 @@ section.splash ul {
 .header .logo {
   padding: 5px;
   margin-left: 15px;
+}
+
+.header .logo-creators.activated, .header .logo-creators:hover, .header .logo-creators:focus {
+  color: #8B008B;
+  background-color: #8B008B15;
+}
+
+.header .logo-creators.activated:focus {
+  outline: 1px solid #8B008B;
+}
+
+.header .logo-works.activated, .header .logo-works:hover, .header .logo-works:focus {
+  color: #af851a;
+  background-color: #af851a15;
+}
+
+.header .logo-works.activated:focus {
+  outline: 1px solid #af851a;
+}
+
+.header .logo-convo.activated, .header .logo-convo:hover, .header .logo-convo:focus {
+  color: #4682B4;
+  background-color: #4682B415;
+}
+
+.header .logo-convo.activated:focus {
+  outline: 1px solid #4682B4;
+}
+
+.header .logo-help.activated, .header .logo-help:hover, .header .logo-help:focus {
+  color: #CC2900;
+  background-color: #CC290015;
+}
+
+.header .logo-help.activated:focus {
+  outline: 1px solid #CC2900;
 }
 
 .header ul {

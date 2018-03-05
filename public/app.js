@@ -45,6 +45,8 @@ function updateItemsSection(data, htmlIdToAppendTo, dataType) {
   // Toggle conversation-specific views
   if (dataType === "conversation") {
     $("#items .toolbox").addClass("hidden");
+    $("#items #banner-items").removeClass("logo-works logo-creators");
+    $("#items #banner-items").addClass("logo-convo");
     $("#banner-items").text("Conversation");
     $("#convo-form").removeClass("hidden");
     $("#items > .results-list").empty();
@@ -53,6 +55,9 @@ function updateItemsSection(data, htmlIdToAppendTo, dataType) {
     newDisplay = "help";
     $("#items").addClass("hidden");
   } else {
+    $("#items #banner-items").removeClass("logo-works logo-creators logo-convo");
+    dataType === "works" ? $("#items #banner-items").addClass("logo-works")
+                         : $("#items #banner-items").addClass("logo-creators");
     $("#items .toolbox").removeClass("hidden");
     $("#items input").val("");
     $("#convo-form").addClass("hidden");
