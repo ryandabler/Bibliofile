@@ -434,6 +434,47 @@ form .toolbox .fa::before, .toolbox .fa::before {
   display: block;
 }
 
+#help h2 {
+  color: #CC2900;
+}
+
+#help h3, h4 {
+  margin-bottom: 0;
+}
+
+#help h3 {
+  font-size: 3vw;
+}
+
+#help h4 {
+  font-size: 2.5vw;
+}
+
+#help p {
+  margin-top: 0;
+}
+dl {
+  overflow:hidden;
+}
+dt, dd {
+  float: left;
+}
+
+dt {
+  font-weight: 700;
+  width: 30%
+}
+
+dt:after {
+  content: ":";
+}
+
+dd {
+  margin-left: 0;
+  margin-bottom: 5px;
+  width: 70%;
+}
+
 .error {
   margin-top: 18vw;
   padding-top: 50px;

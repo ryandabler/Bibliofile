@@ -36,6 +36,7 @@ function createListItem(main, addl=null, data_id=null, id=null, clickable=true, 
 function updateItemsSection(data, htmlIdToAppendTo, dataType) {
   // Set banner text
   const bannerText = dataType.charAt(0).toUpperCase() + dataType.slice(1, dataType.length);
+  let newDisplay = "items";
   $("#banner-items").text(bannerText);
   
   // Hide new item form
@@ -48,6 +49,9 @@ function updateItemsSection(data, htmlIdToAppendTo, dataType) {
     $("#convo-form").removeClass("hidden");
     $("#items > .results-list").empty();
     $("#form-new").addClass("hidden");
+  } else if (dataType === "help") {
+    newDisplay = "help";
+    $("#items").addClass("hidden");
   } else {
     $("#items .toolbox").removeClass("hidden");
     $("#items input").val("");
@@ -59,7 +63,7 @@ function updateItemsSection(data, htmlIdToAppendTo, dataType) {
   $("#nav-header").find(`[data-segment=${dataType}]`).addClass("activated").blur();
   
   // Switch to "items" section
-  switchDisplay("items");
+  switchDisplay(newDisplay);
   
   // Render list if data is supplied
   data ? renderListOfItemsToDOM(data, htmlIdToAppendTo) : null;
@@ -892,6 +896,9 @@ function loadSegment(event) {
                            .catch(err => console.log("error"));
   } else if (dataSeg === "conversation") {
     updateItemsSection(null, null, "conversation");
+  } else if (dataSeg === "help") {
+    // switchDisplay("help");
+    updateItemsSection(null, null, "help");
   }
 }
 
@@ -981,8 +988,9 @@ function initApp() {
   Object.seal(APP_STATE);
   
   addEventListeners();
-  getListOfItems("creators").then(processGETListData("creators"))
-                            .catch(err => console.log(err));
+  // loadSegment("help");
+  // getListOfItems("creators").then(processGETListData("creators"))
+  //                           .catch(err => console.log(err));
 }
 
 $(initApp);
