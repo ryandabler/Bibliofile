@@ -557,7 +557,7 @@ dd {
 .error .x {
   position: absolute;
   right: 4px;
-  top: 0;
+  top: 50px;
 }
 
 .error .text {
@@ -708,6 +708,10 @@ dd {
     margin-top: 7vw;
   }
   
+  .error .x {
+    top: 7vw;
+  }
+
   .error .top {
     padding-top: 4vw;
   }
@@ -742,6 +746,10 @@ dd {
     padding-top: 0;
   }
   
+  .error .x {
+    top: 0;
+  }
+
   .error .top {
     padding-top: 0;
   }
