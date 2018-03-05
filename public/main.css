@@ -70,7 +70,7 @@ section {
 }
 
 section:not(#items):not(#help) .banner-item {
-  padding-top: 50px;
+  padding-top: 30px;
 }
 
 section.splash h2 {
@@ -256,7 +256,7 @@ section.splash h2 {
 .banner {
   margin-top: 18vw;
   margin-left: 0;
-  margin-bottom: 5vw;
+  margin-bottom: 0;
   text-align: center;
 }
 
@@ -455,7 +455,7 @@ form .toolbox .fa::before, .toolbox .fa::before {
 #convo-form {
   position: relative;
   width: 75%;
-  margin: 0 auto;
+  margin: 15px auto 0 auto;
 }
 
 #convo-form input {
@@ -478,19 +478,14 @@ form .toolbox .fa::before, .toolbox .fa::before {
 
 #help h3, h4 {
   margin-bottom: 0;
-}
-
-#help h3 {
-  font-size: 3vw;
-}
-
-#help h4 {
-  font-size: 2.5vw;
-}
-
-#help p {
   margin-top: 0;
 }
+
+#help p, dl {
+  margin-top: 0;
+  font-size: 5vw;
+}
+
 dl {
   overflow:hidden;
 }
@@ -576,7 +571,7 @@ dd {
     font-size: 8vw;
   }
 
-  .selling-points p {
+  .selling-points p, #help p, dl {
     font-size: 2.2vw;
   }
 
@@ -643,8 +638,8 @@ dd {
     right: 20px;
   }
   
-  .item-heading {
-    font-size: 3vw;
+  .item-heading, h3 {
+    font-size: 4vw;
   }
   
   .table-cell {
@@ -667,7 +662,7 @@ dd {
   .error .x {
     top: 7vw;
   }
-
+  
   #srch-over-contrib {
     font-size: 1.5vw;
   }
@@ -703,7 +698,7 @@ dd {
     display: block;
   }
   
-  section:not(#items) .banner-item {
+  section:not(#items):not(#help) .banner-item {
     padding-top: 0;
   }
   
@@ -715,7 +710,11 @@ dd {
     top: 0;
   }
 
-  .selling-points p {
+  .selling-points p, #help p, dl {
     font-size: 2vw;
+  }
+
+  .item-heading, h3 {
+    font-size: 3vw;
   }
 }
