@@ -69,7 +69,7 @@ section {
   padding: 0 15px;
 }
 
-section:not(#items) .banner-item {
+section:not(#items):not(#help) .banner-item {
   padding-top: 50px;
 }
 
@@ -581,7 +581,7 @@ dd {
     padding: 0 15px;
   }
   
-  section:not(#items) .banner-item {
+  section:not(#items):not(#help) .banner-item {
     padding-top: 4vw;
   }
 
