@@ -991,11 +991,7 @@ function guid() {
 
 function initApp() {
   Object.seal(APP_STATE);
-  
   addEventListeners();
-  // loadSegment("help");
-  // getListOfItems("creators").then(processGETListData("creators"))
-  //                           .catch(err => console.log(err));
 }
 
 $(initApp);
