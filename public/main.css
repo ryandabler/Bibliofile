@@ -391,7 +391,7 @@ form .toolbox .fa::before, .toolbox .fa::before {
   margin-right: 10px;
 }
 
-.js-opt-list-item {
+.opt-list-item {
   position: absolute;
   background-color: #FFFFFF;
   right: 5px;
@@ -399,7 +399,7 @@ form .toolbox .fa::before, .toolbox .fa::before {
   transform: translateY(-50%);
 }
 
-.js-opt-list-item .fa:not(:last-child) {
+.opt-list-item .fa:not(:last-child) {
   margin-right: 5px;
 }
 
@@ -417,7 +417,7 @@ form .toolbox .fa::before, .toolbox .fa::before {
   margin-bottom: 0;
 }
 
-#item-works-creator-list .js-opt-list-item {
+#item-works-creator-list .opt-list-item {
   display: none;
 }
 
@@ -634,7 +634,7 @@ dd {
     padding: 15px 20px;
   }
   
-  .js-opt-list-item {
+  .opt-list-item {
     right: 20px;
   }
   
